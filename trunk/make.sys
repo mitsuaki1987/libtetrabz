@@ -1,7 +1,11 @@
 
-TOPDIR = /home/7241845860/programs/libtetrabz/trunk
+TOPDIR = /home/kawamura/program/libtetrabz/trunk
 
-MPIF90 = mpiifort
-F90 = ifort
+MPIF90 = mpif90
+#MPIF90 = mpiifort
 
-FFLAGS  = -openmp -xAVX -traceback -CB #-g -check all
+F90 = gfortran
+#F90 = ifort
+
+FFLAGS  = -O3 -fopenmp -fbacktrace
+#FFLAGS  = -xAVX -openmp -traceback #-g -check all

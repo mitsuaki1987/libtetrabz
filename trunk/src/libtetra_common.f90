@@ -786,6 +786,7 @@ subroutine libtetra_doubledelta2(ej,w)
      call libtetra_sort(5, 3, tmp)
      !
      e(1:3) = tmp(1,1:3)
+     w(1:4, ib, 1:3) = 0d0
      !
      do ii = 1, 3
         a(1:3,ii) = (0d0 - e(ii)) / (e(1:3) - e(ii))
