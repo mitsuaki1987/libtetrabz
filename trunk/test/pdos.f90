@@ -77,7 +77,7 @@ end subroutine read_dat
 !
 subroutine calc_dos()
   !
-  use libtetra_mod, only : libtetra
+  use libtetra_mod, only : libtetra_dos
   use global, only : ng, nb, bvec, eig, dos, ne, nwfc, wfc, e0
   implicit none
   !
@@ -89,7 +89,7 @@ subroutine calc_dos()
   ef = 0d0
   !
   allocate(wdos(ne,nb,ng(1),ng(2),ng(3)))
-  call libtetra("dos", 2, ng, ng, nb, ne, ef, nelec, bvec, e0, eig, eig, wdos)
+  call libtetra("dos", 2, ng, nb, ne, bvec, e0, eig, wdos)
   !
   dos(1:nwfc,1:ne) = 0d0
   !
@@ -121,7 +121,7 @@ end subroutine calc_dos
 !
 subroutine calc_occ()
   !
-  use libtetra_mod, only : libtetra
+  use libtetra_mod, only : libtetra_occ, libtetra_occ_int
   use global, only : ng, nb, bvec, eig, nwfc, wfc
   implicit none
   !
@@ -129,12 +129,44 @@ subroutine calc_occ()
   real(8) :: nelec, ef, occ(nwfc)
   real(8),allocatable :: wocc(:,:,:,:)
   !
-  do iexp = 1, 6
+  allocate(wocc(nb,ng(1),ng(2),ng(3))
+  call libtetra_occ("occ", 2, ng, nb, bvec, eig, wocc)
+  !
+  occ(1:nwfc) = 0d0
+  !
+  !$OMP PARALLEL DEFAULT(NONE) &
+  !$OMP & SHARED(ng,nb,nwfc,occ,wfc,wocc) &
+  !$OMP & PRIVATE(i1,i2,i3,ib)
+  !
+  !$OMP DO REDUCTION(+: occ)
+  do i3 = 1, ng(3)
+     do i2 = 1, ng(2)
+        do i1 = 1, ng(1)
+           do ib = 1, nb
+              occ(1:nwfc) = occ(1:nwfc) + wfc(1:nwfc, ib, i1, i2, i3) &
+              &                         *  wocc(      ib, i1, i2, i3)
+           end do
+        end do
+     end do
+  end do
+  !$OMP END DO
+  !$OMP END PARALLEL
+  !
+  deallocate(wocc)
+  !
+  write(*,*)
+  write(*,*) "# WFC,  OCC "
+  do iwfc = 1, nwfc
+     write(*,*) iwfc, occ(iwfc)
+  end do
+  write(*,*)
+  !
+  do iexp = 1, 5
      !
-     n = 2**(iexp - 1)
+     n = 2**iexp
      !
      allocate(wocc(nb,ng(1) /n,ng(2)/n,ng(3)/n))
-     call libtetra("occ", 2, ng, ng / n, nb, 1, ef, nelec, bvec, (/0d0/), eig, eig, wocc)
+     call libtetra_occ_int("occ", 2, ng, ng / n, nb, bvec, eig, wocc)
      !
      occ(1:nwfc) = 0d0
      !

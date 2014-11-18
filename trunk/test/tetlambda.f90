@@ -93,6 +93,7 @@ end subroutine read_elph
 !
 subroutine calc_dos()
   !
+  use libtetra, only : libtetrabz_fermieng, libtetrabz_dos, libtetrabz_doubledelta
   use global, only : ng, nb, nk, nelec, bvec, eig1, eig2, g2, lam, nm, dos
   !
   implicit none
@@ -103,12 +104,12 @@ subroutine calc_dos()
   allocate(wlam(nb * nk))
   !
   ef = 0d0
-  call libtetra("fermieng", 2, ng, ng, nb, 1, ef, nelec, bvec, (/0d0/), eig1, eig2, wlam)
+  call libtetrabz_fermieng(2, ng, nb, ef, nelec, bvec, eig1, wlam)
   eig1(1:nb,1:nk) = eig1(1:nb,1:nk) - ef
   eig2(1:nb,1:nk) = eig2(1:nb,1:nk) - ef
   write(*,*) "  Fermi energy [Ry]", -minval(eig1(1:nb,1:nk))
   !
-  call libtetra("dos", 2, ng, ng, nb, 1, ef, nelec, bvec, (/0d0/), eig1, eig2, wlam)
+  call libtetrabz_dos(2, ng, nb, 1, bvec, (/0d0/), eig1, wlam)
   !
   dos = sum(wlam(1:nb * nk))
   write(*,'(a,10e18.8)') "  DOS[/Ryd/cell] = ", dos
@@ -116,7 +117,7 @@ subroutine calc_dos()
   deallocate(wlam)
   !
   allocate(wlam(nb * nb * nk), lam(nm))
-  call libtetra("doubledelta", 2, ng, ng, nb, 1, ef, nelec, bvec, (/0d0/), eig1, eig2, wlam)
+  call libtetrabz_doubledelta(2, ng, nb, bvec, eig1, eig2, wlam)
   !
   lam(1:nm) = matmul(g2(1:nm, 1:nb * nb * nk), wlam(1:nb * nb * nk))
   !
