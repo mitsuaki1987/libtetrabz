@@ -36,7 +36,7 @@ end module libtetra_mpi_mod
 !
 subroutine libtetra_mpi(job,ltetra_0,comm_0,ngd,ngc,nb_0,ne_0,ef_0,nelec_0,bvec_0,e0,eig1,eig2,wght)
   !
-  use mpi, only : MPI_ALLREDUCE, MPI_IN_PLACE, MPI_DOUBLE_PRECISION, MPI_SUM
+  use mpi, only : MPI_IN_PLACE, MPI_DOUBLE_PRECISION, MPI_SUM
   use libtetra_common, only : ltetra, ng, nb, ne, ef, nk, indx1, indx2, indx3, bvec, &
   &                           libtetra_initialize, libtetra_interpol_weight, &
   &                           libtetra_occ, libtetra_dos, libtetra_doubledelta, &
@@ -66,7 +66,7 @@ subroutine libtetra_mpi(job,ltetra_0,comm_0,ngd,ngc,nb_0,ne_0,ef_0,nelec_0,bvec_
   nelec = nelec_0
   bvec(1:3,1:3) = bvec_0(1:3,1:3)
   !
-  lintp = all(ngd(1:3) == ngc(1:3))
+  lintp = any(ngd(1:3) /= ngc(1:3))
   !
   call libtetra_initialize()
   call libtetra_mpi_kgrid()
@@ -183,7 +183,7 @@ end subroutine libtetra_mpi
 !
 subroutine libtetra_mpi_fermieng(eig,occ)
   !
-  use mpi, only : MPI_ALLREDUCE, MPI_IN_PLACE, MPI_DOUBLE_PRECISION, MPI_SUM
+  use mpi, only : MPI_IN_PLACE, MPI_DOUBLE_PRECISION, MPI_SUM
   use libtetra_common, only : nelec, ef, nb, nk, ef, libtetra_occ
   use libtetra_mpi_mod, only : comm
   implicit none
@@ -199,7 +199,7 @@ subroutine libtetra_mpi_fermieng(eig,occ)
   elw = minval(eig(1:nb,1:nk))
   eup = maxval(eig(1:nb,1:nk))
   !
-  !      Bisection method
+  ! Bisection method
   !
   do iter = 1, maxiter
      !

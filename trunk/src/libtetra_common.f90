@@ -667,7 +667,7 @@ subroutine libtetra_doubledelta(eig1,eig2,ddel)
         tmp(2:1 + nb,               1:4) = ej(1:nb,1:4)
         tmp(2 + nb:1 + nb + 4 * nb, 1:4) = reshape(w0(1:4,1:nb,1:4), (/4 * nb, 4/))
         !
-        call sort(nn, 4, tmp)
+        call libtetra_sort(nn, 4, tmp)
         !
         e(1:4) = tmp(1, 1:4)
         !
@@ -783,7 +783,7 @@ subroutine libtetra_doubledelta2(ej,w)
      tmp(  1, 1:3) = ej(     ib, 1:3)
      tmp(2:5, 1:3) = w(1:4, ib, 1:3)
      !
-     call sort(5, 3, tmp)
+     call libtetra_sort(5, 3, tmp)
      !
      e(1:3) = tmp(1,1:3)
      !
@@ -3303,13 +3303,13 @@ end function libtetra_polimg_1211
 !
 ! Interpolate integration weight
 !
-subroutine libtetra_interpol_weight(nb,ngc,ngd,bvec,wc,wd)
+subroutine libtetra_interpol_weight(nb,ngc,ngd,wc,wd)
   !
   use libtetra_common, only : nk0, indx3, libtetra_interpol_weight2
   implicit none
   !
   integer,intent(in) :: nb, ngc(3), ngd(3)
-  real(8),intent(in) :: bvec(3,3), wd(nb,nk0)
+  real(8),intent(in) :: wd(nb,nk0)
   real(8),intent(out) :: wc(nb,product(ngc(1:3)))
   !
   integer :: i1, i2, i3, ik, nkc, nkd
@@ -3345,7 +3345,7 @@ end subroutine libtetra_interpol_weight
 !
 ! first or third order interpolation of weights
 !
-subroutine litetra_interpol_weight2(nk,nb,ng,ko,wi,wo)
+subroutine libtetra_interpol_weight2(nk,nb,ng,ko,wi,wo)
   !
   use libtetra_common, only : ltetra, ivvec
   implicit none
@@ -3437,4 +3437,4 @@ subroutine litetra_interpol_weight2(nk,nb,ng,ko,wi,wo)
      ! 
   end if
   !
-end subroutine litetra_interpol_weight2
+end subroutine libtetra_interpol_weight2

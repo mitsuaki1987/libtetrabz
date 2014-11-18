@@ -59,7 +59,7 @@ subroutine libtetra(job,ltetra_0,ngd,ngc,nb_0,ne_0,ef_0,nelec_0,bvec_0,e0,eig1,e
   nelec = nelec_0
   bvec(1:3,1:3) = bvec_0(1:3,1:3)
   !
-  lintp = all(ngd(1:3) == ngc(1:3))
+  lintp = any(ngd(1:3) /= ngc(1:3))
   !
   call libtetra_initialize()
   call libtetra_kgrid()
