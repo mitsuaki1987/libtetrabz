@@ -1,0 +1,7 @@
+
+TOPDIR = /home/7241845860/programs/libtetrabz/trunk
+
+MPIF90 = mpiifort
+F90 = ifort
+
+FFLAGS  = -openmp -xAVX -traceback -CB #-g -check all

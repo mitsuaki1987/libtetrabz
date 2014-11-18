@@ -31,12 +31,14 @@ end module libtetra_mod
 !
 subroutine libtetra(job,ltetra_0,ngd,ngc,nb_0,ne_0,ef_0,nelec_0,bvec_0,e0,eig1,eig2,wght)
   !
-  use libtetra_common, only : ltetra, ng, nb, ne, ef, nk, indx1, indx2, indx3, bvec, &
+  use libtetra_common, only : ltetra, ng, nb, ne, ef, nk, indx1, indx2, indx3, bvec, nelec, &
   &                           libtetra_initialize, libtetra_interpol_weight, &
   &                           libtetra_occ, libtetra_dos, libtetra_doubledelta, &
   &                           libtetra_occstep, libtetra_polstat, libtetra_fermigr, libtetra_polimg
   !
   use libtetra_mod, only : libtetra_fermieng, libtetra_kgrid
+  !
+  implicit none
   !
   character(*) :: job
   integer,intent(in) :: ltetra_0, ngd(3), ngc(3), nb_0, ne_0
