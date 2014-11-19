@@ -13,9 +13,6 @@ module libtetrabz_common
   & ivvec(3,20,6)   !
   !
   real(8),save :: &
-  & nelec,        & !
-  & ef,           & !
-  & bvec(3,3),    & !
   & wlsm(4,20)      !
   !
   integer,save,allocatable :: &
@@ -25,13 +22,13 @@ module libtetrabz_common
   !
   interface
      !
-     subroutine libtetrabz_initialize()
+     subroutine libtetrabz_initialize(bvec)
        real(8),intent(in) :: bvec(3,3)
      end subroutine libtetrabz_initialize
      !
-     subroutine libtetrabz_occ1(eig,occ)
+     subroutine libtetrabz_occ1(ef,eig,occ)
        import nb, nk, nk0
-       real(8),intent(in) :: eig(nb,nk)
+       real(8),intent(in) :: ef, eig(nb,nk)
        real(8),intent(out) :: occ(nb,nk0)
      end subroutine libtetrabz_occ1
      !
@@ -339,12 +336,12 @@ end subroutine libtetrabz_initialize
 !
 ! Main subroutine for occupation : Theta(EF - E1)
 !
-subroutine libtetrabz_occ1(eig,occ)
+subroutine libtetrabz_occ1(ef,eig,occ)
   !
-  use libtetrabz_common, only : nb, nk, nk0, fst, lst, wlsm, indx1, indx2, ef, libtetrabz_sort
+  use libtetrabz_common, only : nb, nk, nk0, fst, lst, wlsm, indx1, indx2, libtetrabz_sort
   implicit none
   !
-  real(8),intent(in) :: eig(nb,nk)
+  real(8),intent(in) :: ef, eig(nb,nk)
   real(8),intent(out) :: occ(nb,nk0)
   !
   integer :: it, ib, ii

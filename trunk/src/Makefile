@@ -5,17 +5,17 @@ all:libtetrabz.a libtetrabz_mpi.a
 clean:
 	rm -f *.a *.o *.mod
 
-libtetrabz.a:libtetra_common.o libtetra.o
-	ar cr $@ libtetra_common.o libtetra.o
+libtetrabz.a:libtetrabz_common.o libtetrabz.o
+	ar cr $@ libtetrabz_common.o libtetrabz.o
 
-libtetrabz_mpi.a:libtetra_common.o libtetra_mpi.o
-	ar cr $@ libtetra_common.o libtetra_mpi.o
+libtetrabz_mpi.a:libtetrabz_common.o libtetrabz_mpi.o
+	ar cr $@ libtetrabz_common.o libtetrabz_mpi.o
 
-libtetra.o:libtetra_common.o libtetra.f90
-	$(F90) libtetra.f90 $(FFLAGS) -c
+libtetrabz.o:libtetrabz_common.o libtetrabz.f90
+	$(F90) libtetrabz.f90 $(FFLAGS) -c
 
-libtetra_mpi.o:libtetra_common.o libtetra_mpi.f90
-	$(MPIF90) libtetra_mpi.f90 $(FFLAGS) -c
+libtetrabz_mpi.o:libtetrabz_common.o libtetrabz_mpi.f90
+	$(MPIF90) libtetrabz_mpi.f90 $(FFLAGS) -c
 
-libtetra_common.o:libtetra_common.f90
-	$(F90) libtetra_common.f90 $(FFLAGS) -c
+libtetrabz_common.o:libtetrabz_common.f90
+	$(F90) libtetrabz_common.f90 $(FFLAGS) -c

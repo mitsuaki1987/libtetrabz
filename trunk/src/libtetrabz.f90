@@ -1,195 +1,153 @@
-module libtetrabz_mod
-  !
-  use libtetrabz_common, only : nb, nk
+module libtetrabz
   !
   interface
      !
-     subroutine libtetrabz(job,ltetra_0,ngd,ngc,nb_0,ne_0,ef_0,nelec_0,bvec_0,e0,eig1,eig2,wght)
-       character(*) :: job
-       integer,intent(in) :: ltetra_0, ngd(3), ngc(3), nb_0, ne_0
-       real(8),intent(in) :: bvec_0(3,3), nelec_0
-       real(8),intent(in) :: e0(ne_0)
-       real(8),intent(in) :: eig1(nb_0,product(ngd(1:3))), eig2(nb_0,product(ngd(1:3)))
-       real(8),intent(inout) :: ef_0
-       real(8),intent(out) :: wght(1:*)
-     end subroutine libtetrabz
+     subroutine libtetrabz_occ(ltetra0,bvec,nb0,nge,eig,ngw,wght0)
+       integer,intent(in) :: ltetra0, nge(3), ngw(3), nb0
+       real(8),intent(in) :: bvec(3,3)
+       real(8),intent(in) :: eig(nb0,product(nge(1:3)))
+       real(8),intent(out) :: wght0(nb0,product(ngw(1:3)))
+     end subroutine libtetrabz_occ
      !
-     subroutine libtetrabz_fermieng(eig,occ)
-       import nb, nk
-       real(8),intent(in) :: eig(nb,nk)
-       real(8),intent(out) :: occ(nb,nk)
+     subroutine libtetrabz_fermieng(ltetra0,bvec,nb0,nge,eig,ngw,wght0,ef,nelec)
+       integer,intent(in) :: ltetra0, nge(3), ngw(3), nb0
+       real(8),intent(in) :: bvec(3,3), nelec
+       real(8),intent(in) :: eig(nb0,product(nge(1:3)))
+       real(8),intent(out) :: ef
+       real(8),intent(out) :: wght0(nb0,product(ngw(1:3)))
      end subroutine libtetrabz_fermieng
+     !
+     subroutine libtetrabz_dos(ltetra0,bvec,nb0,nge,eig,ngw,wght0,ne0,e0)
+       integer,intent(in) :: ltetra0, nge(3), ngw(3), nb0, ne0
+       real(8),intent(in) :: bvec(3,3), e0(ne0)
+       real(8),intent(in) :: eig(nb0,product(nge(1:3)))
+       real(8),intent(out) :: wght0(ne0,nb0,product(ngw(1:3)))
+     end subroutine libtetrabz_dos
+     !
+     subroutine libtetrabz_doubledelta(ltetra0,bvec,nb0,nge,eig1,eig2,ngw,wght0)
+       integer,intent(in) :: ltetra0, nge(3), ngw(3), nb0
+       real(8),intent(in) :: bvec(3,3)
+       real(8),intent(in) :: eig1(nb0,product(nge(1:3))), eig2(nb0,product(nge(1:3)))
+       real(8),intent(out) :: wght0(nb0,nb0,product(ngw(1:3)))
+     end subroutine libtetrabz_doubledelta
+     !
+     subroutine libtetrabz_occstep(ltetra0,bvec,nb0,nge,eig1,eig2,ngw,wght0)
+       integer,intent(in) :: ltetra0, nge(3), ngw(3), nb0
+       real(8),intent(in) :: bvec(3,3)
+       real(8),intent(in) :: eig1(nb0,product(nge(1:3))), eig2(nb0,product(nge(1:3)))
+       real(8),intent(out) :: wght0(nb0,nb0,product(ngw(1:3)))
+     end subroutine libtetrabz_occstep
+     !
+     subroutine libtetrabz_polstat(ltetra0,bvec,nb0,nge,eig1,eig2,ngw,wght0)
+       integer,intent(in) :: ltetra0, nge(3), ngw(3), nb0
+       real(8),intent(in) :: bvec(3,3)
+       real(8),intent(in) :: eig1(nb0,product(nge(1:3))), eig2(nb0,product(nge(1:3)))
+       real(8),intent(out) :: wght0(nb0,nb0,product(ngw(1:3)))
+     end subroutine libtetrabz_polstat
+     !
+     subroutine libtetrabz_fermigr(ltetra0,bvec,nb0,nge,eig1,eig2,ngw,wght0,ne0,e0)
+       integer,intent(in) :: ltetra0, nge(3), ngw(3), nb0, ne0
+       real(8),intent(in) :: bvec(3,3), e0(ne0)
+       real(8),intent(in) :: eig1(nb0,product(nge(1:3))), eig2(nb0,product(nge(1:3)))
+       real(8),intent(out) :: wght0(ne0,nb0,nb0,product(ngw(1:3)))
+     end subroutine libtetrabz_fermigr
+     !
+     subroutine libtetrabz_polimg(ltetra0,bvec,nb0,nge,eig1,eig2,ngw,wght0,ne0,e0)
+       integer,intent(in) :: ltetra0, nge(3), ngw(3), nb0, ne0
+       real(8),intent(in) :: bvec(3,3), e0(ne0)
+       real(8),intent(in) :: eig1(nb0,product(nge(1:3))), eig2(nb0,product(nge(1:3)))
+       real(8),intent(out) :: wght0(2,ne0,nb0,nb0,product(ngw(1:3)))
+     end subroutine libtetrabz_polimg
      !
      subroutine libtetrabz_kgrid()
      end subroutine libtetrabz_kgrid
      !
   end interface
   !
-end module libtetrabz_mod
+end module libtetrabz
 !
-! Driver routine of libtetrabz
+! Compute occupation
 !
-subroutine libtetrabz(job,ltetra_0,ngd,ngc,nb_0,ne_0,ef_0,nelec_0,bvec_0,e0,eig1,eig2,wght)
+subroutine libtetrabz_occ(ltetra0,bvec,nb0,nge,eig,ngw,wght0)
   !
-  use libtetrabz_common, only : ltetra, ng, nb, ne, ef, nk, indx1, indx2, indx3, bvec, nelec, &
+  use libtetrabz_common, only : ltetra, ng, nb, nk0, indx1, indx2, indx3, &
   &                           libtetrabz_initialize, libtetrabz_interpol_weight, &
-  &                           libtetrabz_occ, libtetrabz_dos, libtetrabz_doubledelta, &
-  &                           libtetrabz_occstep, libtetrabz_polstat, libtetrabz_fermigr, libtetrabz_polimg
+  &                           libtetrabz_occ1
   !
-  use libtetrabz_mod, only : libtetrabz_fermieng, libtetrabz_kgrid
+  use libtetrabz, only : libtetrabz_kgrid
   !
   implicit none
   !
-  character(*) :: job
-  integer,intent(in) :: ltetra_0, ngd(3), ngc(3), nb_0, ne_0
-  real(8),intent(in) :: bvec_0(3,3), nelec_0
-  real(8),intent(in) :: e0(ne_0)
-  real(8),intent(in) :: eig1(nb_0,product(ngd(1:3))), eig2(nb_0,product(ngd(1:3)))
-  real(8),intent(inout) :: ef_0
-  real(8),intent(out) :: wght(1:*)
+  integer,intent(in) :: ltetra0, nge(3), ngw(3), nb0
+  real(8),intent(in) :: bvec(3,3)
+  real(8),intent(in) :: eig(nb0,product(nge(1:3)))
+  real(8),intent(out) :: wght0(nb0,product(ngw(1:3)))
   !
-  integer :: nn
-  logical :: lintp
-  real(8),allocatable :: wghtd(:,:)
+  integer :: ierr, nn
+  real(8),allocatable :: wght1(:,:)
   !
-  ltetra = ltetra_0
-  nb = nb_0
-  ne = ne_0
-  ng(1:3) = ngd(1:3)
-  nk = product(ngd(1:3))
-  ef = ef_0
-  nelec = nelec_0
-  bvec(1:3,1:3) = bvec_0(1:3,1:3)
+  ltetra = ltetra0
+  nb = nb0
+  ng(1:3) = nge(1:3)
+  nn = nb
   !
-  lintp = any(ngd(1:3) /= ngc(1:3))
-  !
-  call libtetrabz_initialize()
+  call libtetrabz_initialize(bvec)
   call libtetrabz_kgrid()
   !
-  if(trim(job) == "fermieng") then
+  if(any(nge(1:3) /= ngw(1:3))) then
      !
-     nn = nb
+     allocate(wght1(nn, nk0))
+     call libtetrabz_occ1(0d0,eig,wght1)
      !
-     if(lintp) then
-        allocate(wghtd(nn, nk))
-        call libtetrabz_fermieng(eig1,wghtd)
-     else
-        call libtetrabz_fermieng(eig1,wght)
-     end if
-     !
-     ef_0 = ef
-     !
-  else if(trim(job) == "occ") then
-     !
-     nn = nb
-     !
-     if(lintp) then
-        allocate(wghtd(nn, nk))
-        call libtetrabz_occ(eig1,wghtd)
-     else
-        call libtetrabz_occ(eig1,wght)
-     end if
-     !
-  else if(trim(job) == "dos") then
-     !
-     nn = nb * ne
-     !
-     if(lintp) then
-        allocate(wghtd(nn, nk))
-        call libtetrabz_dos(eig1,e0,wghtd)
-     else
-        call libtetrabz_dos(eig1,e0,wght)
-     end if
-     !
-  else if(trim(job) == "doubledelta") then
-     !
-     nn = nb * nb
-     !
-     if(lintp) then
-        allocate(wghtd(nn, nk))
-        call libtetrabz_doubledelta(eig1,eig2,wghtd)
-     else
-        call libtetrabz_doubledelta(eig1,eig2,wght)
-     end if
-     !
-  else if(trim(job) == "occstep") then
-     !
-     nn = nb * nb
-     !
-     if(lintp) then
-        allocate(wghtd(nn, nk))
-        call libtetrabz_occstep(eig1,eig2,wghtd)
-     else
-        call libtetrabz_occstep(eig1,eig2,wght)
-     end if
-     !
-  else if(trim(job) == "polstat") then
-     !
-     nn = nb * nb
-     !
-     if(lintp) then
-        allocate(wghtd(nn, nk))
-        call libtetrabz_polstat(eig1,eig2,wghtd)
-     else
-        call libtetrabz_polstat(eig1,eig2,wght)
-     end if
-     !
-  else if(trim(job) == "fermigr") then
-     !
-     nn = ne * nb * nb
-     !
-     if(lintp) then
-        allocate(wghtd(nn, nk))
-        call libtetrabz_fermigr(eig1,eig2,e0,wghtd)
-     else
-        call libtetrabz_fermigr(eig1,eig2,e0,wght)
-     end if
-     !
-  else if(trim(job) == "polimg") then
-     !
-     nn = 2 * ne * nb * nb
-     !
-     if(lintp) then
-        allocate(wghtd(nn, nk))
-        call libtetrabz_polimg(eig1,eig2,e0,wghtd)
-     else
-        call libtetrabz_polimg(eig1,eig2,e0,wght)
-     end if
+     call libtetrabz_interpol_weight(nn,ngw,nge,wght0,wght1)
+     deallocate(wght1)
      !
   else
-     !
-     stop "Invalid job"
-     !
-  end if
-  !
-  if(lintp) then
-     call libtetrabz_interpol_weight(nn,ngc,ngd,wght,wghtd)
-     deallocate(wghtd)
+     call libtetrabz_occ1(0d0,eig,wght0)
   end if
   !
   deallocate(indx1, indx2, indx3)
   !
-end subroutine libtetrabz
+end subroutine libtetrabz_occ
 !
 ! Calculate Fermi energy
 !
-subroutine libtetrabz_fermieng(eig,occ)
+subroutine libtetrabz_fermieng(ltetra0,bvec,nb0,nge,eig,ngw,wght0,ef,nelec)
   !
-  use libtetrabz_common, only : nelec, ef, nb, nk, ef, libtetrabz_occ
+  use libtetrabz_common, only : ltetra, ng, nb, nk, nk0, indx1, indx2, indx3, &
+  &                           libtetrabz_initialize, libtetrabz_interpol_weight, &
+  &                           libtetrabz_occ1
+  !
+  use libtetrabz, only : libtetrabz_kgrid
+  !
   implicit none
   !
-  real(8),intent(in) :: eig(nb,nk)
-  real(8),intent(out) :: occ(nb,nk)
+  integer,intent(in) :: ltetra0, nge(3), ngw(3), nb0
+  real(8),intent(in) :: bvec(3,3), nelec
+  real(8),intent(in) :: eig(nb0,product(nge(1:3)))
+  real(8),intent(out) :: ef
+  real(8),intent(out) :: wght0(nb0,product(ngw(1:3)))
+  !
+  integer :: ierr, nn
+  real(8),allocatable :: wght1(:,:)
   !
   integer :: iter, maxiter = 300
   real(8) :: elw, eup, sumkmid, eps= 1.0d-10
   !
-  ! find bounds for the Fermi energy.
+  ltetra = ltetra0
+  nb = nb0
+  ng(1:3) = nge(1:3)
+  nn = nb
+  !
+  call libtetrabz_initialize(bvec)
+  call libtetrabz_kgrid()
+  !
+  if(any(nge(1:3) /= ngw(1:3))) allocate(wght1(nn, nk0))
   !
   elw = minval(eig(1:nb,1:nk))
   eup = maxval(eig(1:nb,1:nk))
   !
-  !      Bisection method
+  ! Bisection method
   !
   do iter = 1, maxiter
      !
@@ -197,9 +155,14 @@ subroutine libtetrabz_fermieng(eig,occ)
      !
      ! Calc. # of electrons 
      !
-     call libtetrabz_occ(eig,occ)
+     if(any(nge(1:3) /= ngw(1:3))) then
+        call libtetrabz_occ1(ef, eig,wght1)
+        sumkmid = sum(wght1(1:nb,1:nk0)) * 2d0
+     else
+        call libtetrabz_occ1(ef, eig,wght0)
+        sumkmid = sum(wght0(1:nb,1:nk0)) * 2d0
+     end if
      !
-     sumkmid = sum(occ(1:nb,1:nk)) * 2d0
      !
      ! convergence check
      !
@@ -215,75 +178,280 @@ subroutine libtetrabz_fermieng(eig,occ)
   !
   if(iter >= maxiter) stop "libtetrabz_omp_fermieng"
   !
-end subroutine libtetrabz_fermieng
-!
-! Occupation
-!
-subroutine libtetrabz_occ(ltetra_0,ng_0,nb_0,bvec_0,eig1,wght)
-  !
-  use libtetrabz_common, only : ltetra, ng, nb, nk, indx1, indx2, indx3, bvec, &
-  &                           libtetrabz_initialize, libtetrabz_occ1
-  !
-  use libtetrabz_mod, only : libtetrabz_kgrid
-  !
-  implicit none
-  !
-  integer,intent(in) :: ltetra_0, ng_0(3), nb_0
-  real(8),intent(in) :: bvec_0(3,3)
-  real(8),intent(in) :: eig1(nb_0,product(ng_0(1:3)))
-  real(8),intent(out) :: wght(nb_0,product(ng_0(1:3)))
-  !
-  ltetra = ltetra_0
-  nb = nb_0
-  ng(1:3) = ng_0(1:3)
-  nk = product(ng_0(1:3))
-  bvec(1:3,1:3) = bvec_0(1:3,1:3)
-  !
-  call libtetrabz_initialize()
-  call libtetrabz_kgrid()
-  !
-  call libtetrabz_occ1(eig1,wght)
+  if(any(nge(1:3) /= ngw(1:3))) then
+     call libtetrabz_interpol_weight(nn,ngw,nge,wght0,wght1)
+     deallocate(wght1)
+  end if
   !
   deallocate(indx1, indx2, indx3)
   !
-end subroutine libtetrabz_occ
+end subroutine libtetrabz_fermieng
 !
-! Occupation (interpolated)
+! Compute DOS
 !
-subroutine libtetrabz_occ_int(ltetra_0,ngd,ngc,nb_0,bvec_0,eig1,wght)
+subroutine libtetrabz_dos(ltetra0,bvec,nb0,nge,eig,ngw,wght0,ne0,e0)
   !
-  use libtetrabz_common, only : ltetra, ng, nb, nk, indx1, indx2, indx3, bvec, &
+  use libtetrabz_common, only : ltetra, ng, nb, nk0, indx1, indx2, indx3, &
   &                           libtetrabz_initialize, libtetrabz_interpol_weight, &
-  &                           libtetrabz_occ1
+  &                           libtetrabz_dos1, ne
   !
-  use libtetrabz_mod, only : libtetrabz_kgrid
+  use libtetrabz, only : libtetrabz_kgrid
   !
   implicit none
   !
-  integer,intent(in) :: ltetra_0, ngd(3), ngc(3), nb_0
-  real(8),intent(in) :: bvec_0(3,3)
-  real(8),intent(in) :: eig1(nb_0,product(ngd(1:3)))
-  real(8),intent(out) :: wght(nb_0,product(ngd(1:3)))
+  integer,intent(in) :: ltetra0, nge(3), ngw(3), nb0, ne0
+  real(8),intent(in) :: bvec(3,3), e0(ne0)
+  real(8),intent(in) :: eig(nb0,product(nge(1:3)))
+  real(8),intent(out) :: wght0(ne0,nb0,product(ngw(1:3)))
   !
-  real(8),allocatable :: wghtd(:,:)
+  integer :: ierr, nn
+  real(8),allocatable :: wght1(:,:)
   !
-  ltetra = ltetra_0
-  nb = nb_0
-  ng(1:3) = ngd(1:3)
-  nk = product(ngd(1:3))
-  bvec(1:3,1:3) = bvec_0(1:3,1:3)
+  ltetra = ltetra0
+  nb = nb0
+  ng(1:3) = nge(1:3)
+  nn = ne * nb
   !
-  call libtetrabz_initialize()
+  call libtetrabz_initialize(bvec)
   call libtetrabz_kgrid()
   !
-  allocate(wghtd(nn, nk))
-  call libtetrabz_occ(eig1,wghtd)
+  if(any(nge(1:3) /= ngw(1:3))) then
+     !
+     allocate(wght1(nn, nk0))
+     call libtetrabz_dos1(eig,e0,wght1)
+     !
+     call libtetrabz_interpol_weight(nn,ngw,nge,wght0,wght1)
+     deallocate(wght1)
+     !
+  else
+     call libtetrabz_dos1(eig,e0,wght0)
+  end if
   !
-  call libtetrabz_interpol_weight(nn,ngc,ngd,wght,wghtd)
+  deallocate(indx1, indx2, indx3)
   !
-  deallocate(wghtd, indx1, indx2, indx3)
+end subroutine libtetrabz_dos
+!
+! Compute doubledelta
+!
+subroutine libtetrabz_doubledelta(ltetra0,bvec,nb0,nge,eig1,eig2,ngw,wght0)
   !
-end subroutine libtetrabz_occ
+  use libtetrabz_common, only : ltetra, ng, nb, nk0, indx1, indx2, indx3, &
+  &                           libtetrabz_initialize, libtetrabz_interpol_weight, &
+  &                           libtetrabz_doubledelta1
+  !
+  use libtetrabz, only : libtetrabz_kgrid
+  !
+  implicit none
+  !
+  integer,intent(in) :: ltetra0, nge(3), ngw(3), nb0
+  real(8),intent(in) :: bvec(3,3)
+  real(8),intent(in) :: eig1(nb0,product(nge(1:3))), eig2(nb0,product(nge(1:3)))
+  real(8),intent(out) :: wght0(nb0,nb0,product(ngw(1:3)))
+  !
+  integer :: ierr, nn
+  real(8),allocatable :: wght1(:,:)
+  !
+  ltetra = ltetra0
+  nb = nb0
+  ng(1:3) = nge(1:3)
+  nn = nb * nb
+  !
+  call libtetrabz_initialize(bvec)
+  call libtetrabz_kgrid()
+  !
+  if(any(nge(1:3) /= ngw(1:3))) then
+     !
+     allocate(wght1(nn, nk0))
+     call libtetrabz_doubledelta1(eig1,eig2,wght1)
+     !
+     call libtetrabz_interpol_weight(nn,ngw,nge,wght0,wght1)
+     deallocate(wght1)
+     !
+  else
+     call libtetrabz_doubledelta1(eig1,eig2,wght0)
+  end if
+  !
+  deallocate(indx1, indx2, indx3)
+  !
+end subroutine libtetrabz_doubledelta
+!
+! Compute Occ * Step
+!
+subroutine libtetrabz_occstep(ltetra0,bvec,nb0,nge,eig1,eig2,ngw,wght0)
+  !
+  use libtetrabz_common, only : ltetra, ng, nb, nk0, indx1, indx2, indx3, &
+  &                           libtetrabz_initialize, libtetrabz_interpol_weight, &
+  &                           libtetrabz_occstep1
+  !
+  use libtetrabz, only : libtetrabz_kgrid
+  !
+  implicit none
+  !
+  integer,intent(in) :: ltetra0, nge(3), ngw(3), nb0
+  real(8),intent(in) :: bvec(3,3)
+  real(8),intent(in) :: eig1(nb0,product(nge(1:3))), eig2(nb0,product(nge(1:3)))
+  real(8),intent(out) :: wght0(nb0,nb0,product(ngw(1:3)))
+  !
+  integer :: ierr, nn
+  real(8),allocatable :: wght1(:,:)
+  !
+  ltetra = ltetra0
+  nb = nb0
+  ng(1:3) = nge(1:3)
+  nn = nb * nb
+  !
+  call libtetrabz_initialize(bvec)
+  call libtetrabz_kgrid()
+  !
+  if(any(nge(1:3) /= ngw(1:3))) then
+     !
+     allocate(wght1(nn, nk0))
+     call libtetrabz_occstep1(eig1,eig2,wght1)
+     !
+     call libtetrabz_interpol_weight(nn,ngw,nge,wght0,wght1)
+     deallocate(wght1)
+     !
+  else
+     call libtetrabz_occstep1(eig1,eig2,wght0)
+  end if
+  !
+  deallocate(indx1, indx2, indx3)
+  !
+end subroutine libtetrabz_occstep
+!
+! Compute Static polalization function
+!
+subroutine libtetrabz_polstat(ltetra0,bvec,nb0,nge,eig1,eig2,ngw,wght0)
+  !
+  use libtetrabz_common, only : ltetra, ng, nb, nk0, indx1, indx2, indx3, &
+  &                           libtetrabz_initialize, libtetrabz_interpol_weight, &
+  &                           libtetrabz_polstat1
+  !
+  use libtetrabz, only : libtetrabz_kgrid
+  !
+  implicit none
+  !
+  integer,intent(in) :: ltetra0, nge(3), ngw(3), nb0
+  real(8),intent(in) :: bvec(3,3)
+  real(8),intent(in) :: eig1(nb0,product(nge(1:3))), eig2(nb0,product(nge(1:3)))
+  real(8),intent(out) :: wght0(nb0,nb0,product(ngw(1:3)))
+  !
+  integer :: ierr, nn
+  real(8),allocatable :: wght1(:,:)
+  !
+  ltetra = ltetra0
+  nb = nb0
+  ng(1:3) = nge(1:3)
+  nn = nb * nb
+  !
+  call libtetrabz_initialize(bvec)
+  call libtetrabz_kgrid()
+  !
+  if(any(nge(1:3) /= ngw(1:3))) then
+     !
+     allocate(wght1(nn, nk0))
+     call libtetrabz_polstat1(eig1,eig2,wght1)
+     !
+     call libtetrabz_interpol_weight(nn,ngw,nge,wght0,wght1)
+     deallocate(wght1)
+     !
+  else
+     call libtetrabz_polstat1(eig1,eig2,wght0)
+  end if
+  !
+  deallocate(indx1, indx2, indx3)
+  !
+end subroutine libtetrabz_polstat
+!
+! Compute Fermi's goldn rule
+!
+subroutine libtetrabz_fermigr(ltetra0,bvec,nb0,nge,eig1,eig2,ngw,wght0,ne0,e0)
+  !
+  use libtetrabz_common, only : ltetra, ng, nb, nk0, indx1, indx2, indx3, &
+  &                           libtetrabz_initialize, libtetrabz_interpol_weight, &
+  &                           libtetrabz_fermigr1, ne
+  !
+  use libtetrabz, only : libtetrabz_kgrid
+  !
+  implicit none
+  !
+  integer,intent(in) :: ltetra0, nge(3), ngw(3), nb0, ne0
+  real(8),intent(in) :: bvec(3,3), e0(ne0)
+  real(8),intent(in) :: eig1(nb0,product(nge(1:3))), eig2(nb0,product(nge(1:3)))
+  real(8),intent(out) :: wght0(ne0,nb0,nb0,product(ngw(1:3)))
+  !
+  integer :: ierr, nn
+  real(8),allocatable :: wght1(:,:)
+  !
+  ltetra = ltetra0
+  nb = nb0
+  ng(1:3) = nge(1:3)
+  ne = ne0
+  nn = ne * nb * nb
+  !
+  call libtetrabz_initialize(bvec)
+  call libtetrabz_kgrid()
+  !
+  if(any(nge(1:3) /= ngw(1:3))) then
+     !
+     allocate(wght1(nn, nk0))
+     call libtetrabz_fermigr1(eig1,eig2,e0,wght1)
+     !
+     call libtetrabz_interpol_weight(nn,ngw,nge,wght0,wght1)
+     deallocate(wght1)
+     !
+  else
+     call libtetrabz_fermigr1(eig1,eig2,e0,wght0)
+  end if
+  !
+  deallocate(indx1, indx2, indx3)
+  !
+end subroutine libtetrabz_fermigr
+!
+! Compute Polarization of imaginary frequency
+!
+subroutine libtetrabz_polimg(ltetra0,bvec,nb0,nge,eig1,eig2,ngw,wght0,ne0,e0)
+  !
+  use libtetrabz_common, only : ltetra, ng, nb, nk0, indx1, indx2, indx3, &
+  &                           libtetrabz_initialize, libtetrabz_interpol_weight, &
+  &                           libtetrabz_polimg1, ne
+  !
+  use libtetrabz, only : libtetrabz_kgrid
+  !
+  implicit none
+  !
+  integer,intent(in) :: ltetra0, nge(3), ngw(3), nb0, ne0
+  real(8),intent(in) :: bvec(3,3), e0(ne0)
+  real(8),intent(in) :: eig1(nb0,product(nge(1:3))), eig2(nb0,product(nge(1:3)))
+  real(8),intent(out) :: wght0(2,ne0,nb0,nb0,product(ngw(1:3)))
+  !
+  integer :: ierr, nn
+  real(8),allocatable :: wght1(:,:)
+  !
+  ltetra = ltetra0
+  nb = nb0
+  ng(1:3) = nge(1:3)
+  ne = ne0
+  nn = 2 * ne * nb * nb
+  !
+  call libtetrabz_initialize(bvec)
+  call libtetrabz_kgrid()
+  !
+  if(any(nge(1:3) /= ngw(1:3))) then
+     !
+     allocate(wght1(nn, nk0))
+     call libtetrabz_fermigr1(eig1,eig2,e0,wght1)
+     !
+     call libtetrabz_interpol_weight(nn,ngw,nge,wght0,wght1)
+     deallocate(wght1)
+     !
+  else
+     call libtetrabz_fermigr1(eig1,eig2,e0,wght0)
+  end if
+  !
+  deallocate(indx1, indx2, indx3)
+  !
+end subroutine libtetrabz_polimg
 !
 ! Initialize grid
 !

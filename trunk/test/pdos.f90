@@ -77,7 +77,7 @@ end subroutine read_dat
 !
 subroutine calc_dos()
   !
-  use libtetra_mod, only : libtetra_dos
+  use libtetrabz, only : libtetrabz_dos
   use global, only : ng, nb, bvec, eig, dos, ne, nwfc, wfc, e0
   implicit none
   !
@@ -89,7 +89,7 @@ subroutine calc_dos()
   ef = 0d0
   !
   allocate(wdos(ne,nb,ng(1),ng(2),ng(3)))
-  call libtetra("dos", 2, ng, nb, ne, bvec, e0, eig, wdos)
+  call libtetrabz_dos(2,bvec,nb,ng,eig,ng,wdos,ne,e0)
   !
   dos(1:nwfc,1:ne) = 0d0
   !
@@ -121,7 +121,7 @@ end subroutine calc_dos
 !
 subroutine calc_occ()
   !
-  use libtetra_mod, only : libtetra_occ, libtetra_occ_int
+  use libtetrabz, only : libtetrabz_occ
   use global, only : ng, nb, bvec, eig, nwfc, wfc
   implicit none
   !
@@ -129,8 +129,8 @@ subroutine calc_occ()
   real(8) :: nelec, ef, occ(nwfc)
   real(8),allocatable :: wocc(:,:,:,:)
   !
-  allocate(wocc(nb,ng(1),ng(2),ng(3))
-  call libtetra_occ("occ", 2, ng, nb, bvec, eig, wocc)
+  allocate(wocc(nb,ng(1),ng(2),ng(3)))
+  call libtetrabz_occ(2,bvec,nb,ng,eig,ng,wocc)
   !
   occ(1:nwfc) = 0d0
   !
@@ -166,7 +166,7 @@ subroutine calc_occ()
      n = 2**iexp
      !
      allocate(wocc(nb,ng(1) /n,ng(2)/n,ng(3)/n))
-     call libtetra_occ_int("occ", 2, ng, ng / n, nb, bvec, eig, wocc)
+     call libtetrabz_occ(2,bvec,nb,ng,eig,ng / n,wocc)
      !
      occ(1:nwfc) = 0d0
      !
