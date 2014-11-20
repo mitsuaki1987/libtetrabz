@@ -144,8 +144,8 @@ subroutine calc_dos()
   !
   lam(1:nm) = 0d0
   !$OMP PARALLEL DEFAULT(NONE) &
-  !$OMP & PRIVATE(nb,nk,nm,lam, g2, wlw) &
-  !$OMP & SHARED(im) 
+  !$OMP & SHARED(nb,nk,nm,lam, g2, wlw) &
+  !$OMP & PRIVATE(im) 
   !
   !$OMP DO REDUCTION(+:lam)
   do im = 1, nb * nb * nk

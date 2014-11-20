@@ -79,8 +79,8 @@ module libtetrabz_common
        real(8),intent(inout) :: w(4,nb,4)
      end subroutine libtetrabz_polstat2
      !
-     subroutine libtetrabz_polstat3(ei,ej,w)
-       real(8),intent(in) :: ei(4), ej(4)
+     subroutine libtetrabz_polstat3(de,w)
+       real(8),intent(in) :: de(4)
        real(8),intent(inout) :: w(4,4)
      end subroutine libtetrabz_polstat3
      !
@@ -1284,8 +1284,8 @@ subroutine libtetrabz_polstat1(eig1,eig2,pols)
               tmp2(1:nn,3) = tmp(1:nn,1) * a(1,3) + tmp(1:nn,3) * a(3,1)
               tmp2(1:nn,4) = tmp(1:nn,1) * a(1,4) + tmp(1:nn,4) * a(4,1)
               !
-              ei2(1:4) = tmp2(1, 1:4)
-              ej2(1:nb,1:4) = tmp2(2:1 + nb, 1:4)
+              ei2(          1:4) =         tmp2(       1,               1:4)
+              ej2(    1:nb, 1:4) =         tmp2(     2:1 + nb,          1:4)
               w2(1:4, 1:nb, 1:4) = reshape(tmp2(nb + 2:1 + nb + 4 * nb, 1:4), (/4, nb, 4/))
               ! 
               call libtetrabz_polstat2(ei2,ej2,w2)
@@ -1307,8 +1307,8 @@ subroutine libtetrabz_polstat1(eig1,eig2,pols)
               tmp2(1:nn,3) = tmp(1:nn,1) * a(1,4) + tmp(1:nn,4) * a(4,1) 
               tmp2(1:nn,4) = tmp(1:nn,2) * a(2,4) + tmp(1:nn,4) * a(4,2) 
               !
-              ei2(1:4) = tmp2(1, 1:4)
-              ej2(1:nb,1:4) = tmp2(2:1 + nb, 1:4)
+              ei2(          1:4) =         tmp2(1,                      1:4)
+              ej2(    1:nb, 1:4) =         tmp2(2:1 + nb,               1:4)
               w2(1:4, 1:nb, 1:4) = reshape(tmp2(nb + 2:1 + nb + 4 * nb, 1:4), (/4, nb, 4/))
               ! 
               call libtetrabz_polstat2(ei2,ej2,w2)
@@ -1327,8 +1327,8 @@ subroutine libtetrabz_polstat1(eig1,eig2,pols)
               tmp2(1:nn,3)   = tmp(1:nn,2) * a(2,3) + tmp(1:nn,3) * a(3,2) 
               tmp2(1:nn,4)   = tmp(1:nn,2) * a(2,4) + tmp(1:nn,4) * a(4,2) 
               !
-              ei2(1:4) = tmp2(1, 1:4)
-              ej2(1:nb,1:4) = tmp2(2:1 + nb, 1:4)
+              ei2(          1:4) =         tmp2(                     1, 1:4)
+              ej2(    1:nb, 1:4) =         tmp2(2:1 + nb,               1:4)
               w2(1:4, 1:nb, 1:4) = reshape(tmp2(nb + 2:1 + nb + 4 * nb, 1:4), (/4, nb, 4/))
               ! 
               call libtetrabz_polstat2(ei2,ej2,w2)
@@ -1348,8 +1348,8 @@ subroutine libtetrabz_polstat1(eig1,eig2,pols)
               tmp2(1:nn,3) = tmp(1:nn,2) * a(2,3) + tmp(1:nn,3) * a(3,2) 
               tmp2(1:nn,4) = tmp(1:nn,2) * a(2,4) + tmp(1:nn,4) * a(4,2) 
               !
-              ei2(1:4) = tmp2(1, 1:4)
-              ej2(1:nb,1:4) = tmp2(2:1 + nb, 1:4)
+              ei2(          1:4) =         tmp2(1,                      1:4)
+              ej2(    1:nb, 1:4) =         tmp2(2:1 + nb,               1:4)
               w2(1:4, 1:nb, 1:4) = reshape(tmp2(nb + 2:1 + nb + 4 * nb, 1:4), (/4, nb, 4/))
               ! 
               call libtetrabz_polstat2(ei2,ej2,w2)
@@ -1369,8 +1369,8 @@ subroutine libtetrabz_polstat1(eig1,eig2,pols)
               tmp2(1:nn,1:3) = tmp(1:nn,1:3)
               tmp2(1:nn,4)   = tmp(1:nn,3) * a(3,4) + tmp(1:nn,4) * a(4,3) 
               !
-              ei2(1:4) = tmp2(1, 1:4)
-              ej2(1:nb,1:4) = tmp2(2:1 + nb, 1:4)
+              ei2(          1:4) =         tmp2(1,                      1:4)
+              ej2(    1:nb, 1:4) =         tmp2(2:1 + nb,               1:4)
               w2(1:4, 1:nb, 1:4) = reshape(tmp2(nb + 2:1 + nb + 4 * nb, 1:4), (/4, nb, 4/))
               ! 
               call libtetrabz_polstat2(ei2,ej2,w2)
@@ -1389,8 +1389,8 @@ subroutine libtetrabz_polstat1(eig1,eig2,pols)
               tmp2(1:nn,3)   = tmp(1:nn,2) * a(2,4) + tmp(1:nn,4) * a(4,2) 
               tmp2(1:nn,4)   = tmp(1:nn,3) * a(3,4) + tmp(1:nn,4) * a(4,3) 
               !
-              ei2(1:4) = tmp2(1, 1:4)
-              ej2(1:nb,1:4) = tmp2(2:1 + nb, 1:4)
+              ei2(          1:4) =         tmp2(1,                      1:4)
+              ej2(    1:nb, 1:4) =         tmp2(2:1 + nb,               1:4)
               w2(1:4, 1:nb, 1:4) = reshape(tmp2(nb + 2:1 + nb + 4 * nb, 1:4), (/4, nb, 4/))
               ! 
               call libtetrabz_polstat2(ei2,ej2,w2)
@@ -1410,8 +1410,8 @@ subroutine libtetrabz_polstat1(eig1,eig2,pols)
               tmp2(1:nn,3) = tmp(1:nn,2) * a(2,4) + tmp(1:nn,4) * a(4,2) 
               tmp2(1:nn,4) = tmp(1:nn,3) * a(3,4) + tmp(1:nn,4) * a(4,3) 
               !
-              ei2(1:4) = tmp2(1, 1:4)
-              ej2(1:nb,1:4) = tmp2(2:1 + nb, 1:4)
+              ei2(          1:4) =         tmp2(1,                      1:4)
+              ej2(    1:nb, 1:4) =         tmp2(2:1 + nb,               1:4)
               w2(1:4, 1:nb, 1:4) = reshape(tmp2(nb + 2:1 + nb + 4 * nb, 1:4), (/4, nb, 4/))
               ! 
               call libtetrabz_polstat2(ei2,ej2,w2)
@@ -1428,8 +1428,8 @@ subroutine libtetrabz_polstat1(eig1,eig2,pols)
            !
            tmp2(1:nn,1:4) = tmp(1:nn,1:4)
            !
-           ei2(1:4) = tmp2(1, 1:4)
-           ej2(1:nb,1:4) = tmp2(2:1 + nb, 1:4)
+           ei2(          1:4) =         tmp2(1,                      1:4)
+           ej2(    1:nb, 1:4) =         tmp2(2:1 + nb,               1:4)
            w2(1:4, 1:nb, 1:4) = reshape(tmp2(nb + 2:1 + nb + 4 * nb, 1:4), (/4, nb, 4/))
            !
            call libtetrabz_polstat2(ei2,ej2,w2)
@@ -1466,13 +1466,13 @@ subroutine libtetrabz_polstat2(ei,ej,w)
   real(8),intent(inout) :: w(4,nb,4)
   !
   integer :: ii, jj, ib
-  real(8) :: V, ei2(4), ej2(4), w2(4,4), thr = 1d-8, &
-  &          tmp(6,4), tmp2(6,4), e(4), a(4,4)
+  real(8) :: V, de(4), w2(4,4), thr = 1d-8, &
+  &          tmp(6,4), tmp2(5,4), e(4), a(4,4)
   !
   do ib = 1, nb
      !
      tmp(1,1:4) = - ej(ib,1:4)
-     tmp(2,1:4) =   ei(1:4)
+     tmp(2,1:4) =   ej(ib,1:4) - ei(1:4)
      tmp(3:6,1:4) = w(1:4,ib,1:4)
      call libtetrabz_sort(6, 4, tmp)
      e(1:4) = tmp(1,1:4)
@@ -1490,16 +1490,15 @@ subroutine libtetrabz_polstat2(ei,ej,w)
         !
         if(V > thr) then
            !
-           tmp2(1:6,1) = tmp(1:6,1)
-           tmp2(1:6,2) = tmp(1:6,1) * a(1,2) + tmp(1:6,2) * a(2,1) 
-           tmp2(1:6,3) = tmp(1:6,1) * a(1,3) + tmp(1:6,3) * a(3,1)
-           tmp2(1:6,4) = tmp(1:6,1) * a(1,4) + tmp(1:6,4) * a(4,1)
+           tmp2(1:5,1) = tmp(2:6,1)
+           tmp2(1:5,2) = tmp(2:6,1) * a(1,2) + tmp(2:6,2) * a(2,1) 
+           tmp2(1:5,3) = tmp(2:6,1) * a(1,3) + tmp(2:6,3) * a(3,1)
+           tmp2(1:5,4) = tmp(2:6,1) * a(1,4) + tmp(2:6,4) * a(4,1)
            !
-           ei2(1:4) = tmp2(2,1:4)
-           ej2(1:4) = tmp2(1,1:4)
-           w2(1:4,1:4) = tmp(3:6,1:4)
+           de(    1:4) = tmp2(  1,1:4)
+           w2(1:4,1:4) = tmp2(2:5,1:4)
            !
-           call libtetrabz_polstat3(ei2,ej2,w2)
+           call libtetrabz_polstat3(de,w2)
            !
            w(1:4, ib,1:4) = w(1:4, ib, 1:4) + w2(1:4, 1:4) * V
            !
@@ -1513,16 +1512,15 @@ subroutine libtetrabz_polstat2(ei,ej,w)
         !
         if(V > thr) then
            !
-           tmp2(1:6,1) = tmp(1:6,1)
-           tmp2(1:6,2) = tmp(1:6,1) * a(1,3) + tmp(1:6,3) * a(3,1) 
-           tmp2(1:6,3) = tmp(1:6,1) * a(1,4) + tmp(1:6,4) * a(4,1) 
-           tmp2(1:6,4) = tmp(1:6,2) * a(2,4) + tmp(1:6,4) * a(4,2) 
+           tmp2(1:5,1) = tmp(2:6,1)
+           tmp2(1:5,2) = tmp(2:6,1) * a(1,3) + tmp(2:6,3) * a(3,1) 
+           tmp2(1:5,3) = tmp(2:6,1) * a(1,4) + tmp(2:6,4) * a(4,1) 
+           tmp2(1:5,4) = tmp(2:6,2) * a(2,4) + tmp(2:6,4) * a(4,2) 
            !
-           ei2(1:4) = tmp2(2,1:4)
-           ej2(1:4) = tmp2(1,1:4)
-           w2(1:4,1:4) = tmp(3:6,1:4)
+           de(    1:4) = tmp2(  1,1:4)
+           w2(1:4,1:4) = tmp2(2:5,1:4)
            !
-           call libtetrabz_polstat3(ei2,ej2,w2)
+           call libtetrabz_polstat3(de,w2)
            !
            w(1:4, ib,1:4) = w(1:4, ib, 1:4) + w2(1:4, 1:4) * V
            !
@@ -1534,15 +1532,14 @@ subroutine libtetrabz_polstat2(ei,ej,w)
         !
         if(V > thr) then
            !
-           tmp2(1:6,1:2) = tmp(1:6,1:2)
-           tmp2(1:6,3)   = tmp(1:6,2) * a(2,3) + tmp(1:6,3) * a(3,2) 
-           tmp2(1:6,4)   = tmp(1:6,2) * a(2,4) + tmp(1:6,4) * a(4,2) 
+           tmp2(1:5,1:2) = tmp(2:6,1:2)
+           tmp2(1:5,3)   = tmp(2:6,2) * a(2,3) + tmp(2:6,3) * a(3,2) 
+           tmp2(1:5,4)   = tmp(2:6,2) * a(2,4) + tmp(2:6,4) * a(4,2) 
            !
-           ei2(1:4) = tmp2(2,1:4)
-           ej2(1:4) = tmp2(1,1:4)
-           w2(1:4,1:4) = tmp(3:6,1:4)
+           de(    1:4) = tmp2(  1,1:4)
+           w2(1:4,1:4) = tmp2(2:5,1:4)
            !
-           call libtetrabz_polstat3(ei2,ej2,w2)
+           call libtetrabz_polstat3(de,w2)
            !
            w(1:4, ib,1:4) = w(1:4, ib, 1:4) + w2(1:4, 1:4) * V
            !
@@ -1554,16 +1551,15 @@ subroutine libtetrabz_polstat2(ei,ej,w)
         !
         if(V > thr) then
            !
-           tmp2(1:6,1) = tmp(1:6,1)
-           tmp2(1:6,2) = tmp(1:6,1) * a(1,3) + tmp(1:6,3) * a(3,1) 
-           tmp2(1:6,3) = tmp(1:6,2) * a(2,3) + tmp(1:6,3) * a(3,2) 
-           tmp2(1:6,4) = tmp(1:6,2) * a(2,4) + tmp(1:6,4) * a(4,2) 
+           tmp2(1:5,1) = tmp(2:6,1)
+           tmp2(1:5,2) = tmp(2:6,1) * a(1,3) + tmp(2:6,3) * a(3,1) 
+           tmp2(1:5,3) = tmp(2:6,2) * a(2,3) + tmp(2:6,3) * a(3,2) 
+           tmp2(1:5,4) = tmp(2:6,2) * a(2,4) + tmp(2:6,4) * a(4,2) 
            !
-           ei2(1:4) = tmp2(2,1:4)
-           ej2(1:4) = tmp2(1,1:4)
-           w2(1:4,1:4) = tmp(3:6,1:4)
+           de(    1:4) = tmp2(  1,1:4)
+           w2(1:4,1:4) = tmp2(2:5,1:4)
            !
-           call libtetrabz_polstat3(ei2,ej2,w2)
+           call libtetrabz_polstat3(de,w2)
            !
            w(1:4, ib,1:4) = w(1:4, ib, 1:4) + w2(1:4, 1:4) * V
            !
@@ -1577,14 +1573,13 @@ subroutine libtetrabz_polstat2(ei,ej,w)
         !
         if(V > thr) then
            !
-           tmp2(1:6,1:3) = tmp(1:6,1:3)
-           tmp2(1:6,4)   = tmp(1:6,3) * a(3,4) + tmp(1:6,4) * a(4,3) 
+           tmp2(1:5,1:3) = tmp(2:6,1:3)
+           tmp2(1:5,4)   = tmp(2:6,3) * a(3,4) + tmp(2:6,4) * a(4,3) 
            !
-           ei2(1:4) = tmp2(2,1:4)
-           ej2(1:4) = tmp2(1,1:4)
-           w2(1:4,1:4) = tmp(3:6,1:4)
+           de(    1:4) = tmp2(  1,1:4)
+           w2(1:4,1:4) = tmp2(2:5,1:4)
            !
-           call libtetrabz_polstat3(ei2,ej2,w2)
+           call libtetrabz_polstat3(de,w2)
            !
            w(1:4, ib,1:4) = w(1:4, ib, 1:4) + w2(1:4, 1:4) * V
            !
@@ -1596,15 +1591,14 @@ subroutine libtetrabz_polstat2(ei,ej,w)
         !
         if(V > thr) then
            !
-           tmp2(1:6,1:2) = tmp(1:6,1:2)
-           tmp2(1:6,3)   = tmp(1:6,2) * a(2,4) + tmp(1:6,4) * a(4,2) 
-           tmp2(1:6,4)   = tmp(1:6,3) * a(3,4) + tmp(1:6,4) * a(4,3) 
+           tmp2(1:5,1:2) = tmp(2:6,1:2)
+           tmp2(1:5,3)   = tmp(2:6,2) * a(2,4) + tmp(2:6,4) * a(4,2) 
+           tmp2(1:5,4)   = tmp(2:6,3) * a(3,4) + tmp(2:6,4) * a(4,3) 
            !
-           ei2(1:4) = tmp2(2,1:4)
-           ej2(1:4) = tmp2(1,1:4)
-           w2(1:4,1:4) = tmp(3:6,1:4)
+           de(    1:4) = tmp2(  1,1:4)
+           w2(1:4,1:4) = tmp2(2:5,1:4)
            !
-           call libtetrabz_polstat3(ei2,ej2,w2)
+           call libtetrabz_polstat3(de,w2)
            !
            w(1:4, ib,1:4) = w(1:4, ib, 1:4) + w2(1:4, 1:4) * V
            !
@@ -1616,16 +1610,15 @@ subroutine libtetrabz_polstat2(ei,ej,w)
         !
         if(V > thr) then
            !
-           tmp2(1:6,1) = tmp(1:6,1)
-           tmp2(1:6,2) = tmp(1:6,1) * a(1,4) + tmp(1:6,4) * a(4,1) 
-           tmp2(1:6,3) = tmp(1:6,2) * a(2,4) + tmp(1:6,4) * a(4,2) 
-           tmp2(1:6,4) = tmp(1:6,3) * a(3,4) + tmp(1:6,4) * a(4,3) 
+           tmp2(1:5,1) = tmp(2:6,1)
+           tmp2(1:5,2) = tmp(2:6,1) * a(1,4) + tmp(2:6,4) * a(4,1) 
+           tmp2(1:5,3) = tmp(2:6,2) * a(2,4) + tmp(2:6,4) * a(4,2) 
+           tmp2(1:5,4) = tmp(2:6,3) * a(3,4) + tmp(2:6,4) * a(4,3) 
            !
-           ei2(1:4) = tmp2(2,1:4)
-           ej2(1:4) = tmp2(1,1:4)
-           w2(1:4,1:4) = tmp(3:6,1:4)
+           de(    1:4) = tmp2(  1,1:4)
+           w2(1:4,1:4) = tmp2(2:5,1:4)
            !
-           call libtetrabz_polstat3(ei2,ej2,w2)
+           call libtetrabz_polstat3(de,w2)
            !
            w(1:4, ib,1:4) = w(1:4, ib, 1:4) + w2(1:4, 1:4) * V
            !
@@ -1637,13 +1630,12 @@ subroutine libtetrabz_polstat2(ei,ej,w)
         !
         V = 1d0
         !
-        tmp2(1:6,1:4) = tmp(1:6,1:4)
+        tmp2(1:5,1:4) = tmp(2:6,1:4)
         !
-        ei2(1:4) = tmp2(2,1:4)
-        ej2(1:4) = tmp2(1,1:4)
-        w2(1:4,1:4) = tmp(3:6,1:4)
+        de(    1:4) = tmp2(  1,1:4)
+        w2(1:4,1:4) = tmp2(2:5,1:4)
         !
-        call libtetrabz_polstat3(ei2,ej2,w2)
+        call libtetrabz_polstat3(de,w2)
         !
         w(1:4, ib,1:4) = w(1:4, ib, 1:4) + w2(1:4, 1:4) * V
         !
@@ -1655,7 +1647,7 @@ end subroutine libtetrabz_polstat2
 !
 ! Tetarahedra method for delta(om - ep + e)
 !
-subroutine libtetrabz_polstat3(ei,ej,w)
+subroutine libtetrabz_polstat3(de0,w)
   !
   use libtetrabz_common, ONLY : libtetrabz_sort, &
   &   libtetrabz_polstat_1234, libtetrabz_polstat_1231, libtetrabz_polstat_1233, &
@@ -1663,17 +1655,17 @@ subroutine libtetrabz_polstat3(ei,ej,w)
   !
   implicit none
   !
-  real(8),intent(in) :: ei(4), ej(4)
+  real(8),intent(in) :: de0(4)
   real(8),intent(inout) :: w(4,4)
   !
   integer :: ii
   real(8) :: tmp(5,4), w2(4), de(4), lnd(4), thr, thr2
   !
-  tmp(1, 1:4) = ej(1:4) - ei(1:4)
-  tmp(2:5,1:4) = w(1:4,1:4)
+  tmp(  1, 1:4) = de0(   1:4)
+  tmp(2:5, 1:4) = w( 1:4,1:4)
   call libtetrabz_sort(5, 4, tmp)
-  de(1:4) = tmp(1,1:4)
-  w(1:4,1:4) = tmp(2:5,1:4)
+  de(   1:4) = tmp(  1, 1:4)
+  w(1:4,1:4) = tmp(2:5, 1:4)
   !
   thr = maxval(de(1:4)) * 1d-3
   thr2 = 1d-8
@@ -2195,14 +2187,15 @@ subroutine libtetrabz_fermigr2(e0,ei,ej,w)
   !
   integer :: ii, jj, ib, nn
   real(8) :: V, de(4), w2(4,ne,4), thr = 1d-8, &
-  &          tmp(1 + ne * 4,4), tmp2(1 + ne * 4,4), e(4), a(4,4)
+  &          tmp(2 + ne * 4,4), tmp2(1 + ne * 4,4), e(4), a(4,4)
   !
-  nn = 1 + ne * 4
+  nn = 2 + ne * 4
   !
   do ib = 1, nb
      !
-     tmp(1,1:4) = ej(ib,1:4) - ei(1:4)
-     tmp(2:1 + 4 * ne,1:4) = reshape(w(1:4,1:ne,ib,1:4), (/4 * ne, 4/))
+     tmp(1,1:4) = ej(ib,1:4)
+     tmp(2,1:4) = ej(ib,1:4) - ei(1:4)
+     tmp(3:2 + 4 * ne,1:4) = reshape(w(1:4,1:ne,ib,1:4), (/4 * ne, 4/))
      call libtetrabz_sort(nn, 4, tmp)
      e(1:4) = tmp(1,1:4)
      w(1:4,1:ne,ib,1:4) = 0d0
@@ -2219,13 +2212,13 @@ subroutine libtetrabz_fermigr2(e0,ei,ej,w)
         !
         if(V > thr) then
            !
-           tmp2(1:nn,1) = tmp(1:nn,1)
-           tmp2(1:nn,2) = tmp(1:nn,1) * a(1,2) + tmp(1:nn,2) * a(2,1) 
-           tmp2(1:nn,3) = tmp(1:nn,1) * a(1,3) + tmp(1:nn,3) * a(3,1)
-           tmp2(1:nn,4) = tmp(1:nn,1) * a(1,4) + tmp(1:nn,4) * a(4,1)
+           tmp2(1:nn-1,1) = tmp(2:nn,1)
+           tmp2(1:nn-1,2) = tmp(2:nn,1) * a(1,2) + tmp(2:nn,2) * a(2,1) 
+           tmp2(1:nn-1,3) = tmp(2:nn,1) * a(1,3) + tmp(2:nn,3) * a(3,1)
+           tmp2(1:nn-1,4) = tmp(2:nn,1) * a(1,4) + tmp(2:nn,4) * a(4,1)
            !
-           de(1:4) = tmp2(1,1:4)
-           w2(1:4,1:ne,1:4) = reshape(tmp(2:1 + 4 * ne,1:4), (/4, ne, 4/))
+           de(         1:4) =         tmp2(1,           1:4)
+           w2(1:4,1:ne,1:4) = reshape(tmp2(2:1 + 4 * ne,1:4), (/4, ne, 4/))
            !
            call libtetrabz_fermigr3(e0,de,w2)
            !
@@ -2241,13 +2234,13 @@ subroutine libtetrabz_fermigr2(e0,ei,ej,w)
         !
         if(V > thr) then
            !
-           tmp2(1:nn,1) = tmp(1:nn,1)
-           tmp2(1:nn,2) = tmp(1:nn,1) * a(1,3) + tmp(1:nn,3) * a(3,1) 
-           tmp2(1:nn,3) = tmp(1:nn,1) * a(1,4) + tmp(1:nn,4) * a(4,1) 
-           tmp2(1:nn,4) = tmp(1:nn,2) * a(2,4) + tmp(1:nn,4) * a(4,2) 
+           tmp2(1:nn-1,1) = tmp(2:nn,1)
+           tmp2(1:nn-1,2) = tmp(2:nn,1) * a(1,3) + tmp(2:nn,3) * a(3,1) 
+           tmp2(1:nn-1,3) = tmp(2:nn,1) * a(1,4) + tmp(2:nn,4) * a(4,1) 
+           tmp2(1:nn-1,4) = tmp(2:nn,2) * a(2,4) + tmp(2:nn,4) * a(4,2) 
            !
-           de(1:4) = tmp2(1,1:4)
-           w2(1:4,1:ne,1:4) = reshape(tmp(2:1 + 4 * ne,1:4), (/4, ne, 4/))
+           de(         1:4) =         tmp2(1,           1:4)
+           w2(1:4,1:ne,1:4) = reshape(tmp2(2:1 + 4 * ne,1:4), (/4, ne, 4/))
            !
            call libtetrabz_fermigr3(e0,de,w2)
            !
@@ -2261,12 +2254,12 @@ subroutine libtetrabz_fermigr2(e0,ei,ej,w)
         !
         if(V > thr) then
            !
-           tmp2(1:nn,1:2) = tmp(1:nn,1:2)
-           tmp2(1:nn,3)   = tmp(1:nn,2) * a(2,3) + tmp(1:nn,3) * a(3,2) 
-           tmp2(1:nn,4)   = tmp(1:nn,2) * a(2,4) + tmp(1:nn,4) * a(4,2) 
+           tmp2(1:nn-1,1:2) = tmp(2:nn,1:2)
+           tmp2(1:nn-1,3)   = tmp(2:nn,2) * a(2,3) + tmp(2:nn,3) * a(3,2) 
+           tmp2(1:nn-1,4)   = tmp(2:nn,2) * a(2,4) + tmp(2:nn,4) * a(4,2) 
            !
-           de(1:4) = tmp2(1,1:4)
-           w2(1:4,1:ne,1:4) = reshape(tmp(2:1 + 4 * ne,1:4), (/4, ne, 4/))
+           de(         1:4) =         tmp2(1,           1:4)
+           w2(1:4,1:ne,1:4) = reshape(tmp2(2:1 + 4 * ne,1:4), (/4, ne, 4/))
            !
            call libtetrabz_fermigr3(e0,de,w2)
            !
@@ -2280,13 +2273,13 @@ subroutine libtetrabz_fermigr2(e0,ei,ej,w)
         !
         if(V > thr) then
            !
-           tmp2(1:nn,1) = tmp(1:nn,1)
-           tmp2(1:nn,2) = tmp(1:nn,1) * a(1,3) + tmp(1:nn,3) * a(3,1) 
-           tmp2(1:nn,3) = tmp(1:nn,2) * a(2,3) + tmp(1:nn,3) * a(3,2) 
-           tmp2(1:nn,4) = tmp(1:nn,2) * a(2,4) + tmp(1:nn,4) * a(4,2) 
+           tmp2(1:nn-1,1) = tmp(2:nn,1)
+           tmp2(1:nn-1,2) = tmp(2:nn,1) * a(1,3) + tmp(2:nn,3) * a(3,1) 
+           tmp2(1:nn-1,3) = tmp(2:nn,2) * a(2,3) + tmp(2:nn,3) * a(3,2) 
+           tmp2(1:nn-1,4) = tmp(2:nn,2) * a(2,4) + tmp(2:nn,4) * a(4,2) 
            !
-           de(1:4) = tmp2(1,1:4)
-           w2(1:4,1:ne,1:4) = reshape(tmp(2:1 + 4 * ne,1:4), (/4, ne, 4/))
+           de(         1:4) =         tmp2(1,           1:4)
+           w2(1:4,1:ne,1:4) = reshape(tmp2(2:1 + 4 * ne,1:4), (/4, ne, 4/))
            !
            call libtetrabz_fermigr3(e0,de,w2)
            !
@@ -2302,11 +2295,11 @@ subroutine libtetrabz_fermigr2(e0,ei,ej,w)
         !
         if(V > thr) then
            !
-           tmp2(1:nn,1:3) = tmp(1:nn,1:3)
-           tmp2(1:nn,4)   = tmp(1:nn,3) * a(3,4) + tmp(1:nn,4) * a(4,3) 
+           tmp2(1:nn-1,1:3) = tmp(2:nn,1:3)
+           tmp2(1:nn-1,4)   = tmp(2:nn,3) * a(3,4) + tmp(2:nn,4) * a(4,3) 
            !
-           de(1:4) = tmp2(1,1:4)
-           w2(1:4,1:ne,1:4) = reshape(tmp(2:1 + 4 * ne,1:4), (/4, ne, 4/))
+           de(         1:4) =         tmp2(1,           1:4)
+           w2(1:4,1:ne,1:4) = reshape(tmp2(2:1 + 4 * ne,1:4), (/4, ne, 4/))
            !
            call libtetrabz_fermigr3(e0,de,w2)
            !
@@ -2320,12 +2313,12 @@ subroutine libtetrabz_fermigr2(e0,ei,ej,w)
         !
         if(V > thr) then
            !
-           tmp2(1:nn,1:2) = tmp(1:nn,1:2)
-           tmp2(1:nn,3)   = tmp(1:nn,2) * a(2,4) + tmp(1:nn,4) * a(4,2) 
-           tmp2(1:nn,4)   = tmp(1:nn,3) * a(3,4) + tmp(1:nn,4) * a(4,3) 
+           tmp2(1:nn-1,1:2) = tmp(2:nn,1:2)
+           tmp2(1:nn-1,3)   = tmp(2:nn,2) * a(2,4) + tmp(2:nn,4) * a(4,2) 
+           tmp2(1:nn-1,4)   = tmp(2:nn,3) * a(3,4) + tmp(2:nn,4) * a(4,3) 
            !
-           de(1:4) = tmp2(1,1:4)
-           w2(1:4,1:ne,1:4) = reshape(tmp(2:1 + 4 * ne,1:4), (/4, ne, 4/))
+           de(         1:4) =         tmp2(1,           1:4)
+           w2(1:4,1:ne,1:4) = reshape(tmp2(2:1 + 4 * ne,1:4), (/4, ne, 4/))
            !
            call libtetrabz_fermigr3(e0,de,w2)
            !
@@ -2339,13 +2332,13 @@ subroutine libtetrabz_fermigr2(e0,ei,ej,w)
         !
         if(V > thr) then
            !
-           tmp2(1:nn,1) = tmp(1:nn,1)
-           tmp2(1:nn,2) = tmp(1:nn,1) * a(1,4) + tmp(1:nn,4) * a(4,1) 
-           tmp2(1:nn,3) = tmp(1:nn,2) * a(2,4) + tmp(1:nn,4) * a(4,2) 
-           tmp2(1:nn,4) = tmp(1:nn,3) * a(3,4) + tmp(1:nn,4) * a(4,3) 
+           tmp2(1:nn-1,1) = tmp(2:nn,1)
+           tmp2(1:nn-1,2) = tmp(2:nn,1) * a(1,4) + tmp(2:nn,4) * a(4,1) 
+           tmp2(1:nn-1,3) = tmp(2:nn,2) * a(2,4) + tmp(2:nn,4) * a(4,2) 
+           tmp2(1:nn-1,4) = tmp(2:nn,3) * a(3,4) + tmp(2:nn,4) * a(4,3) 
            !
-           de(1:4) = tmp2(1,1:4)
-           w2(1:4,1:ne,1:4) = reshape(tmp(2:1 + 4 * ne,1:4), (/4, ne, 4/))
+           de(         1:4) =         tmp2(1,           1:4)
+           w2(1:4,1:ne,1:4) = reshape(tmp2(2:1 + 4 * ne,1:4), (/4, ne, 4/))
            !
            call libtetrabz_fermigr3(e0,de,w2)
            !
@@ -2359,10 +2352,10 @@ subroutine libtetrabz_fermigr2(e0,ei,ej,w)
         !
         V = 1d0
         !
-        tmp2(1:nn,1:4) = tmp(1:nn,1:4)
+        tmp2(1:nn-1,1:4) = tmp(2:nn,1:4)
         !
-        de(1:4) = tmp2(1,1:4)
-        w2(1:4,1:ne,1:4) = reshape(tmp(2:1 + 4 * ne,1:4), (/4, ne, 4/))
+        de(         1:4) =         tmp2(1,           1:4)
+        w2(1:4,1:ne,1:4) = reshape(tmp2(2:1 + 4 * ne,1:4), (/4, ne, 4/))
         !
         call libtetrabz_fermigr3(e0,de,w2)
         !
@@ -2719,14 +2712,15 @@ subroutine libtetrabz_polimg2(e0,ei,ej,w)
   !
   integer :: ii, jj, ib, nn
   real(8) :: V, de(4), w2(4,2,ne,4), thr = 1d-8, &
-  &          tmp(1 + 8 * ne,4), tmp2(1 + 8 * ne,4), e(4), a(4,4)
+  &          tmp(2 + 8 * ne,4), tmp2(1 + 8 * ne,4), e(4), a(4,4)
   !
-  nn = 1 + 8 * ne
+  nn = 2 + 8 * ne
   !
   do ib = 1, nb
      !
-     tmp(1,           1:4) = ej(ib,1:4) - ei(1:4)
-     tmp(2:1 + 8 * ne,1:4) = reshape(w(1:4,1:2,1:ne,ib,1:4), (/8 * ne, 4/))
+     tmp(1,           1:4) = - ej(ib,1:4)
+     tmp(2,           1:4) = ej(ib,1:4) - ei(1:4)
+     tmp(3:2 + 8 * ne,1:4) = reshape(w(1:4,1:2,1:ne,ib,1:4), (/8 * ne, 4/))
      call libtetrabz_sort(nn, 4, tmp)
      e(                1:4) = tmp(1,1:4)
      w(1:4,1:2,1:ne,ib,1:4) = 0d0
@@ -2743,13 +2737,13 @@ subroutine libtetrabz_polimg2(e0,ei,ej,w)
         !
         if(V > thr) then
            !
-           tmp2(1:nn,1) = tmp(1:nn,1)
-           tmp2(1:nn,2) = tmp(1:nn,1) * a(1,2) + tmp(1:nn,2) * a(2,1) 
-           tmp2(1:nn,3) = tmp(1:nn,1) * a(1,3) + tmp(1:nn,3) * a(3,1)
-           tmp2(1:nn,4) = tmp(1:nn,1) * a(1,4) + tmp(1:nn,4) * a(4,1)
+           tmp2(1:nn-1,1) = tmp(2:nn,1)
+           tmp2(1:nn-1,2) = tmp(2:nn,1) * a(1,2) + tmp(2:nn,2) * a(2,1) 
+           tmp2(1:nn-1,3) = tmp(2:nn,1) * a(1,3) + tmp(2:nn,3) * a(3,1)
+           tmp2(1:nn-1,4) = tmp(2:nn,1) * a(1,4) + tmp(2:nn,4) * a(4,1)
            !
-           de(1:4) = tmp2(1,1:4)
-           w2(1:4,1:2,1:ne,1:4) = reshape(tmp(2:1 + 8 * ne,1:4), (/4, 2, ne, 4/))
+           de(             1:4) =         tmp2(1,           1:4)
+           w2(1:4,1:2,1:ne,1:4) = reshape(tmp2(2:1 + 8 * ne,1:4), (/4, 2, ne, 4/))
            !
            call libtetrabz_polimg3(e0,de,w2)
            !
@@ -2765,13 +2759,13 @@ subroutine libtetrabz_polimg2(e0,ei,ej,w)
         !
         if(V > thr) then
            !
-           tmp2(1:nn,1) = tmp(1:nn,1)
-           tmp2(1:nn,2) = tmp(1:nn,1) * a(1,3) + tmp(1:nn,3) * a(3,1) 
-           tmp2(1:nn,3) = tmp(1:nn,1) * a(1,4) + tmp(1:nn,4) * a(4,1) 
-           tmp2(1:nn,4) = tmp(1:nn,2) * a(2,4) + tmp(1:nn,4) * a(4,2) 
+           tmp2(1:nn-1,1) = tmp(2:nn,1)
+           tmp2(1:nn-1,2) = tmp(2:nn,1) * a(1,3) + tmp(2:nn,3) * a(3,1) 
+           tmp2(1:nn-1,3) = tmp(2:nn,1) * a(1,4) + tmp(2:nn,4) * a(4,1) 
+           tmp2(1:nn-1,4) = tmp(2:nn,2) * a(2,4) + tmp(2:nn,4) * a(4,2) 
            !
-           de(1:4) = tmp2(1,1:4)
-           w2(1:4,1:2,1:ne,1:4) = reshape(tmp(2:1 + 8 * ne,1:4), (/4, 2, ne, 4/))
+           de(             1:4) =         tmp2(1,           1:4)
+           w2(1:4,1:2,1:ne,1:4) = reshape(tmp2(2:1 + 8 * ne,1:4), (/4, 2, ne, 4/))
            !
            call libtetrabz_polimg3(e0,de,w2)
            !
@@ -2785,12 +2779,12 @@ subroutine libtetrabz_polimg2(e0,ei,ej,w)
         !
         if(V > thr) then
            !
-           tmp2(1:nn,1:2) = tmp(1:nn,1:2)
-           tmp2(1:nn,3)   = tmp(1:nn,2) * a(2,3) + tmp(1:nn,3) * a(3,2) 
-           tmp2(1:nn,4)   = tmp(1:nn,2) * a(2,4) + tmp(1:nn,4) * a(4,2) 
+           tmp2(1:nn-1,1:2) = tmp(2:nn,1:2)
+           tmp2(1:nn-1,3)   = tmp(2:nn,2) * a(2,3) + tmp(2:nn,3) * a(3,2) 
+           tmp2(1:nn-1,4)   = tmp(2:nn,2) * a(2,4) + tmp(2:nn,4) * a(4,2) 
            !
-           de(1:4) = tmp2(1,1:4)
-           w2(1:4,1:2,1:ne,1:4) = reshape(tmp(2:1 + 8 * ne,1:4), (/4, 2, ne, 4/))
+           de(             1:4) =         tmp2(1,           1:4)
+           w2(1:4,1:2,1:ne,1:4) = reshape(tmp2(2:1 + 8 * ne,1:4), (/4, 2, ne, 4/))
            !
            call libtetrabz_polimg3(e0,de,w2)
            !
@@ -2804,13 +2798,13 @@ subroutine libtetrabz_polimg2(e0,ei,ej,w)
         !
         if(V > thr) then
            !
-           tmp2(1:nn,1) = tmp(1:nn,1)
-           tmp2(1:nn,2) = tmp(1:nn,1) * a(1,3) + tmp(1:nn,3) * a(3,1) 
-           tmp2(1:nn,3) = tmp(1:nn,2) * a(2,3) + tmp(1:nn,3) * a(3,2) 
-           tmp2(1:nn,4) = tmp(1:nn,2) * a(2,4) + tmp(1:nn,4) * a(4,2) 
+           tmp2(1:nn-1,1) = tmp(2:nn,1)
+           tmp2(1:nn-1,2) = tmp(2:nn,1) * a(1,3) + tmp(2:nn,3) * a(3,1) 
+           tmp2(1:nn-1,3) = tmp(2:nn,2) * a(2,3) + tmp(2:nn,3) * a(3,2) 
+           tmp2(1:nn-1,4) = tmp(2:nn,2) * a(2,4) + tmp(2:nn,4) * a(4,2) 
            !
-           de(1:4) = tmp2(1,1:4)
-           w2(1:4,1:2,1:ne,1:4) = reshape(tmp(2:1 + 8 * ne,1:4), (/4, 2, ne, 4/))
+           de(             1:4) =         tmp2(1,           1:4)
+           w2(1:4,1:2,1:ne,1:4) = reshape(tmp2(2:1 + 8 * ne,1:4), (/4, 2, ne, 4/))
            !
            call libtetrabz_polimg3(e0,de,w2)
            !
@@ -2826,11 +2820,11 @@ subroutine libtetrabz_polimg2(e0,ei,ej,w)
         !
         if(V > thr) then
            !
-           tmp2(1:nn,1:3) = tmp(1:nn,1:3)
-           tmp2(1:nn,4)   = tmp(1:nn,3) * a(3,4) + tmp(1:nn,4) * a(4,3) 
+           tmp2(1:nn-1,1:3) = tmp(2:nn,1:3)
+           tmp2(1:nn-1,4)   = tmp(2:nn,3) * a(3,4) + tmp(2:nn,4) * a(4,3) 
            !
-           de(1:4) = tmp2(1,1:4)
-           w2(1:4,1:2,1:ne,1:4) = reshape(tmp(2:1 + 8 * ne,1:4), (/4, 2, ne, 4/))
+           de(             1:4) =         tmp2(1,           1:4)
+           w2(1:4,1:2,1:ne,1:4) = reshape(tmp2(2:1 + 8 * ne,1:4), (/4, 2, ne, 4/))
            !
            call libtetrabz_polimg3(e0,de,w2)
            !
@@ -2844,12 +2838,12 @@ subroutine libtetrabz_polimg2(e0,ei,ej,w)
         !
         if(V > thr) then
            !
-           tmp2(1:nn,1:2) = tmp(1:nn,1:2)
-           tmp2(1:nn,3)   = tmp(1:nn,2) * a(2,4) + tmp(1:nn,4) * a(4,2) 
-           tmp2(1:nn,4)   = tmp(1:nn,3) * a(3,4) + tmp(1:nn,4) * a(4,3) 
+           tmp2(1:nn-1,1:2) = tmp(2:nn,1:2)
+           tmp2(1:nn-1,3)   = tmp(2:nn,2) * a(2,4) + tmp(2:nn,4) * a(4,2) 
+           tmp2(1:nn-1,4)   = tmp(2:nn,3) * a(3,4) + tmp(2:nn,4) * a(4,3) 
            !
-           de(1:4) = tmp2(1,1:4)
-           w2(1:4,1:2,1:ne,1:4) = reshape(tmp(2:1 + 8 * ne,1:4), (/4, 2, ne, 4/))
+           de(             1:4) =         tmp2(1,           1:4)
+           w2(1:4,1:2,1:ne,1:4) = reshape(tmp2(2:1 + 8 * ne,1:4), (/4, 2, ne, 4/))
            !
            call libtetrabz_polimg3(e0,de,w2)
            !
@@ -2863,13 +2857,13 @@ subroutine libtetrabz_polimg2(e0,ei,ej,w)
         !
         if(V > thr) then
            !
-           tmp2(1:nn,1) = tmp(1:nn,1)
-           tmp2(1:nn,2) = tmp(1:nn,1) * a(1,4) + tmp(1:nn,4) * a(4,1) 
-           tmp2(1:nn,3) = tmp(1:nn,2) * a(2,4) + tmp(1:nn,4) * a(4,2) 
-           tmp2(1:nn,4) = tmp(1:nn,3) * a(3,4) + tmp(1:nn,4) * a(4,3) 
+           tmp2(1:nn-1,1) = tmp(2:nn,1)
+           tmp2(1:nn-1,2) = tmp(2:nn,1) * a(1,4) + tmp(2:nn,4) * a(4,1) 
+           tmp2(1:nn-1,3) = tmp(2:nn,2) * a(2,4) + tmp(2:nn,4) * a(4,2) 
+           tmp2(1:nn-1,4) = tmp(2:nn,3) * a(3,4) + tmp(2:nn,4) * a(4,3) 
            !
-           de(1:4) = tmp2(1,1:4)
-           w2(1:4,1:2,1:ne,1:4) = reshape(tmp(2:1 + 8 * ne,1:4), (/4, 2, ne, 4/))
+           de(             1:4) =         tmp2(1,           1:4)
+           w2(1:4,1:2,1:ne,1:4) = reshape(tmp2(2:1 + 8 * ne,1:4), (/4, 2, ne, 4/))
            !
            call libtetrabz_polimg3(e0,de,w2)
            !
@@ -2883,10 +2877,10 @@ subroutine libtetrabz_polimg2(e0,ei,ej,w)
         !
         V = 1d0
         !
-        tmp2(1:nn,1:4) = tmp(1:nn,1:4)
+        tmp2(1:nn-1,1:4) = tmp(2:nn,1:4)
         !
-        de(1:4) = tmp2(1,1:4)
-        w2(1:4,1:2,1:ne,1:4) = reshape(tmp(2:1 + 8 * ne,1:4), (/4, 2, ne, 4/))
+        de(             1:4) =         tmp2(1,           1:4)
+        w2(1:4,1:2,1:ne,1:4) = reshape(tmp2(2:1 + 8 * ne,1:4), (/4, 2, ne, 4/))
         !
         call libtetrabz_polimg3(e0,de,w2)
         !
