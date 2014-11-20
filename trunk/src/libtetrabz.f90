@@ -210,6 +210,7 @@ subroutine libtetrabz_dos(ltetra0,bvec,nb0,nge,eig,ngw,wght0,ne0,e0)
   ltetra = ltetra0
   nb = nb0
   ng(1:3) = nge(1:3)
+  ne = ne0
   nn = ne * nb
   !
   call libtetrabz_initialize(bvec)

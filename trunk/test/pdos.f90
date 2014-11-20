@@ -82,11 +82,7 @@ subroutine calc_dos()
   implicit none
   !
   integer :: ie, i1, i2, i3, ib, iwfc
-  real(8) :: nelec, ef
   real(8),allocatable :: wdos(:,:,:,:,:)
-  !
-  nelec = 0d0
-  ef = 0d0
   !
   allocate(wdos(ne,nb,ng(1),ng(2),ng(3)))
   call libtetrabz_dos(2,bvec,nb,ng,eig,ng,wdos,ne,e0)

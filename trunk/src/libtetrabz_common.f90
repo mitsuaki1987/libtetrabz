@@ -286,7 +286,7 @@ subroutine libtetrabz_initialize(bvec)
   !
   if(ltetra == 1) then
      !
-     write(*,*) "[libtetrabz] Linear tetrahedron method is used."
+     !write(*,*) "[libtetrabz] Linear tetrahedron method is used."
      !
      wlsm(1:4,1:20) = 0.0d0
      wlsm(1,1) = 1.0d0
@@ -296,7 +296,7 @@ subroutine libtetrabz_initialize(bvec)
      !
   else if(ltetra == 2) then
      !
-     write(*,*) "[libtetrabz] Improved tetrahedron method is used."
+     !write(*,*) "[libtetrabz] Improved tetrahedron method is used."
      !
      wlsm(1, 1: 4) = dble((/1440,    0,   30,    0/))
      wlsm(2, 1: 4) = dble((/   0, 1440,    0,   30/))
@@ -2195,9 +2195,9 @@ subroutine libtetrabz_fermigr2(e0,ei,ej,w)
   !
   integer :: ii, jj, ib, nn
   real(8) :: V, de(4), w2(4,ne,4), thr = 1d-8, &
-  &          tmp(5,4), tmp2(5,4), e(4), a(4,4)
+  &          tmp(1 + ne * 4,4), tmp2(1 + ne * 4,4), e(4), a(4,4)
   !
-  nn = ne + 1
+  nn = 1 + ne * 4
   !
   do ib = 1, nb
      !
@@ -2719,16 +2719,16 @@ subroutine libtetrabz_polimg2(e0,ei,ej,w)
   !
   integer :: ii, jj, ib, nn
   real(8) :: V, de(4), w2(4,2,ne,4), thr = 1d-8, &
-  &          tmp(5,4), tmp2(5,4), e(4), a(4,4)
+  &          tmp(1 + 8 * ne,4), tmp2(1 + 8 * ne,4), e(4), a(4,4)
   !
-  nn = ne + 1
+  nn = 1 + 8 * ne
   !
   do ib = 1, nb
      !
-     tmp(1,1:4) = ej(ib,1:4) - ei(1:4)
+     tmp(1,           1:4) = ej(ib,1:4) - ei(1:4)
      tmp(2:1 + 8 * ne,1:4) = reshape(w(1:4,1:2,1:ne,ib,1:4), (/8 * ne, 4/))
      call libtetrabz_sort(nn, 4, tmp)
-     e(1:4) = tmp(1,1:4)
+     e(                1:4) = tmp(1,1:4)
      w(1:4,1:2,1:ne,ib,1:4) = 0d0
      !
      do ii = 1, 4

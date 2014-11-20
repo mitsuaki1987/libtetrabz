@@ -3,6 +3,8 @@ module global
   implicit none
   !
   integer,save ::  &
+  & petot,         &
+  & my_rank,       &
   & ne,            &
   & nb,            & !
   & ng(3),         &
@@ -39,11 +41,12 @@ end module global
 !
 subroutine read_dat()
   !
-  use global, only : nb, ng, nwfc, bvec, e0, dos, ne, eig, wfc
+  use mpi
+  use global, only : nb, ng, nwfc, bvec, e0, dos, ne, eig, wfc, my_rank
   !
   implicit none
   !
-  integer :: fi = 10
+  integer :: fi = 10, ierr
   !
   if(my_rank == 0) then
      !
@@ -83,7 +86,9 @@ subroutine read_dat()
   if(my_rank /= 0) allocate(e0(ne), eig(nb, ng(1), ng(2), ng(3)), &
   &                          wfc(nwfc, nb, ng(1), ng(2), ng(3)))
   !
-
+  call MPI_BCAST(e0,                            ne, MPI_DOUBLE_PRECISION, 0, MPI_COMM_WORLD, ierr)
+  call MPI_BCAST(eig,        nb * product(ng(1:3)), MPI_DOUBLE_PRECISION, 0, MPI_COMM_WORLD, ierr)
+  call MPI_BCAST(wfc, nwfc * nb * product(ng(1:3)), MPI_DOUBLE_PRECISION, 0, MPI_COMM_WORLD, ierr)
   !
   allocate(dos(nwfc,ne))
   !
@@ -93,7 +98,8 @@ end subroutine read_dat
 !
 subroutine calc_dos()
   !
-  use libtetra_mod, only : libtetra
+  use mpi
+  use libtetrabz_mpi, only : libtetrabz_mpi_dos
   use global, only : ng, nb, bvec, eig, dos, ne, nwfc, wfc, e0
   implicit none
   !
@@ -105,7 +111,7 @@ subroutine calc_dos()
   ef = 0d0
   !
   allocate(wdos(ne,nb,ng(1),ng(2),ng(3)))
-  call libtetra("dos", 2, ng, ng, nb, ne, ef, nelec, bvec, e0, eig, eig, wdos)
+  call libtetrabz_mpi_dos(2,MPI_COMM_WORLD, bvec,nb,ng,eig,ng,wdos,ne,e0)
   !
   dos(1:nwfc,1:ne) = 0d0
   !
@@ -137,8 +143,9 @@ end subroutine calc_dos
 !
 subroutine calc_occ()
   !
-  use libtetra_mod, only : libtetra
-  use global, only : ng, nb, bvec, eig, nwfc, wfc
+  use mpi
+  use libtetrabz_mpi, only : libtetrabz_mpi_occ
+  use global, only : ng, nb, bvec, eig, nwfc, wfc, my_rank
   implicit none
   !
   integer :: ie, i1, i2, i3, ib, iwfc, iexp, n
@@ -150,7 +157,7 @@ subroutine calc_occ()
      n = 2**(iexp - 1)
      !
      allocate(wocc(nb,ng(1) /n,ng(2)/n,ng(3)/n))
-     call libtetra("occ", 2, ng, ng / n, nb, 1, ef, nelec, bvec, (/0d0/), eig, eig, wocc)
+     call libtetrabz_mpi_occ(2,MPI_COMM_WORLD, bvec,nb,ng,eig,ng / n,wocc)
      !
      occ(1:nwfc) = 0d0
      !
@@ -174,12 +181,14 @@ subroutine calc_occ()
      !
      deallocate(wocc)
      !
-     write(*,*)
-     write(*,*) "# WFC,  OCC "
-     do iwfc = 1, nwfc
-        write(*,*) iwfc, occ(iwfc)
-     end do
-     write(*,*)
+     if(my_rank == 0) then
+        write(*,*)
+        write(*,*) "# WFC,  OCC "
+        do iwfc = 1, nwfc
+           write(*,*) iwfc, occ(iwfc)
+        end do
+        write(*,*)
+     end if
      !
   end do
   !
@@ -209,30 +218,45 @@ end subroutine write_dos
 !
 program pdos
   !
-  use global, only : read_dat, calc_dos, write_dos, ng, calc_occ
+  !$ use omp_lib
+  use mpi
+  use global, only : read_dat, calc_dos, write_dos, ng, calc_occ, my_rank, petot
   implicit none
   !
-  integer :: i1, i2, i3, ik
+  integer :: ierr
+  !
+  call MPI_INIT(ierr)
+  call MPI_COMM_SIZE (MPI_COMM_WORLD, PETOT, ierr)
+  call MPI_COMM_RANK (MPI_COMM_WORLD, my_rank, ierr)
+  !
+  if(my_rank == 0) write(*,*) " # of PEs : ", petot
+  !$OMP PARALLEL
+  !$ if(OMP_GET_THREAD_NUM() == 0) then
+  !$    if(my_rank == 0) write(*,*) " # of threads : ", OMP_GET_NUM_THREADS()
+  !$ end if
+  !$OMP END PARALLEL
   !
   ! Read Quantum-ESPRESSO output
   !
-  write(*,*) ""
-  write(*,*) "#####  Read Quantum-ESPRESSO output  #####"
-  write(*,*) ""
+  if(my_rank == 0) write(*,*) ""
+  if(my_rank == 0) write(*,*) "#####  Read Quantum-ESPRESSO output  #####"
+  if(my_rank == 0) write(*,*) ""
   call read_dat()
   !
-  write(*,*) ""
-  write(*,*) "#####  Clc. Dos  #####"
-  write(*,*) ""
+  if(my_rank == 0) write(*,*) ""
+  if(my_rank == 0) write(*,*) "#####  Culc. Dos  #####"
+  if(my_rank == 0) write(*,*) ""
   !
   call calc_dos()
   !
   call calc_occ()
   !
-  call write_dos()
+  if(my_rank == 0) call write_dos()
   !
-  write(*,*) 
-  write(*,*) "#####  Done  #####"
-  write(*,*)
+  if(my_rank == 0) write(*,*) 
+  if(my_rank == 0) write(*,*) "#####  Done  #####"
+  if(my_rank == 0) write(*,*)
+  !
+  call MPI_FINALIZE(ierr)
   !
 end program pdos

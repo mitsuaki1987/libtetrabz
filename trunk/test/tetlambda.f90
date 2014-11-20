@@ -93,13 +93,15 @@ end subroutine read_elph
 !
 subroutine calc_dos()
   !
-  use libtetrabz, only : libtetrabz_fermieng, libtetrabz_dos, libtetrabz_doubledelta
-  use global, only : ng, nb, nk, nelec, bvec, eig1, eig2, g2, lam, nm, dos
+  use libtetrabz, only : libtetrabz_fermieng, libtetrabz_dos, &
+  &                      libtetrabz_doubledelta, libtetrabz_fermigr
+  use global, only : ng, nb, nk, nelec, bvec, eig1, eig2, g2, lam, nm, dos, omg
   !
   implicit none
   !
+  integer :: im
   real(8) :: ef
-  real(8),allocatable :: wlam(:)
+  real(8),allocatable :: wlam(:), wlw(:,:)
   !
   allocate(wlam(nb * nk))
   !
@@ -116,12 +118,52 @@ subroutine calc_dos()
   !
   deallocate(wlam)
   !
+  ! calc. lambda
+  !
   allocate(wlam(nb * nb * nk), lam(nm))
   call libtetrabz_doubledelta(2,bvec,nb,ng,eig1,eig2,ng,wlam)
   !
   lam(1:nm) = matmul(g2(1:nm, 1:nb * nb * nk), wlam(1:nb * nb * nk))
   !
   deallocate(wlam)
+  !
+  write(*,*) "  mode #, frequence[Ryd], lambda : "
+  do im = 1, nm
+     if(omg(im) <= 0d0 ) then
+        write(*,*) im, omg(im), 0d0
+     else
+        write(*,*) im, omg(im), lam(im) * 2d0 / (omg(im) * dos)
+     end if
+  end do
+  write(*,*) ""
+  !
+  ! calc. width
+  !
+  allocate(wlw(nm, nb * nb * nk))
+  call libtetrabz_fermigr(2,bvec,nb,ng,eig1,eig2,ng,wlw,nm,omg)
+  !
+  lam(1:nm) = 0d0
+  !$OMP PARALLEL DEFAULT(NONE) &
+  !$OMP & PRIVATE(nb,nk,nm,lam, g2, wlw) &
+  !$OMP & SHARED(im) 
+  !
+  !$OMP DO REDUCTION(+:lam)
+  do im = 1, nb * nb * nk
+     lam(1:nm) = lam(1:nm) + g2(1:nm, im) * wlw(1:nm, im)
+  end do
+  !$OMP END DO
+  !$OMP END PARALLEL
+  !
+  deallocate(wlw)
+  !
+  write(*,*) "  mode #, frequence[Ryd], lambda : "
+  do im = 1, nm
+     if(omg(im) <= 0d0 ) then
+        write(*,*) im, omg(im), 0d0
+     else
+        write(*,*) im, omg(im), lam(im) * 2d0 / (omg(im)**2 * dos)
+     end if
+  end do
   !
 end subroutine calc_dos
 !
@@ -153,18 +195,6 @@ program main
   ! Calc. DOS
   !
   call calc_dos()
-  !
-  ! calc. lambda
-  !
-  write(*,*) "  mode #, frequence[Ryd], lambda : "
-  do im = 1, nm
-     if(omg(im) <= 0d0 ) then
-        lam(im) = 0d0
-     else
-        lam(im) = lam(im) * 2d0 / (omg(im) * dos)
-     end if
-     write(*,*) im, omg(im), lam(im)
-  end do
   !
   t2 = OMP_GET_WTIME()
   !
