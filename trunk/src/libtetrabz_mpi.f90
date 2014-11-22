@@ -433,7 +433,7 @@ subroutine libtetrabz_mpi_polimg(ltetra0,comm0,bvec,nb0,nge,eig1,eig2,ngw,wght0,
   call libtetrabz_mpi_kgrid()
   !
   allocate(wght1(nn, nk0))
-  call libtetrabz_fermigr1(eig1,eig2,e0,wght1)
+  call libtetrabz_polimg1(eig1,eig2,e0,wght1)
   !
   call libtetrabz_interpol_weight(nn,ngw,nge,wght0,wght1)
   !

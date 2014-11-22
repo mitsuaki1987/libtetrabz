@@ -115,35 +115,77 @@ end subroutine read_elph
 subroutine calc_dos()
   !
   use mpi
-  use libtetrabz_mpi, only : libtetrabz_mpi_fermieng, libtetrabz_mpi_dos, libtetrabz_mpi_doubledelta
-  use global, only : ng, nb, nk, nelec, bvec, eig1, eig2, g2, lam, nm, dos, my_rank
+  use libtetrabz_mpi, only : libtetrabz_mpi_fermieng, libtetrabz_mpi_dos, &
+  &                      libtetrabz_mpi_doubledelta, libtetrabz_mpi_fermigr
+  use global, only : ng, nb, nk, nelec, bvec, eig1, eig2, g2, lam, nm, dos, omg, my_rank
   !
   implicit none
   !
+  integer :: im
   real(8) :: ef
-  real(8),allocatable :: wlam(:)
+  real(8),allocatable :: wlam(:), wlw(:,:)
   !
   allocate(wlam(nb * nk))
   !
   ef = 0d0
-  call libtetrabz_mpi_fermieng(2,MPI_COMM_WORLD, bvec,nb,ng,eig1,ng,wlam,ef,nelec)
+  call libtetrabz_mpi_fermieng(2,MPI_COMM_WORLD,bvec,nb,ng,eig1,ng,wlam,ef,nelec)
   eig1(1:nb,1:nk) = eig1(1:nb,1:nk) - ef
   eig2(1:nb,1:nk) = eig2(1:nb,1:nk) - ef
   if(my_rank == 0) write(*,*) "  Fermi energy [Ry]", -minval(eig1(1:nb,1:nk))
   !
-  call libtetrabz_mpi_dos(2,MPI_COMM_WORLD, bvec,nb,ng,eig1,ng,wlam,1,(/0d0/))
+  call libtetrabz_mpi_dos(2,MPI_COMM_WORLD,bvec,nb,ng,eig1,ng,wlam,1,(/0d0/))
   !
   dos = sum(wlam(1:nb * nk))
   if(my_rank == 0) write(*,'(a,10e18.8)') "  DOS[/Ryd/cell] = ", dos
   !
   deallocate(wlam)
   !
+  ! calc. lambda
+  !
   allocate(wlam(nb * nb * nk), lam(nm))
-  call libtetrabz_mpi_doubledelta(2,MPI_COMM_WORLD, bvec,nb,ng,eig1,eig2,ng,wlam)
+  call libtetrabz_mpi_doubledelta(2,MPI_COMM_WORLD,bvec,nb,ng,eig1,eig2,ng,wlam)
   !
   lam(1:nm) = matmul(g2(1:nm, 1:nb * nb * nk), wlam(1:nb * nb * nk))
   !
   deallocate(wlam)
+  !
+  if(my_rank == 0) write(*,*) "  mode #, frequence[Ryd], lambda : "
+  do im = 1, nm
+     if(omg(im) <= 0d0 ) then
+        if(my_rank == 0) write(*,*) im, omg(im), 0d0
+     else
+        if(my_rank == 0) write(*,*) im, omg(im), lam(im) * 2d0 / (omg(im) * dos)
+     end if
+  end do
+  write(*,*) ""
+  !
+  ! calc. width
+  !
+  allocate(wlw(nm, nb * nb * nk))
+  call libtetrabz_mpi_fermigr(2,MPI_COMM_WORLD,bvec,nb,ng,eig1,eig2,ng,wlw,nm,omg)
+  !
+  lam(1:nm) = 0d0
+  !$OMP PARALLEL DEFAULT(NONE) &
+  !$OMP & SHARED(nb,nk,nm,lam, g2, wlw) &
+  !$OMP & PRIVATE(im) 
+  !
+  !$OMP DO REDUCTION(+:lam)
+  do im = 1, nb * nb * nk
+     lam(1:nm) = lam(1:nm) + g2(1:nm, im) * wlw(1:nm, im)
+  end do
+  !$OMP END DO
+  !$OMP END PARALLEL
+  !
+  deallocate(wlw)
+  !
+  if(my_rank == 0) write(*,*) "  mode #, frequence[Ryd], lambda : "
+  do im = 1, nm
+     if(omg(im) <= 0d0 ) then
+        if(my_rank == 0) write(*,*) im, omg(im), 0d0
+     else
+        if(my_rank == 0) write(*,*) im, omg(im), lam(im) * 2d0 / (omg(im)**2 * dos)
+     end if
+  end do
   !
 end subroutine calc_dos
 !
@@ -182,18 +224,6 @@ program main
   ! Calc. DOS
   !
   call calc_dos()
-  !
-  ! calc. lambda
-  !
-  if(my_rank == 0) write(*,*) "  mode #, frequence[Ryd], lambda : "
-  do im = 1, nm
-     if(omg(im) <= 0d0 ) then
-        lam(im) = 0d0
-     else
-        lam(im) = lam(im) * 2d0 / (omg(im) * dos)
-     end if
-     if(my_rank == 0) write(*,*) im, omg(im), lam(im)
-  end do
   !
   t2 = OMP_GET_WTIME()
   !
