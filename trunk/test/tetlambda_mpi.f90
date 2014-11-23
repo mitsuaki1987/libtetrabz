@@ -100,6 +100,8 @@ subroutine read_elph()
   call MPI_BCAST(nelec,  1, MPI_DOUBLE_PRECISION, 0, MPI_COMM_WORLD, ierr)
   call MPI_BCAST(bvec,   9, MPI_DOUBLE_PRECISION, 0, MPI_COMM_WORLD, ierr)
   !
+  nelec = nelec * 0.5d0
+  !
   nk = product(ng(1:3))
   if(my_rank /= 0) allocate(g2(nm,nb * nb * nk), omg(nm), eig1(nb,nk), eig2(nb,nk))
   !

@@ -162,7 +162,7 @@ subroutine libtetrabz_mpi_fermieng(ltetra0,comm0,bvec,nb0,nge,eig,ngw,wght0,ef,n
      !
      call libtetrabz_occ1(ef, eig,wght1)
      !
-     sumkmid = sum(wght1(1:nb,1:nk0)) * 2d0
+     sumkmid = sum(wght1(1:nb,1:nk0))
      call MPI_allREDUCE(MPI_IN_PLACE, sumkmid, 1, &
      &                  MPI_DOUBLE_PRECISION, MPI_SUM, comm, ierr)
      !

@@ -157,10 +157,10 @@ subroutine libtetrabz_fermieng(ltetra0,bvec,nb0,nge,eig,ngw,wght0,ef,nelec)
      !
      if(any(nge(1:3) /= ngw(1:3))) then
         call libtetrabz_occ1(ef, eig,wght1)
-        sumkmid = sum(wght1(1:nb,1:nk0)) * 2d0
+        sumkmid = sum(wght1(1:nb,1:nk0))
      else
         call libtetrabz_occ1(ef, eig,wght0)
-        sumkmid = sum(wght0(1:nb,1:nk0)) * 2d0
+        sumkmid = sum(wght0(1:nb,1:nk0))
      end if
      !
      !

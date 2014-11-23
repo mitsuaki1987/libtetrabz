@@ -87,6 +87,8 @@ subroutine read_elph()
   write(*,*) "  # of bands : ", nb
   write(*,*) "  # of modes : ", nm
   !
+  nelec = nelec * 0.5d0
+  !
 end subroutine read_elph
 !
 ! Dos calclation
