@@ -1,4 +1,4 @@
-module libtetrabz_common
+module libtetrabz_vals
   !
   integer,save :: &
   & fst,          & !
@@ -20,190 +20,21 @@ module libtetrabz_common
   & indx2(:,:), &
   & indx3(:)
   !
-  interface
-     !
-     subroutine libtetrabz_initialize(bvec)
-       real(8),intent(in) :: bvec(3,3)
-     end subroutine libtetrabz_initialize
-     !
-     subroutine libtetrabz_occ1(ef,eig,occ)
-       import nb, nk, nk0
-       real(8),intent(in) :: ef, eig(nb,nk)
-       real(8),intent(out) :: occ(nb,nk0)
-     end subroutine libtetrabz_occ1
-     !
-     subroutine libtetrabz_sort(n1,n2,a)
-       integer,intent(in) :: n1, n2
-       real(8),intent(inout) :: a(n1,n2) 
-     end subroutine libtetrabz_sort
-     !
-     subroutine libtetrabz_dos1(eig,e0,dos)
-       import nb, nk, nk0, ne
-       real(8),intent(in) :: eig(nb,nk), e0(ne)
-       real(8),intent(out) :: dos(ne,nb,nk0)
-     end subroutine libtetrabz_dos1
-     !
-     subroutine libtetrabz_doubledelta1(eig1,eig2,ddel)
-       import nb, nk, nk0
-       real(8),intent(in) :: eig1(nb,nk), eig2(nb,nk)
-       real(8),intent(out) :: ddel(nb,nb,nk0)
-     end subroutine libtetrabz_doubledelta1
-     !
-     subroutine libtetrabz_doubledelta2(ej,w)
-       import nb
-       real(8),intent(in) :: ej(nb,3)
-       real(8),intent(inout) :: w(4,nb,3)
-     end subroutine libtetrabz_doubledelta2
-     !
-     subroutine libtetrabz_occstep1(eig1,eig2,ocst)
-       import nb, nk, nk0
-       real(8),intent(in) :: eig1(nb,nk), eig2(nb,nk)
-       real(8),intent(out) :: ocst(nb,nb,nk0)
-     end subroutine libtetrabz_occstep1
-     !
-     subroutine libtetrabz_occstep2(de,w)
-       import nb
-       real(8),intent(in) :: de(nb,4)
-       real(8),intent(inout) :: w(4,nb,4)
-     end subroutine libtetrabz_occstep2
-     !
-     subroutine libtetrabz_polstat1(eig1,eig2,pols)
-       import nb, nk, nk0
-       real(8),intent(in) :: eig1(nb,nk), eig2(nb,nk)
-       real(8),intent(out) :: pols(nb,nb,nk0)
-     end subroutine libtetrabz_polstat1
-     !
-     subroutine libtetrabz_polstat2(ei,ej,w)
-       import nb
-       real(8),intent(in) :: ei(4), ej(nb,4)
-       real(8),intent(inout) :: w(4,nb,4)
-     end subroutine libtetrabz_polstat2
-     !
-     subroutine libtetrabz_polstat3(de,w)
-       real(8),intent(in) :: de(4)
-       real(8),intent(inout) :: w(4,4)
-     end subroutine libtetrabz_polstat3
-     !
-     function libtetrabz_polstat_1234(g1,g2,g3,g4,lng1,lng2,lng3,lng4) result(w)
-       real(8),intent(in) :: g1,g2,g3,g4,lng1,lng2,lng3,lng4
-       real(8) :: w
-     end function libtetrabz_polstat_1234
-     !
-     function libtetrabz_polstat_1231(g1,g2,g3,lng1,lng2,lng3) result(w)
-       real(8),intent(in) :: g1,g2,g3,lng1,lng2,lng3
-       real(8) :: w
-     end function libtetrabz_polstat_1231
-     !
-     function libtetrabz_polstat_1233(g1,g2,g3,lng1,lng2,lng3) result(w)
-       real(8),intent(in) :: g1,g2,g3,lng1,lng2,lng3
-       real(8) :: w
-     end function libtetrabz_polstat_1233
-     !
-     function libtetrabz_polstat_1221(g1,g2,lng1,lng2) result(w)
-       real(8),intent(in) :: g1,g2,lng1,lng2
-       real(8) :: w
-     end function libtetrabz_polstat_1221
-     !
-     function libtetrabz_polstat_1211(g1,g2,lng1,lng2) result(w)
-       real(8),intent(in) :: g1,g2,lng1,lng2
-       real(8) :: w
-     end function libtetrabz_polstat_1211
-     !
-     function libtetrabz_polstat_1222(g1,g2,lng1,lng2) result(w)
-       real(8),intent(in) :: g1,g2,lng1,lng2
-       real(8) :: w
-     end function libtetrabz_polstat_1222
-     !
-     subroutine libtetrabz_fermigr1(eig1,eig2,e0,fgr)
-       import nb, nk, nk0, ne
-       real(8),intent(in) :: eig1(nb,nk), eig2(nb,nk), e0(ne)
-       real(8),intent(out) :: fgr(ne,nb,nb,nk0)
-     end subroutine libtetrabz_fermigr1
-     !
-     subroutine libtetrabz_fermigr2(e0,ei,ej,w)
-       import nb, ne
-       real(8),intent(in) :: e0(ne), ei(4), ej(nb,4)
-       real(8),intent(inout) :: w(4,ne,nb,4)
-     end subroutine libtetrabz_fermigr2
-     !
-     subroutine libtetrabz_fermigr3(e0,de,w)
-       import ne
-       real(8),intent(in) :: e0(ne), de(4)
-       real(8),intent(inout) :: w(4,ne,4)
-     end subroutine libtetrabz_fermigr3
-     !
-     subroutine libtetrabz_polimg1(eig1,eig2,e0,poli)
-       import nb, nk, nk0, ne
-       real(8),intent(in) :: eig1(nb,nk), eig2(nb,nk), e0(ne)
-       real(8),intent(out) :: poli(2,ne,nb,nb,nk0)
-     end subroutine libtetrabz_polimg1
-     !
-     subroutine libtetrabz_polimg2(e0,ei,ej,w)
-       import nb, ne
-       real(8),intent(in) :: e0(ne), ei(4), ej(nb,4)
-       real(8),intent(inout) :: w(4,2,ne,nb,4)
-     end subroutine libtetrabz_polimg2
-     !
-     subroutine libtetrabz_polimg3(e0,de,w)
-       import ne
-       real(8),intent(in) :: e0(ne), de(4)
-       real(8),intent(inout) :: w(4,2,ne,4)
-     end subroutine libtetrabz_polimg3
-     !
-     function libtetrabz_polimg_1234(g1,g2,g3,g4) result(w)
-       real(8),intent(in) :: g1,g2,g3,g4
-       real(8) :: w(2)
-     end function libtetrabz_polimg_1234
-     !
-     function libtetrabz_polimg_1231(g1,g2,g3) result(w)
-       real(8),intent(in) :: g1,g2,g3
-       real(8) :: w(2)
-     end function libtetrabz_polimg_1231
-     !
-     function libtetrabz_polimg_1233(g1,g2,g3) result(w)
-       real(8),intent(in) :: g1,g2,g3
-       real(8) :: w(2)
-     end function libtetrabz_polimg_1233
-     !
-     function libtetrabz_polimg_1221(g1,g2) result(w)
-       real(8),intent(in) :: g1,g2
-       real(8) :: w(2)
-     end function libtetrabz_polimg_1221
-     !
-     function libtetrabz_polimg_1211(g1,g2) result(w)
-       real(8),intent(in) :: g1, g2
-       real(8) :: w(2)
-     end function libtetrabz_polimg_1211
-     !
-     function libtetrabz_polimg_1222(g1,g2) result(w)
-       real(8),intent(in) :: g1, g2
-       real(8) :: w(2)
-     end function libtetrabz_polimg_1222
-     !
-     subroutine libtetrabz_interpol_weight(nb,ngc,ngd,wc,wd)
-       import nk0
-       integer,intent(in) :: nb, ngc(3), ngd(3)
-       real(8),intent(in) :: wd(nb,nk0)
-       real(8),intent(out) :: wc(nb,product(ngc(1:3)))
-     end subroutine libtetrabz_interpol_weight
-     !
-     subroutine libtetrabz_interpol_weight2(nk,nb,ng,ko,wi,wo)
-       integer,intent(in)  :: nk, nb, ng(3)
-       real(8),intent(in)  :: ko(3)
-       real(8),intent(in) :: wi(nb)
-       real(8),intent(inout) :: wo(nb,nk)
-     end subroutine libtetrabz_interpol_weight2
-     !
-  end interface
+end module libtetrabz_vals
+!
+!
+!
+module libtetrabz_routines
   !
-end module libtetrabz_common
+  implicit none
+  !
+contains
 !
 ! define shortest diagonal line & define type of tetragonal
 !
 subroutine libtetrabz_initialize(bvec)
   !
-  use libtetrabz_common, only : ltetra, ng, wlsm, ivvec, nt, nk, ng
-  implicit none
+  use libtetrabz_vals, only : ltetra, ng, wlsm, ivvec, nt, nk, ng
   !
   real(8),intent(in) :: bvec(3,3)
   !
@@ -338,8 +169,7 @@ end subroutine libtetrabz_initialize
 !
 subroutine libtetrabz_occ1(ef,eig,occ)
   !
-  use libtetrabz_common, only : nb, nk, nk0, fst, lst, wlsm, indx1, indx2, libtetrabz_sort
-  implicit none
+  use libtetrabz_vals, only : nb, nk, nk0, fst, lst, wlsm, indx1, indx2
   !
   real(8),intent(in) :: ef, eig(nb,nk)
   real(8),intent(out) :: occ(nb,nk0)
@@ -488,7 +318,6 @@ end subroutine libtetrabz_occ1
 !
 subroutine libtetrabz_sort(n1,n2,a)
   !
-  implicit none
   !
   integer,intent(in) :: n1, n2
   real(8),intent(inout) :: a(n1,n2) 
@@ -512,8 +341,7 @@ end subroutine libtetrabz_sort
 !
 subroutine libtetrabz_dos1(eig,e0,dos)
   !
-  use libtetrabz_common, only : nb, nk, nk0, ne, fst, lst, wlsm, indx1, indx2, libtetrabz_sort
-  implicit none
+  use libtetrabz_vals, only : nb, nk, nk0, ne, fst, lst, wlsm, indx1, indx2
   !
   real(8),intent(in) :: eig(nb,nk), e0(ne)
   real(8),intent(out) :: dos(ne,nb,nk0)
@@ -621,9 +449,7 @@ end subroutine libtetrabz_dos1
 !
 subroutine libtetrabz_doubledelta1(eig1,eig2,ddel)
   !
-  use libtetrabz_common, only : nb, nk, nk0, fst, lst, indx1, indx2, wlsm, &
-  &                    libtetrabz_sort, libtetrabz_doubledelta2
-  implicit none
+  use libtetrabz_vals, only : nb, nk, nk0, fst, lst, indx1, indx2, wlsm
   !
   real(8),intent(in) :: eig1(nb,nk), eig2(nb,nk)
   real(8),intent(out) :: ddel(nb,nb,nk0)
@@ -767,8 +593,7 @@ end subroutine libtetrabz_doubledelta1
 !
 subroutine libtetrabz_doubledelta2(ej,w)
   !
-  use libtetrabz_common, only : nb, libtetrabz_sort
-  implicit none
+  use libtetrabz_vals, only : nb
   !
   real(8),intent(in) :: ej(nb,3)
   real(8),intent(inout) :: w(4,nb,3)
@@ -820,9 +645,7 @@ end subroutine libtetrabz_doubledelta2
 !
 subroutine libtetrabz_occstep1(eig1,eig2,ocst)
   !
-  use libtetrabz_common, ONLY : nb, nk, nk0, fst, lst, indx1, indx2, wlsm, &
-  &                           libtetrabz_sort, libtetrabz_occstep2
-  implicit none
+  use libtetrabz_vals, ONLY : nb, nk, nk0, fst, lst, indx1, indx2, wlsm
   !
   real(8),intent(in) :: eig1(nb,nk), eig2(nb,nk)
   real(8),intent(out) :: ocst(nb,nb,nk)
@@ -1057,9 +880,7 @@ end subroutine libtetrabz_occstep1
 !
 subroutine libtetrabz_occstep2(de,w)
   !
-  use libtetrabz_common, ONLY : nb, libtetrabz_sort
-  !
-  implicit none
+  use libtetrabz_vals, ONLY : nb
   !
   real(8),intent(in) :: de(nb,4)
   real(8),intent(inout) :: w(4,nb,4)
@@ -1217,9 +1038,7 @@ end subroutine libtetrabz_occstep2
 !
 subroutine libtetrabz_polstat1(eig1,eig2,pols)
   !
-  use libtetrabz_common, ONLY : nk, nk0, nb, fst, lst, indx1, indx2, wlsm, &
-  &                           libtetrabz_sort, libtetrabz_polstat2
-  implicit none
+  use libtetrabz_vals, ONLY : nk, nk0, nb, fst, lst, indx1, indx2, wlsm
   !
   real(8),intent(in) :: eig1(nb,nk), eig2(nb,nk)
   real(8),intent(out) :: pols(nb,nb,nk0)
@@ -1458,9 +1277,7 @@ end subroutine libtetrabz_polstat1
 !
 subroutine libtetrabz_polstat2(ei,ej,w)
   !
-  use libtetrabz_common, ONLY : nb, libtetrabz_sort, libtetrabz_polstat3
-  !
-  implicit none
+  use libtetrabz_vals, ONLY : nb
   !
   real(8),intent(in) :: ei(4), ej(nb,4)
   real(8),intent(inout) :: w(4,nb,4)
@@ -1649,12 +1466,6 @@ end subroutine libtetrabz_polstat2
 !
 subroutine libtetrabz_polstat3(de0,w)
   !
-  use libtetrabz_common, ONLY : libtetrabz_sort, &
-  &   libtetrabz_polstat_1234, libtetrabz_polstat_1231, libtetrabz_polstat_1233, &
-  &   libtetrabz_polstat_1221, libtetrabz_polstat_1222, libtetrabz_polstat_1211
-  !
-  implicit none
-  !
   real(8),intent(in) :: de0(4)
   real(8),intent(inout) :: w(4,4)
   !
@@ -1817,8 +1628,6 @@ end subroutine libtetrabz_polstat3
 !
 function libtetrabz_polstat_1234(g1,g2,g3,g4,lng1,lng2,lng3,lng4) result(w)
   !
-  implicit none
-  !
   real(8),intent(in) :: g1,g2,g3,g4,lng1,lng2,lng3,lng4
   real(8) :: w
   !
@@ -1836,8 +1645,6 @@ end function libtetrabz_polstat_1234
 ! 2, g4 = g1
 !
 function libtetrabz_polstat_1231(g1,g2,g3,lng1,lng2,lng3) result(w)
-  !
-  implicit none
   !
   real(8),intent(in) :: g1,g2,g3,lng1,lng2,lng3
   real(8) :: w
@@ -1857,8 +1664,6 @@ end function libtetrabz_polstat_1231
 ! 3, g4 = g3
 !
 function libtetrabz_polstat_1233(g1,g2,g3,lng1,lng2,lng3) result(w)
-  !
-  implicit none
   !
   real(8),intent(in) :: g1,g2,g3,lng1,lng2,lng3
   real(8) :: w
@@ -1881,8 +1686,6 @@ end function libtetrabz_polstat_1233
 !
 function libtetrabz_polstat_1221(g1,g2,lng1,lng2) result(w)
   !
-  implicit none
-  !
   real(8),intent(in) :: g1, g2, lng1, lng2
   real(8) :: w
   !
@@ -1896,8 +1699,6 @@ end function libtetrabz_polstat_1221
 ! 5, g4 = g3 = g2
 !
 function libtetrabz_polstat_1222(g1,g2,lng1,lng2) result(w)
-  !
-  implicit none
   !
   real(8),intent(in) :: g1, g2, lng1, lng2
   real(8) :: w
@@ -1913,8 +1714,6 @@ end function libtetrabz_polstat_1222
 !
 function libtetrabz_polstat_1211(g1,g2,lng1,lng2) result(w)
   !
-  implicit none
-  !
   real(8),intent(in) :: g1,g2,lng1,lng2
   real(8) :: w
   !
@@ -1929,9 +1728,7 @@ end function libtetrabz_polstat_1211
 !
 subroutine libtetrabz_fermigr1(eig1,eig2,e0,fgr)
   !
-  use libtetrabz_common, ONLY : nb, nk, nk0, ne, fst, lst, indx1, indx2, wlsm, &
-  &                           libtetrabz_sort, libtetrabz_fermigr2
-  implicit none
+  use libtetrabz_vals, ONLY : nb, nk, nk0, ne, fst, lst, indx1, indx2, wlsm
   !
   real(8),intent(in) :: eig1(nb,nk), eig2(nb,nk), e0(ne)
   real(8),intent(out) :: fgr(ne,nb,nb,nk0)
@@ -2178,9 +1975,7 @@ end subroutine libtetrabz_fermigr1
 !
 subroutine libtetrabz_fermigr2(e0,ei,ej,w)
   !
-  use libtetrabz_common, ONLY : nb, ne, libtetrabz_sort, libtetrabz_fermigr3
-  !
-  implicit none
+  use libtetrabz_vals, ONLY : nb, ne
   !
   real(8),intent(in) :: e0(ne), ei(4), ej(nb,4)
   real(8),intent(inout) :: w(4,ne,nb,4)
@@ -2371,8 +2166,7 @@ end subroutine libtetrabz_fermigr2
 !
 subroutine libtetrabz_fermigr3(e0,de,w)
   !
-  use libtetrabz_common, only : ne, libtetrabz_sort
-  implicit none
+  use libtetrabz_vals, only : ne
   !
   real(8),intent(in) :: e0(ne), de(4)
   real(8),intent(inout) :: w(4,ne,4)
@@ -2444,9 +2238,7 @@ end subroutine libtetrabz_fermigr3
 !
 subroutine libtetrabz_polimg1(eig1,eig2,e0,poli)
   !
-  use libtetrabz_common, ONLY : nb, nk, nk0, ne, fst, lst, indx1, indx2, wlsm, &
-  &                           libtetrabz_sort, libtetrabz_polimg2
-  implicit none
+  use libtetrabz_vals, ONLY : nb, nk, nk0, ne, fst, lst, indx1, indx2, wlsm
   !
   real(8),intent(in) :: eig1(nb,nk), eig2(nb,nk), e0(ne)
   real(8),intent(out) :: poli(2,ne,nb,nb,nk0)
@@ -2703,9 +2495,7 @@ end subroutine libtetrabz_polimg1
 !
 subroutine libtetrabz_polimg2(e0,ei,ej,w)
   !
-  use libtetrabz_common, ONLY : nb, ne, libtetrabz_sort, libtetrabz_polimg3
-  !
-  implicit none
+  use libtetrabz_vals, ONLY : nb, ne
   !
   real(8),intent(in) :: e0(ne), ei(4), ej(nb,4)
   real(8),intent(inout) :: w(4,2,ne,nb,4)
@@ -2896,11 +2686,7 @@ end subroutine libtetrabz_polimg2
 !
 subroutine libtetrabz_polimg3(e0,de,w)
   !
-  use libtetrabz_common, ONLY : ne, libtetrabz_sort, &
-  &   libtetrabz_polimg_1234, libtetrabz_polimg_1231, libtetrabz_polimg_1233, &
-  &   libtetrabz_polimg_1221, libtetrabz_polimg_1222, libtetrabz_polimg_1211
-  !
-  implicit none
+  use libtetrabz_vals, ONLY : ne
   !
   real(8),intent(in) :: e0(ne), de(4)
   real(8),intent(inout) :: w(4,2,ne,4)
@@ -3065,8 +2851,6 @@ end subroutine libtetrabz_polimg3
 !
 function libtetrabz_polimg_1234(g1,g2,g3,g4) result(w)
   !
-  implicit none
-  !
   real(8),intent(in) :: g1, g2, g3, g4
   real(8) :: w(2)
   !
@@ -3117,8 +2901,6 @@ end function libtetrabz_polimg_1234
 !
 function libtetrabz_polimg_1231(g1,g2,g3) result(w)
   !
-  implicit none
-  !
   real(8),intent(in) :: g1, g2, g3
   real(8) :: w(2)
   !
@@ -3159,8 +2941,6 @@ end function libtetrabz_polimg_1231
 ! 3, g4 = g3
 !
 function libtetrabz_polimg_1233(g1, g2, g3) result(w)
-  !
-  implicit none
   !
   real(8),intent(in) :: g1, g2, g3
   real(8) :: w(2)
@@ -3213,8 +2993,6 @@ end function libtetrabz_polimg_1233
 !
 function libtetrabz_polimg_1221(g1,g2) result(w)
   !
-  implicit none
-  !
   real(8),intent(in) :: g1, g2
   real(8) :: w(2)
   !
@@ -3243,8 +3021,6 @@ end function libtetrabz_polimg_1221
 !
 function libtetrabz_polimg_1222(g1,g2) result(w)
   !
-  implicit none
-  !
   real(8),intent(in) :: g1, g2
   real(8) :: w(2)
   !
@@ -3272,8 +3048,6 @@ end function libtetrabz_polimg_1222
 !
 function libtetrabz_polimg_1211(g1,g2) result(w)
   !
-  implicit none
-  !
   real(8),intent(in) :: g1, g2
   real(8) :: w(2)
   !
@@ -3300,8 +3074,7 @@ end function libtetrabz_polimg_1211
 !
 subroutine libtetrabz_interpol_weight(nb,ngc,ngd,wc,wd)
   !
-  use libtetrabz_common, only : nk0, indx3, libtetrabz_interpol_weight2
-  implicit none
+  use libtetrabz_vals, only : nk0, indx3
   !
   integer,intent(in) :: nb, ngc(3), ngd(3)
   real(8),intent(in) :: wd(nb,nk0)
@@ -3342,8 +3115,7 @@ end subroutine libtetrabz_interpol_weight
 !
 subroutine libtetrabz_interpol_weight2(nk,nb,ng,ko,wi,wo)
   !
-  use libtetrabz_common, only : ltetra, ivvec
-  implicit none
+  use libtetrabz_vals, only : ltetra, ivvec
   !
   integer,intent(in)  :: nk, nb, ng(3)
   real(8),intent(in)  :: ko(3)
@@ -3433,3 +3205,7 @@ subroutine libtetrabz_interpol_weight2(nk,nb,ng,ko,wi,wo)
   end if
   !
 end subroutine libtetrabz_interpol_weight2
+!
+!
+!
+end module libtetrabz_routines

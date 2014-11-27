@@ -1,82 +1,16 @@
 module libtetrabz
   !
-  interface
-     !
-     subroutine libtetrabz_occ(ltetra0,bvec,nb0,nge,eig,ngw,wght0)
-       integer,intent(in) :: ltetra0, nge(3), ngw(3), nb0
-       real(8),intent(in) :: bvec(3,3)
-       real(8),intent(in) :: eig(nb0,product(nge(1:3)))
-       real(8),intent(out) :: wght0(nb0,product(ngw(1:3)))
-     end subroutine libtetrabz_occ
-     !
-     subroutine libtetrabz_fermieng(ltetra0,bvec,nb0,nge,eig,ngw,wght0,ef,nelec)
-       integer,intent(in) :: ltetra0, nge(3), ngw(3), nb0
-       real(8),intent(in) :: bvec(3,3), nelec
-       real(8),intent(in) :: eig(nb0,product(nge(1:3)))
-       real(8),intent(out) :: ef
-       real(8),intent(out) :: wght0(nb0,product(ngw(1:3)))
-     end subroutine libtetrabz_fermieng
-     !
-     subroutine libtetrabz_dos(ltetra0,bvec,nb0,nge,eig,ngw,wght0,ne0,e0)
-       integer,intent(in) :: ltetra0, nge(3), ngw(3), nb0, ne0
-       real(8),intent(in) :: bvec(3,3), e0(ne0)
-       real(8),intent(in) :: eig(nb0,product(nge(1:3)))
-       real(8),intent(out) :: wght0(ne0,nb0,product(ngw(1:3)))
-     end subroutine libtetrabz_dos
-     !
-     subroutine libtetrabz_doubledelta(ltetra0,bvec,nb0,nge,eig1,eig2,ngw,wght0)
-       integer,intent(in) :: ltetra0, nge(3), ngw(3), nb0
-       real(8),intent(in) :: bvec(3,3)
-       real(8),intent(in) :: eig1(nb0,product(nge(1:3))), eig2(nb0,product(nge(1:3)))
-       real(8),intent(out) :: wght0(nb0,nb0,product(ngw(1:3)))
-     end subroutine libtetrabz_doubledelta
-     !
-     subroutine libtetrabz_occstep(ltetra0,bvec,nb0,nge,eig1,eig2,ngw,wght0)
-       integer,intent(in) :: ltetra0, nge(3), ngw(3), nb0
-       real(8),intent(in) :: bvec(3,3)
-       real(8),intent(in) :: eig1(nb0,product(nge(1:3))), eig2(nb0,product(nge(1:3)))
-       real(8),intent(out) :: wght0(nb0,nb0,product(ngw(1:3)))
-     end subroutine libtetrabz_occstep
-     !
-     subroutine libtetrabz_polstat(ltetra0,bvec,nb0,nge,eig1,eig2,ngw,wght0)
-       integer,intent(in) :: ltetra0, nge(3), ngw(3), nb0
-       real(8),intent(in) :: bvec(3,3)
-       real(8),intent(in) :: eig1(nb0,product(nge(1:3))), eig2(nb0,product(nge(1:3)))
-       real(8),intent(out) :: wght0(nb0,nb0,product(ngw(1:3)))
-     end subroutine libtetrabz_polstat
-     !
-     subroutine libtetrabz_fermigr(ltetra0,bvec,nb0,nge,eig1,eig2,ngw,wght0,ne0,e0)
-       integer,intent(in) :: ltetra0, nge(3), ngw(3), nb0, ne0
-       real(8),intent(in) :: bvec(3,3), e0(ne0)
-       real(8),intent(in) :: eig1(nb0,product(nge(1:3))), eig2(nb0,product(nge(1:3)))
-       real(8),intent(out) :: wght0(ne0,nb0,nb0,product(ngw(1:3)))
-     end subroutine libtetrabz_fermigr
-     !
-     subroutine libtetrabz_polimg(ltetra0,bvec,nb0,nge,eig1,eig2,ngw,wght0,ne0,e0)
-       integer,intent(in) :: ltetra0, nge(3), ngw(3), nb0, ne0
-       real(8),intent(in) :: bvec(3,3), e0(ne0)
-       real(8),intent(in) :: eig1(nb0,product(nge(1:3))), eig2(nb0,product(nge(1:3)))
-       real(8),intent(out) :: wght0(2,ne0,nb0,nb0,product(ngw(1:3)))
-     end subroutine libtetrabz_polimg
-     !
-     subroutine libtetrabz_kgrid()
-     end subroutine libtetrabz_kgrid
-     !
-  end interface
+  implicit none
   !
-end module libtetrabz
+contains
 !
 ! Compute occupation
 !
 subroutine libtetrabz_occ(ltetra0,bvec,nb0,nge,eig,ngw,wght0)
   !
-  use libtetrabz_common, only : ltetra, ng, nb, nk0, indx1, indx2, indx3, &
-  &                           libtetrabz_initialize, libtetrabz_interpol_weight, &
-  &                           libtetrabz_occ1
-  !
-  use libtetrabz, only : libtetrabz_kgrid
-  !
-  implicit none
+  use libtetrabz_vals, only : ltetra, ng, nb, nk0, indx1, indx2, indx3
+  use libtetrabz_routines, only : libtetrabz_initialize, libtetrabz_interpol_weight, &
+  &                               libtetrabz_occ1
   !
   integer,intent(in) :: ltetra0, nge(3), ngw(3), nb0
   real(8),intent(in) :: bvec(3,3)
@@ -114,13 +48,9 @@ end subroutine libtetrabz_occ
 !
 subroutine libtetrabz_fermieng(ltetra0,bvec,nb0,nge,eig,ngw,wght0,ef,nelec)
   !
-  use libtetrabz_common, only : ltetra, ng, nb, nk, nk0, indx1, indx2, indx3, &
-  &                           libtetrabz_initialize, libtetrabz_interpol_weight, &
-  &                           libtetrabz_occ1
-  !
-  use libtetrabz, only : libtetrabz_kgrid
-  !
-  implicit none
+  use libtetrabz_vals, only : ltetra, ng, nb, nk, nk0, indx1, indx2, indx3
+  use libtetrabz_routines, only : libtetrabz_initialize, libtetrabz_interpol_weight, &
+  &                               libtetrabz_occ1
   !
   integer,intent(in) :: ltetra0, nge(3), ngw(3), nb0
   real(8),intent(in) :: bvec(3,3), nelec
@@ -191,13 +121,9 @@ end subroutine libtetrabz_fermieng
 !
 subroutine libtetrabz_dos(ltetra0,bvec,nb0,nge,eig,ngw,wght0,ne0,e0)
   !
-  use libtetrabz_common, only : ltetra, ng, nb, nk0, indx1, indx2, indx3, &
-  &                           libtetrabz_initialize, libtetrabz_interpol_weight, &
-  &                           libtetrabz_dos1, ne
-  !
-  use libtetrabz, only : libtetrabz_kgrid
-  !
-  implicit none
+  use libtetrabz_vals, only : ltetra, ng, nb, nk0, indx1, indx2, indx3, ne
+  use libtetrabz_routines, only : libtetrabz_initialize, libtetrabz_interpol_weight, &
+  &                               libtetrabz_dos1
   !
   integer,intent(in) :: ltetra0, nge(3), ngw(3), nb0, ne0
   real(8),intent(in) :: bvec(3,3), e0(ne0)
@@ -236,13 +162,9 @@ end subroutine libtetrabz_dos
 !
 subroutine libtetrabz_doubledelta(ltetra0,bvec,nb0,nge,eig1,eig2,ngw,wght0)
   !
-  use libtetrabz_common, only : ltetra, ng, nb, nk0, indx1, indx2, indx3, &
-  &                           libtetrabz_initialize, libtetrabz_interpol_weight, &
-  &                           libtetrabz_doubledelta1
-  !
-  use libtetrabz, only : libtetrabz_kgrid
-  !
-  implicit none
+  use libtetrabz_vals, only : ltetra, ng, nb, nk0, indx1, indx2, indx3
+  use libtetrabz_routines, only : libtetrabz_initialize, libtetrabz_interpol_weight, &
+  &                               libtetrabz_doubledelta1
   !
   integer,intent(in) :: ltetra0, nge(3), ngw(3), nb0
   real(8),intent(in) :: bvec(3,3)
@@ -280,13 +202,9 @@ end subroutine libtetrabz_doubledelta
 !
 subroutine libtetrabz_occstep(ltetra0,bvec,nb0,nge,eig1,eig2,ngw,wght0)
   !
-  use libtetrabz_common, only : ltetra, ng, nb, nk0, indx1, indx2, indx3, &
-  &                           libtetrabz_initialize, libtetrabz_interpol_weight, &
-  &                           libtetrabz_occstep1
-  !
-  use libtetrabz, only : libtetrabz_kgrid
-  !
-  implicit none
+  use libtetrabz_vals, only : ltetra, ng, nb, nk0, indx1, indx2, indx3
+  use libtetrabz_routines, only : libtetrabz_initialize, libtetrabz_interpol_weight, &
+  &                               libtetrabz_occstep1
   !
   integer,intent(in) :: ltetra0, nge(3), ngw(3), nb0
   real(8),intent(in) :: bvec(3,3)
@@ -324,13 +242,9 @@ end subroutine libtetrabz_occstep
 !
 subroutine libtetrabz_polstat(ltetra0,bvec,nb0,nge,eig1,eig2,ngw,wght0)
   !
-  use libtetrabz_common, only : ltetra, ng, nb, nk0, indx1, indx2, indx3, &
-  &                           libtetrabz_initialize, libtetrabz_interpol_weight, &
-  &                           libtetrabz_polstat1
-  !
-  use libtetrabz, only : libtetrabz_kgrid
-  !
-  implicit none
+  use libtetrabz_vals, only : ltetra, ng, nb, nk0, indx1, indx2, indx3
+  use libtetrabz_routines, only : libtetrabz_initialize, libtetrabz_interpol_weight, &
+  &                               libtetrabz_polstat1
   !
   integer,intent(in) :: ltetra0, nge(3), ngw(3), nb0
   real(8),intent(in) :: bvec(3,3)
@@ -368,13 +282,9 @@ end subroutine libtetrabz_polstat
 !
 subroutine libtetrabz_fermigr(ltetra0,bvec,nb0,nge,eig1,eig2,ngw,wght0,ne0,e0)
   !
-  use libtetrabz_common, only : ltetra, ng, nb, nk0, indx1, indx2, indx3, &
-  &                           libtetrabz_initialize, libtetrabz_interpol_weight, &
-  &                           libtetrabz_fermigr1, ne
-  !
-  use libtetrabz, only : libtetrabz_kgrid
-  !
-  implicit none
+  use libtetrabz_vals, only : ltetra, ng, nb, nk0, indx1, indx2, indx3, ne
+  use libtetrabz_routines, only : libtetrabz_initialize, libtetrabz_interpol_weight, &
+  &                               libtetrabz_fermigr1
   !
   integer,intent(in) :: ltetra0, nge(3), ngw(3), nb0, ne0
   real(8),intent(in) :: bvec(3,3), e0(ne0)
@@ -413,13 +323,9 @@ end subroutine libtetrabz_fermigr
 !
 subroutine libtetrabz_polimg(ltetra0,bvec,nb0,nge,eig1,eig2,ngw,wght0,ne0,e0)
   !
-  use libtetrabz_common, only : ltetra, ng, nb, nk0, indx1, indx2, indx3, &
-  &                           libtetrabz_initialize, libtetrabz_interpol_weight, &
-  &                           libtetrabz_polimg1, ne
-  !
-  use libtetrabz, only : libtetrabz_kgrid
-  !
-  implicit none
+  use libtetrabz_vals, only : ltetra, ng, nb, nk0, indx1, indx2, indx3, ne
+  use libtetrabz_routines, only : libtetrabz_initialize, libtetrabz_interpol_weight, &
+  &                               libtetrabz_polimg1
   !
   integer,intent(in) :: ltetra0, nge(3), ngw(3), nb0, ne0
   real(8),intent(in) :: bvec(3,3), e0(ne0)
@@ -458,7 +364,7 @@ end subroutine libtetrabz_polimg
 !
 subroutine libtetrabz_kgrid()
   !
-  use libtetrabz_common, only : nk, nk0, indx1, indx2, indx3, ng, ivvec, fst, lst
+  use libtetrabz_vals, only : nk, nk0, indx1, indx2, indx3, ng, ivvec, fst, lst
   !
   implicit none
   !
@@ -502,3 +408,7 @@ subroutine libtetrabz_kgrid()
   end do
   !
 end subroutine libtetrabz_kgrid
+!
+!
+!
+end module libtetrabz

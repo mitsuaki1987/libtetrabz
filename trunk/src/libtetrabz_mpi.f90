@@ -1,88 +1,127 @@
-module libtetrabz_mpi
+module libtetrabz_mpi_routines
+  !
+  implicit none
   !
   integer,save :: comm
   !
-  interface
-     !
-     subroutine libtetrabz_mpi_occ(ltetra0,comm0,bvec,nb0,nge,eig,ngw,wght0)
-       integer,intent(in) :: ltetra0, comm0, nge(3), ngw(3), nb0
-       real(8),intent(in) :: bvec(3,3)
-       real(8),intent(in) :: eig(nb0,product(nge(1:3)))
-       real(8),intent(out) :: wght0(nb0,product(ngw(1:3)))
-     end subroutine libtetrabz_mpi_occ
-     !
-     subroutine libtetrabz_mpi_fermieng(ltetra0,comm0,bvec,nb0,nge,eig,ngw,wght0,ef,nelec)
-       integer,intent(in) :: ltetra0, comm0, nge(3), ngw(3), nb0
-       real(8),intent(in) :: bvec(3,3), nelec
-       real(8),intent(in) :: eig(nb0,product(nge(1:3)))
-       real(8),intent(out) :: ef
-       real(8),intent(out) :: wght0(nb0,product(ngw(1:3)))
-     end subroutine libtetrabz_mpi_fermieng
-     !
-     subroutine libtetrabz_mpi_dos(ltetra0,comm0,bvec,nb0,nge,eig,ngw,wght0,ne0,e0)
-       integer,intent(in) :: ltetra0, comm0, nge(3), ngw(3), nb0, ne0
-       real(8),intent(in) :: bvec(3,3), e0(ne0)
-       real(8),intent(in) :: eig(nb0,product(nge(1:3)))
-       real(8),intent(out) :: wght0(ne0,nb0,product(ngw(1:3)))
-     end subroutine libtetrabz_mpi_dos
-     !
-     subroutine libtetrabz_mpi_doubledelta(ltetra0,comm0,bvec,nb0,nge,eig1,eig2,ngw,wght0)
-       integer,intent(in) :: ltetra0, comm0, nge(3), ngw(3), nb0
-       real(8),intent(in) :: bvec(3,3)
-       real(8),intent(in) :: eig1(nb0,product(nge(1:3))), eig2(nb0,product(nge(1:3)))
-       real(8),intent(out) :: wght0(nb0,nb0,product(ngw(1:3)))
-     end subroutine libtetrabz_mpi_doubledelta
-     !
-     subroutine libtetrabz_mpi_occstep(ltetra0,comm0,bvec,nb0,nge,eig1,eig2,ngw,wght0)
-       integer,intent(in) :: ltetra0, comm0, nge(3), ngw(3), nb0
-       real(8),intent(in) :: bvec(3,3)
-       real(8),intent(in) :: eig1(nb0,product(nge(1:3))), eig2(nb0,product(nge(1:3)))
-       real(8),intent(out) :: wght0(nb0,nb0,product(ngw(1:3)))
-     end subroutine libtetrabz_mpi_occstep
-     !
-     subroutine libtetrabz_mpi_polstat(ltetra0,comm0,bvec,nb0,nge,eig1,eig2,ngw,wght0)
-       integer,intent(in) :: ltetra0, comm0, nge(3), ngw(3), nb0
-       real(8),intent(in) :: bvec(3,3)
-       real(8),intent(in) :: eig1(nb0,product(nge(1:3))), eig2(nb0,product(nge(1:3)))
-       real(8),intent(out) :: wght0(nb0,nb0,product(ngw(1:3)))
-     end subroutine libtetrabz_mpi_polstat
-     !
-     subroutine libtetrabz_mpi_fermigr(ltetra0,comm0,bvec,nb0,nge,eig1,eig2,ngw,wght0,ne0,e0)
-       integer,intent(in) :: ltetra0, comm0, nge(3), ngw(3), nb0, ne0
-       real(8),intent(in) :: bvec(3,3), e0(ne0)
-       real(8),intent(in) :: eig1(nb0,product(nge(1:3))), eig2(nb0,product(nge(1:3)))
-       real(8),intent(out) :: wght0(ne0,nb0,nb0,product(ngw(1:3)))
-     end subroutine libtetrabz_mpi_fermigr
-     !
-     subroutine libtetrabz_mpi_polimg(ltetra0,comm0,bvec,nb0,nge,eig1,eig2,ngw,wght0,ne0,e0)
-       integer,intent(in) :: ltetra0, comm0, nge(3), ngw(3), nb0, ne0
-       real(8),intent(in) :: bvec(3,3), e0(ne0)
-       real(8),intent(in) :: eig1(nb0,product(nge(1:3))), eig2(nb0,product(nge(1:3)))
-       real(8),intent(out) :: wght0(2,ne0,nb0,nb0,product(ngw(1:3)))
-     end subroutine libtetrabz_mpi_polimg
-     !
-     subroutine libtetrabz_mpi_kgrid()
-     end subroutine libtetrabz_mpi_kgrid
-     !
-     subroutine libtetrabz_fst_and_lst()
-     end subroutine libtetrabz_fst_and_lst
-     !
-  end interface
+contains
+!
+! Initialize grid
+!
+subroutine libtetrabz_mpi_kgrid()
   !
-end module libtetrabz_mpi
+  use libtetrabz_vals, only : nk, nk0, indx1, indx2, indx3, ng, ivvec, fst, lst
+  !
+  integer :: it, i1, i2, i3, ii, ikv(3), nt, ik
+  !
+  allocate(indx1(20, 6 * nk), indx2(20, 6 * nk), indx3(20 * 6 * nk))
+  !
+  nt = 0
+  do i3 = 1, ng(3)
+     do i2  = 1, ng(2)
+        do i1 = 1, ng(1)
+           !
+           do it = 1, 6
+              !
+              nt = nt + 1
+              !
+              do ii = 1, 20
+                 !
+                 ikv(1:3) = (/i1, i2, i3/) + ivvec(1:3,ii,it) - 1
+                 ikv(1:3) = modulo(ikv(1:3), ng(1:3))
+                 !
+                 indx1(ii,nt) = 1 + ikv(1) + ng(1) * ikv(2) + ng(1) * ng(2) * ikv(3)
+                 !
+              end do
+              !
+           end do
+           !
+        end do
+     end do
+  end do
+  !
+  indx2(1:20,1:6 * nk) = 0
+  indx3(1:20 * 6 * nk) = 0
+  !
+  call libtetrabz_fst_and_lst()
+  !
+  nk0 = 0
+  do it = fst, lst
+     !
+     do ii = 1, 20
+        !
+        do ik = 1, nk0
+           !
+           if(indx1(ii,it) == indx3(ik)) then
+              !
+              indx2(ii,it) = ik
+              goto 10
+              !
+           end if
+           !
+        end do
+        !
+        nk0 = nk0 + 1
+        indx2(ii,it) = nk0
+        indx3(nk0) = indx1(ii,it)
+        !
+10      continue
+        !
+     end do
+     !
+  end do
+  !
+end subroutine libtetrabz_mpi_kgrid
+!
+! Compute cnt and dsp
+!
+subroutine libtetrabz_fst_and_lst()
+  !
+  use mpi, only : mpi_comm_size, mpi_comm_rank
+  use libtetrabz_vals, only : fst, lst, nk
+  !
+  integer :: ii, petot, my_rank, ierr
+  integer,allocatable :: cnt(:), dsp(:)
+  !
+  call MPI_COMM_SIZE(comm, petot, ierr)
+  call MPI_COMM_RANK(comm, my_rank, ierr)
+  !
+  allocate(cnt(0:petot-1), dsp(0:petot-1))
+  !
+  cnt(0:petot-1)        = 6 * nk / petot
+  cnt(0:mod(6 * nk,petot)-1) = 6 * nk / petot + 1
+  dsp(0) = 0
+  do ii = 1, petot - 1
+     dsp(ii) = dsp(ii - 1) + cnt(ii - 1)
+  end do
+  !
+  fst = dsp(my_rank) + 1
+  lst = dsp(my_rank) + cnt(my_rank)
+  !
+  deallocate(cnt,dsp)
+  !
+end subroutine libtetrabz_fst_and_lst
+!
+end module libtetrabz_mpi_routines
+!
+!
+!
+module libtetrabz_mpi
+  !
+  implicit none
+  !
+contains
 !
 ! Compute occupation
 !
 subroutine libtetrabz_mpi_occ(ltetra0,comm0,bvec,nb0,nge,eig,ngw,wght0)
   !
   use mpi, only : MPI_IN_PLACE, MPI_DOUBLE_PRECISION, MPI_SUM
-  use libtetrabz_common, only : ltetra, ng, nb, nk0, indx1, indx2, indx3, &
-  &                           libtetrabz_initialize, libtetrabz_interpol_weight, &
-  &                           libtetrabz_occ1
+  use libtetrabz_vals, only : ltetra, ng, nb, nk0, indx1, indx2, indx3
+  use libtetrabz_routines, only : libtetrabz_initialize, libtetrabz_interpol_weight, &
+  &                               libtetrabz_occ1
   !
-  use libtetrabz_mpi, only : comm, libtetrabz_mpi_kgrid
-  !
-  implicit none
+  use libtetrabz_mpi_routines, only : comm, libtetrabz_mpi_kgrid
   !
   integer,intent(in) :: ltetra0, comm0, nge(3), ngw(3), nb0
   real(8),intent(in) :: bvec(3,3)
@@ -118,13 +157,11 @@ end subroutine libtetrabz_mpi_occ
 subroutine libtetrabz_mpi_fermieng(ltetra0,comm0,bvec,nb0,nge,eig,ngw,wght0,ef,nelec)
   !
   use mpi, only : MPI_IN_PLACE, MPI_DOUBLE_PRECISION, MPI_SUM
-  use libtetrabz_common, only : ltetra, ng, nb, nk, nk0, indx1, indx2, indx3, &
-  &                           libtetrabz_initialize, libtetrabz_interpol_weight, &
+  use libtetrabz_vals, only : ltetra, ng, nb, nk, nk0, indx1, indx2, indx3
+  use libtetrabz_routines, only : libtetrabz_initialize, libtetrabz_interpol_weight, &
   &                           libtetrabz_occ1
   !
-  use libtetrabz_mpi, only : comm, libtetrabz_mpi_kgrid
-  !
-  implicit none
+  use libtetrabz_mpi_routines, only : comm, libtetrabz_mpi_kgrid
   !
   integer,intent(in) :: ltetra0, comm0, nge(3), ngw(3), nb0
   real(8),intent(in) :: bvec(3,3), nelec
@@ -194,13 +231,11 @@ end subroutine libtetrabz_mpi_fermieng
 subroutine libtetrabz_mpi_dos(ltetra0,comm0,bvec,nb0,nge,eig,ngw,wght0,ne0,e0)
   !
   use mpi, only : MPI_IN_PLACE, MPI_DOUBLE_PRECISION, MPI_SUM
-  use libtetrabz_common, only : ltetra, ng, nb, nk0, indx1, indx2, indx3, &
-  &                           libtetrabz_initialize, libtetrabz_interpol_weight, &
-  &                           libtetrabz_dos1, ne
+  use libtetrabz_vals, only : ltetra, ng, nb, nk0, indx1, indx2, indx3, ne
+  use libtetrabz_routines, only : libtetrabz_initialize, libtetrabz_interpol_weight, &
+  &                           libtetrabz_dos1
   !
-  use libtetrabz_mpi, only : comm, libtetrabz_mpi_kgrid
-  !
-  implicit none
+  use libtetrabz_mpi_routines, only : comm, libtetrabz_mpi_kgrid
   !
   integer,intent(in) :: ltetra0, comm0, nge(3), ngw(3), nb0, ne0
   real(8),intent(in) :: bvec(3,3), e0(ne0)
@@ -237,13 +272,11 @@ end subroutine libtetrabz_mpi_dos
 subroutine libtetrabz_mpi_doubledelta(ltetra0,comm0,bvec,nb0,nge,eig1,eig2,ngw,wght0)
   !
   use mpi, only : MPI_IN_PLACE, MPI_DOUBLE_PRECISION, MPI_SUM
-  use libtetrabz_common, only : ltetra, ng, nb, nk0, indx1, indx2, indx3, &
-  &                           libtetrabz_initialize, libtetrabz_interpol_weight, &
+  use libtetrabz_vals, only : ltetra, ng, nb, nk0, indx1, indx2, indx3
+  use libtetrabz_routines, only : libtetrabz_initialize, libtetrabz_interpol_weight, &
   &                           libtetrabz_doubledelta1
   !
-  use libtetrabz_mpi, only : comm, libtetrabz_mpi_kgrid
-  !
-  implicit none
+  use libtetrabz_mpi_routines, only : comm, libtetrabz_mpi_kgrid
   !
   integer,intent(in) :: ltetra0, comm0, nge(3), ngw(3), nb0
   real(8),intent(in) :: bvec(3,3)
@@ -279,13 +312,11 @@ end subroutine libtetrabz_mpi_doubledelta
 subroutine libtetrabz_mpi_occstep(ltetra0,comm0,bvec,nb0,nge,eig1,eig2,ngw,wght0)
   !
   use mpi, only : MPI_IN_PLACE, MPI_DOUBLE_PRECISION, MPI_SUM
-  use libtetrabz_common, only : ltetra, ng, nb, nk0, indx1, indx2, indx3, &
-  &                           libtetrabz_initialize, libtetrabz_interpol_weight, &
+  use libtetrabz_vals, only : ltetra, ng, nb, nk0, indx1, indx2, indx3
+  use libtetrabz_routines, only : libtetrabz_initialize, libtetrabz_interpol_weight, &
   &                           libtetrabz_occstep1
   !
-  use libtetrabz_mpi, only : comm, libtetrabz_mpi_kgrid
-  !
-  implicit none
+  use libtetrabz_mpi_routines, only : comm, libtetrabz_mpi_kgrid
   !
   integer,intent(in) :: ltetra0, comm0, nge(3), ngw(3), nb0
   real(8),intent(in) :: bvec(3,3)
@@ -321,13 +352,11 @@ end subroutine libtetrabz_mpi_occstep
 subroutine libtetrabz_mpi_polstat(ltetra0,comm0,bvec,nb0,nge,eig1,eig2,ngw,wght0)
   !
   use mpi, only : MPI_IN_PLACE, MPI_DOUBLE_PRECISION, MPI_SUM
-  use libtetrabz_common, only : ltetra, ng, nb, nk0, indx1, indx2, indx3, &
-  &                           libtetrabz_initialize, libtetrabz_interpol_weight, &
+  use libtetrabz_vals, only : ltetra, ng, nb, nk0, indx1, indx2, indx3
+  use libtetrabz_routines, only : libtetrabz_initialize, libtetrabz_interpol_weight, &
   &                           libtetrabz_polstat1
   !
-  use libtetrabz_mpi, only : comm, libtetrabz_mpi_kgrid
-  !
-  implicit none
+  use libtetrabz_mpi_routines, only : comm, libtetrabz_mpi_kgrid
   !
   integer,intent(in) :: ltetra0, comm0, nge(3), ngw(3), nb0
   real(8),intent(in) :: bvec(3,3)
@@ -363,13 +392,11 @@ end subroutine libtetrabz_mpi_polstat
 subroutine libtetrabz_mpi_fermigr(ltetra0,comm0,bvec,nb0,nge,eig1,eig2,ngw,wght0,ne0,e0)
   !
   use mpi, only : MPI_IN_PLACE, MPI_DOUBLE_PRECISION, MPI_SUM
-  use libtetrabz_common, only : ltetra, ng, nb, nk0, indx1, indx2, indx3, &
-  &                           libtetrabz_initialize, libtetrabz_interpol_weight, &
-  &                           libtetrabz_fermigr1, ne
+  use libtetrabz_vals, only : ltetra, ng, nb, nk0, ne, indx1, indx2, indx3
+  use libtetrabz_routines, only : libtetrabz_initialize, libtetrabz_interpol_weight, &
+  &                           libtetrabz_fermigr1
   !
-  use libtetrabz_mpi, only : comm, libtetrabz_mpi_kgrid
-  !
-  implicit none
+  use libtetrabz_mpi_routines, only : comm, libtetrabz_mpi_kgrid
   !
   integer,intent(in) :: ltetra0, comm0, nge(3), ngw(3), nb0, ne0
   real(8),intent(in) :: bvec(3,3), e0(ne0)
@@ -406,13 +433,11 @@ end subroutine libtetrabz_mpi_fermigr
 subroutine libtetrabz_mpi_polimg(ltetra0,comm0,bvec,nb0,nge,eig1,eig2,ngw,wght0,ne0,e0)
   !
   use mpi, only : MPI_IN_PLACE, MPI_DOUBLE_PRECISION, MPI_SUM
-  use libtetrabz_common, only : ltetra, ng, nb, nk0, indx1, indx2, indx3, &
-  &                           libtetrabz_initialize, libtetrabz_interpol_weight, &
-  &                           libtetrabz_polimg1, ne
+  use libtetrabz_vals, only : ltetra, ng, nb, nk0, indx1, indx2, indx3, ne
+  use libtetrabz_routines, only : libtetrabz_initialize, libtetrabz_interpol_weight, &
+  &                               libtetrabz_polimg1
   !
-  use libtetrabz_mpi, only : comm, libtetrabz_mpi_kgrid
-  !
-  implicit none
+  use libtetrabz_mpi_routines, only : comm, libtetrabz_mpi_kgrid
   !
   integer,intent(in) :: ltetra0, comm0, nge(3), ngw(3), nb0, ne0
   real(8),intent(in) :: bvec(3,3), e0(ne0)
@@ -444,103 +469,6 @@ subroutine libtetrabz_mpi_polimg(ltetra0,comm0,bvec,nb0,nge,eig1,eig2,ngw,wght0,
   !
 end subroutine libtetrabz_mpi_polimg
 !
-! Initialize grid
 !
-subroutine libtetrabz_mpi_kgrid()
-  !
-  use libtetrabz_common, only : nk, nk0, indx1, indx2, indx3, ng, ivvec, fst, lst
-  use libtetrabz_mpi, only : libtetrabz_fst_and_lst
-  !
-  implicit none
-  !
-  integer :: it, i1, i2, i3, ii, ikv(3), nt, ik
-  !
-  allocate(indx1(20, 6 * nk), indx2(20, 6 * nk), indx3(20 * 6 * nk))
-  !
-  nt = 0
-  do i3 = 1, ng(3)
-     do i2  = 1, ng(2)
-        do i1 = 1, ng(1)
-           !
-           do it = 1, 6
-              !
-              nt = nt + 1
-              !
-              do ii = 1, 20
-                 !
-                 ikv(1:3) = (/i1, i2, i3/) + ivvec(1:3,ii,it) - 1
-                 ikv(1:3) = modulo(ikv(1:3), ng(1:3))
-                 !
-                 indx1(ii,nt) = 1 + ikv(1) + ng(1) * ikv(2) + ng(1) * ng(2) * ikv(3)
-                 !
-              end do
-              !
-           end do
-           !
-        end do
-     end do
-  end do
-  !
-  indx2(1:20,1:6 * nk) = 0
-  indx3(1:20 * 6 * nk) = 0
-  !
-  call libtetrabz_fst_and_lst()
-  !
-  nk0 = 0
-  do it = fst, lst
-     !
-     do ii = 1, 20
-        !
-        do ik = 1, nk0
-           !
-           if(indx1(ii,it) == indx3(ik)) then
-              !
-              indx2(ii,it) = ik
-              goto 10
-              !
-           end if
-           !
-        end do
-        !
-        nk0 = nk0 + 1
-        indx2(ii,it) = nk0
-        indx3(nk0) = indx1(ii,it)
-        !
-10      continue
-        !
-     end do
-     !
-  end do
-  !
-end subroutine libtetrabz_mpi_kgrid
 !
-! Compute cnt and dsp
-!
-subroutine libtetrabz_fst_and_lst()
-  !
-  use mpi, only : mpi_comm_size, mpi_comm_rank
-  use libtetrabz_common, only : fst, lst, nk
-  use libtetrabz_mpi, only : comm
-  implicit none
-  !
-  integer :: ii, petot, my_rank, ierr
-  integer,allocatable :: cnt(:), dsp(:)
-  !
-  call MPI_COMM_SIZE(comm, petot, ierr)
-  call MPI_COMM_RANK(comm, my_rank, ierr)
-  !
-  allocate(cnt(0:petot-1), dsp(0:petot-1))
-  !
-  cnt(0:petot-1)        = 6 * nk / petot
-  cnt(0:mod(6 * nk,petot)-1) = 6 * nk / petot + 1
-  dsp(0) = 0
-  do ii = 1, petot - 1
-     dsp(ii) = dsp(ii - 1) + cnt(ii - 1)
-  end do
-  !
-  fst = dsp(my_rank) + 1
-  lst = dsp(my_rank) + cnt(my_rank)
-  !
-  deallocate(cnt,dsp)
-  !
-end subroutine libtetrabz_fst_and_lst
+end module libtetrabz_mpi
