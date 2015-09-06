@@ -347,13 +347,13 @@ subroutine libtetrabz_polimg(ltetra0,bvec,nb0,nge,eig1,eig2,ngw,wght0,ne0,e0)
   if(any(nge(1:3) /= ngw(1:3))) then
      !
      allocate(wght1(nn, nk0))
-     call libtetrabz_fermigr1(eig1,eig2,e0,wght1)
+     call libtetrabz_polimg1(eig1,eig2,e0,wght1)
      !
      call libtetrabz_interpol_weight(nn,ngw,nge,wght0,wght1)
      deallocate(wght1)
      !
   else
-     call libtetrabz_fermigr1(eig1,eig2,e0,wght0)
+     call libtetrabz_polimg1(eig1,eig2,e0,wght0)
   end if
   !
   deallocate(indx1, indx2, indx3)

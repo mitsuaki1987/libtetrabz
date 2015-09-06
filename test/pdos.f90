@@ -28,6 +28,9 @@ module global
      subroutine calc_occ()
      end subroutine calc_occ
      !
+     subroutine calc_dosef()
+     end subroutine calc_dosef
+     !
      subroutine write_dos()
      end subroutine write_dos
      !
@@ -197,6 +200,90 @@ subroutine calc_occ()
   !
 end subroutine calc_occ
 !
+!
+!
+subroutine calc_dosef()
+  !
+  use libtetrabz, only : libtetrabz_dos
+  use global, only : ng, nb, bvec, eig, nwfc, wfc
+  implicit none
+  !
+  integer :: ie, i1, i2, i3, ib, iwfc, iexp, n
+  real(8) :: nelec, ef, dos0(nwfc)
+  real(8),allocatable :: wdos(:,:,:,:)
+  !
+  allocate(wdos(nb,ng(1),ng(2),ng(3)))
+  call libtetrabz_dos(2,bvec,nb,ng,eig,ng,wdos,1,(/0d0/))
+  !
+  dos0(1:nwfc) = 0d0
+  !
+  !$OMP PARALLEL DEFAULT(NONE) &
+  !$OMP & SHARED(ng,nb,nwfc,dos0,wfc,wdos) &
+  !$OMP & PRIVATE(i1,i2,i3,ib)
+  !
+  !$OMP DO REDUCTION(+: dos0)
+  do i3 = 1, ng(3)
+     do i2 = 1, ng(2)
+        do i1 = 1, ng(1)
+           do ib = 1, nb
+              dos0(1:nwfc) = dos0(1:nwfc) + wfc(1:nwfc, ib, i1, i2, i3) &
+              &                         *  wdos(      ib, i1, i2, i3)
+           end do
+        end do
+     end do
+  end do
+  !$OMP END DO
+  !$OMP END PARALLEL
+  !
+  deallocate(wdos)
+  !
+  write(*,*)
+  write(*,*) "# WFC,  DOS "
+  do iwfc = 1, nwfc
+     write(*,*) iwfc, dos0(iwfc)
+  end do
+  write(*,*)
+  !
+  do iexp = 1, 5
+     !
+     n = 2**iexp
+     !
+     allocate(wdos(nb,ng(1) /n,ng(2)/n,ng(3)/n))
+     call libtetrabz_dos(2,bvec,nb,ng,eig,ng / n,wdos, 1, (/0d0/))
+     !
+     dos0(1:nwfc) = 0d0
+     !
+     !$OMP PARALLEL DEFAULT(NONE) &
+     !$OMP & SHARED(ng,nb,nwfc,dos0,wfc,wdos,n) &
+     !$OMP & PRIVATE(i1,i2,i3,ib)
+     !
+     !$OMP DO REDUCTION(+: dos0)
+     do i3 = 1, ng(3) / n
+        do i2 = 1, ng(2) / n
+           do i1 = 1, ng(1) / n
+              do ib = 1, nb
+                 dos0(1:nwfc) = dos0(1:nwfc) + wfc(1:nwfc, ib, (i1-1)*n+1, (i2-1)*n+1, (i3-1)*n+1) &
+                 &                         *  wdos(      ib, i1, i2, i3)
+              end do
+           end do
+        end do
+     end do
+     !$OMP END DO
+     !$OMP END PARALLEL
+     !
+     deallocate(wdos)
+     !
+     write(*,*)
+     write(*,*) "# WFC,  DOS "
+     do iwfc = 1, nwfc
+        write(*,*) iwfc, dos0(iwfc)
+     end do
+     write(*,*)
+     !
+  end do
+  !
+end subroutine calc_dosef
+!
 ! Write dos file
 !
 subroutine write_dos()
@@ -221,7 +308,7 @@ end subroutine write_dos
 !
 program pdos
   !
-  use global, only : read_dat, calc_dos, write_dos, ng, calc_occ
+  use global, only : read_dat, calc_dos, write_dos, ng, calc_occ, calc_dosef
   implicit none
   !
   integer :: i1, i2, i3, ik
@@ -239,7 +326,17 @@ program pdos
   !
   call calc_dos()
   !
+  write(*,*) ""
+  write(*,*) "#####  Clc. OCC  #####"
+  write(*,*) ""
+  !
   call calc_occ()
+  !
+  write(*,*) ""
+  write(*,*) "#####  Clc. Dos(e_F)  #####"
+  write(*,*) ""
+  !
+  call calc_dosef()
   !
   call write_dos()
   !
