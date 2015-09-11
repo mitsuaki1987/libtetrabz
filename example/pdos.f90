@@ -208,9 +208,11 @@ subroutine calc_dosef()
   use global, only : ng, nb, bvec, eig, nwfc, wfc
   implicit none
   !
-  integer :: ie, i1, i2, i3, ib, iwfc, iexp, n
+  integer :: ie, i1, i2, i3, ib, iwfc, iexp, n, fi = 33
   real(8) :: nelec, ef, dos0(nwfc)
-  real(8),allocatable :: wdos(:,:,:,:)
+  real(8),allocatable :: wdos(:,:,:,:), eig2(:,:,:,:)
+  !
+  open(fi, file = "dos0.dat")
   !
   allocate(wdos(nb,ng(1),ng(2),ng(3)))
   call libtetrabz_dos(2,bvec,nb,ng,eig,ng,wdos,1,(/0d0/))
@@ -237,12 +239,7 @@ subroutine calc_dosef()
   !
   deallocate(wdos)
   !
-  write(*,*)
-  write(*,*) "# WFC,  DOS "
-  do iwfc = 1, nwfc
-     write(*,*) iwfc, dos0(iwfc)
-  end do
-  write(*,*)
+  write(fi, '(2i6,3e15.5)') ng(1), ng(1), dos0(1), dos0(2), sum(dos0(3:5))
   !
   do iexp = 1, 5
      !
@@ -273,14 +270,62 @@ subroutine calc_dosef()
      !
      deallocate(wdos)
      !
-     write(*,*)
-     write(*,*) "# WFC,  DOS "
-     do iwfc = 1, nwfc
-        write(*,*) iwfc, dos0(iwfc)
-     end do
-     write(*,*)
+     write(fi, '(2i6,3e15.5)') ng(1), ng(1)/n, dos0(1), dos0(2), sum(dos0(3:5))
      !
   end do
+  !
+  write(fi,*)
+  !
+  do iexp = 1, 5
+     !
+     n = 2**iexp
+     !
+     allocate(wdos(nb,ng(1) /n,ng(2)/n,ng(3)/n), eig2(nb,ng(1) /n,ng(2)/n,ng(3)/n))
+     !
+     !$OMP PARALLEL DEFAULT(NONE) &
+     !$OMP & SHARED(ng,nb,n,eig,eig2) &
+     !$OMP & PRIVATE(i1,i2,i3,ib)
+     !
+     !$OMP DO
+     do i3 = 1, ng(3) / n
+        do i2 = 1, ng(2) / n
+           do i1 = 1, ng(1) / n
+              eig2(1:nb,i1,i2,i3) = eig(1:nb, (i1-1)*n+1, (i2-1)*n+1, (i3-1)*n+1)
+           end do
+        end do
+     end do
+     !$OMP END DO
+     !$OMP END PARALLEL
+     !
+     call libtetrabz_dos(2,bvec,nb,ng /n,eig,ng / n,wdos, 1, (/0d0/))
+     !
+     dos0(1:nwfc) = 0d0
+     !
+     !$OMP PARALLEL DEFAULT(NONE) &
+     !$OMP & SHARED(ng,nb,nwfc,dos0,wfc,wdos,n) &
+     !$OMP & PRIVATE(i1,i2,i3,ib)
+     !
+     !$OMP DO REDUCTION(+: dos0)
+     do i3 = 1, ng(3) / n
+        do i2 = 1, ng(2) / n
+           do i1 = 1, ng(1) / n
+              do ib = 1, nb
+                 dos0(1:nwfc) = dos0(1:nwfc) + wfc(1:nwfc, ib, (i1-1)*n+1, (i2-1)*n+1, (i3-1)*n+1) &
+                 &                         *  wdos(      ib, i1, i2, i3)
+              end do
+           end do
+        end do
+     end do
+     !$OMP END DO
+     !$OMP END PARALLEL
+     !
+     deallocate(wdos, eig2)
+     !
+     write(fi, '(2i6,3e15.5)') ng(1) / n, ng(1)/n, dos0(1), dos0(2), sum(dos0(3:5))
+     !
+  end do
+  !
+  close(fi)
   !
 end subroutine calc_dosef
 !
