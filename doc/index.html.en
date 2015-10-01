@@ -14,20 +14,20 @@
   <body bgcolor="CCFFCC">
     <div id="frame">
       <div id="innerframe">
-        <p align="left">日本語 
-          <a href="index.html.en">English</a></p>
+        <p align="left">
+          <a href="index.html.ja">日本語</a> English</p>
         <hr>
         <h1><a href="http://osdn.jp/projects/libtetrabz/">libtetrabz</a></h1>
         <p>
           <a href="http://osdn.jp/">OSDN</a>
-          <a href="http://osdn.jp/softwaremap/">プロジェクト</a>
+          <a href="http://osdn.jp/softwaremap/">project</a>
           <a href="http://osdn.jp/projects/libtetrabz/">libtetrabz</a>
-	  概要
         </p>
 
-	<p>固体中の電子状態計算においてBrillouin Zone積分を効率的に行うテトラへドロン法を
-          任意のコードに実装するためのライブラリ群です。</p>
-
+	<p>Libtetrabz is a library which parform efficiently 
+          the Brillouin-zone integration in the electronic structure calculation in a solid
+          by using the tetrahedron method.
+        </p>
 
         <script type="text/javascript">
 	  var sfjp_widget_width = null;
@@ -39,12 +39,13 @@
 	  <tr>
 	    <td width="50%">
 	      <a href="http://osdn.jp/projects/libtetrabz/releases/">
-		<h3>ダウンロード</h3>
+		<h3>Download</h3>
 	      </a>
 	      <a href="./manual_ja.html"><h4>日本語マニュアル</h4></a>
-	      <a href="http://osdn.jp/projects/libtetrabz/ticket/"><h4>バグ報告</h4></a>
-	      <a href="http://osdn.jp/projects/libtetrabz/forums/"><h4>フォーラム</h4></a>
-	      <a href="http://osdn.jp/projects/libtetrabz/lists/"><h4>メーリングリスト</h4></a>
+	      <a href="./manual_en.html"><h4>Manual in English</h4></a>
+	      <a href="http://osdn.jp/projects/libtetrabz/ticket/"><h4>Report Bugs</h4></a>
+	      <a href="http://osdn.jp/projects/libtetrabz/forums/"><h4>Forum</h4></a>
+	      <a href="http://osdn.jp/projects/libtetrabz/lists/"><h4>Mailing list</h4></a>
 	    </td>
 
 	    <td width="50%">
@@ -86,18 +87,29 @@
 	      <div style="float: left; font-size: 85%; border:2px solid #888; margin: .5em;">
 	        <div class="titlebar">OSDNの主なプロジェクト</div>
 	        <ul style="margin-right: 1em; margin-top: 0px;">
-	          <li><a href="http://osdn.jp/projects/clamwin/">ウイルス対策 <strong>ClamWin</strong></a></li>
-	          <li><a href="http://osdn.jp/projects/sevenzip/">圧縮・展開（解凍） <strong>7-Zip</strong></a></li>
-	          <li><a href="http://osdn.jp/projects/pdfcreator/">PDF作成 <strong>PDFCreator</strong></a></li>
-	          <li><a href="http://osdn.jp/projects/opentween/">Twitterクライアント <strong>OpenTween</strong></a></li>
-	          <li><a href="http://osdn.jp/projects/openoffice-docj/"><strong>OpenOffice.org ドキュメントプロジェクト</strong></a></li>
-	          <li><a href="http://osdn.jp/projects/ttssh2/">ターミナルエミュレータ <strong>TeraTerm</strong></a></li>
-	          <li><a href="http://osdn.jp/projects/winscp/">SCPクライアント <strong>WinSCP</strong></a></li>
-	          <li><a href="http://osdn.jp/projects/tortoisesvn/">Subversionクライアント <strong>TortoiseSVN</strong></a></li>
-	          <li><a href="http://osdn.jp/projects/crystaldiskinfo/">ディスク情報表示ツール <strong>CrystalDiskInfo</strong></a></li>
-	          <li><a href="http://osdn.jp/projects/crystaldiskmark/">ディスクベンチマーク <strong>CrystalDiskMark</strong></a></li>
+	          <li><a href="http://osdn.jp/projects/clamwin/">
+                      ウイルス対策 <strong>ClamWin</strong></a></li>
+	          <li><a href="http://osdn.jp/projects/sevenzip/">
+                      圧縮・展開（解凍） <strong>7-Zip</strong></a></li>
+	          <li><a href="http://osdn.jp/projects/pdfcreator/">
+                      PDF作成 <strong>PDFCreator</strong></a></li>
+	          <li><a href="http://osdn.jp/projects/opentween/">
+                      Twitterクライアント <strong>OpenTween</strong></a></li>
+	          <li><a href="http://osdn.jp/projects/openoffice-docj/">
+                      <strong>OpenOffice.org ドキュメントプロジェクト</strong></a></li>
+	          <li><a href="http://osdn.jp/projects/ttssh2/">
+                      ターミナルエミュレータ <strong>TeraTerm</strong></a></li>
+	          <li><a href="http://osdn.jp/projects/winscp/">
+                      SCPクライアント <strong>WinSCP</strong></a></li>
+	          <li><a href="http://osdn.jp/projects/tortoisesvn/">
+                      Subversionクライアント <strong>TortoiseSVN</strong></a></li>
+	          <li><a href="http://osdn.jp/projects/crystaldiskinfo/">
+                      ディスク情報表示ツール <strong>CrystalDiskInfo</strong></a></li>
+	          <li><a href="http://osdn.jp/projects/crystaldiskmark/">
+                      ディスクベンチマーク <strong>CrystalDiskMark</strong></a></li>
 	        </ul>
-	        <div style="text-align: right;"><a href="http://osdn.jp/top/topdl.php?type=downloads_day">もっと見る&nbsp;&gt;&gt;</a></div>
+	        <div style="text-align: right;"><a href="http://osdn.jp/top/topdl.php?type=downloads_day">
+                    もっと見る&nbsp;&gt;&gt;</a></div>
 	      </div>
 	    </td>
 	  </tr>

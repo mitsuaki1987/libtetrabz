@@ -40,6 +40,7 @@
     <p>&nbsp&nbsp <a href="#linewidth">5.7, フォノン線幅等</p>
     <p>&nbsp&nbsp <a href="#polimg">5.8, 分極関数(虚振動数)</p>
     <p><a href="#samplecode">6, サンプルコード(抜粋)</p>
+    <p><a href="#contact">7, 問い合わせ先</p>
     <p><a href="#interpolation">付録1, 逆補間</p>
 
     <hr>
@@ -217,7 +218,7 @@ end subroutine libtetrabz_mpi_occ
     <p><code>nge(3)</code> : (入力, 整数配列) 軌道エネルギーのメッシュ数.</p>
     <p><code>eig(nb,nge(1),nge(2),nge(3))</code> : (入力, 実数配列) 軌道エネルギー. 
       Fermiエネルギーを基準とすること($\varepsilon_{\rm F} = 0$).</p>
-    <p><code>ngw(3)</code> : (入力, 整数配列) 軌道エネルギーのメッシュ数. 
+    <p><code>ngw(3)</code> : (入力, 整数配列) 積分重みの$k$メッシュ. 
       <code>nge</code>と違っていても構わない(付録参照).</p>
     <p><code>wght(nb,ngw(1),ngw(2),ngw(3))</code> : (出力, 実数配列) 積分重み</p>
 
@@ -253,7 +254,7 @@ end subroutine libtetrabz_mpi_fermieng
     <p><code>nb</code> :  (入力, 整数)バンド本数</p>
     <p><code>nge(3)</code> :  (入力, 整数配列) 軌道エネルギーのメッシュ数.</p>
     <p><code>eig(nb,nge(1),nge(2),nge(3))</code> :  (入力, 実数配列) 軌道エネルギー.</p>
-    <p><code>ngw(3)</code> :  (入力, 整数配列) 軌道エネルギーのメッシュ数. 
+    <p><code>ngw(3)</code> :  (入力, 整数配列) 積分重みの$k$メッシュ. 
       <code>nge</code>と違っていても構わない(付録参照).</p>
     <p><code>wght(nb,ngw(1),ngw(2),ngw(3))</code> :  (出力, 実数配列) 積分重み</p>
     <p><code>ef</code> :  (出力, 実数) Fermi エネルギー</p>
@@ -291,11 +292,9 @@ end subroutine libtetrabz_mpi_dos
     <p><code>nb</code> :  (入力, 整数)バンド本数</p>
     <p><code>nge(3)</code> :  (入力, 整数配列) 軌道エネルギーのメッシュ数.</p>
     <p><code>eig(nb,nge(1),nge(2),nge(3))</code> :  (入力, 実数配列) 軌道エネルギー.</p>
-    <p><code>ngw(3)</code> :  (入力, 整数配列) 軌道エネルギーのメッシュ数. 
+    <p><code>ngw(3)</code> :  (入力, 整数配列) 積分重みの$k$メッシュ. 
       <code>nge</code>と違っていても構わない(付録参照).</p>
     <p><code>wght(ne,nb,ngw(1),ngw(2),ngw(3))</code> :  (出力, 実数配列) 積分重み</p>
-    <p><code>ef</code> :  (出力, 実数) Fermi エネルギー</p>
-    <p><code>nelec</code> :  (入力, 実数) 荷電子数(両スピン合わせた総数)</p>
     <p><code>ne</code> :  (入力, 整数)状態密度を計算するエネルギー点数</p>
     <p><code>e0(ne)</code> :  (入力, 実数配列) 状態密度を計算するエネルギー</p>
 
@@ -334,7 +333,7 @@ end subroutine libtetrabz_mpi_doubledelta
       Fermi エネルギーを基準とすること($\varepsilon_{\rm F}=0$). <code>eig2</code> も同様.</p>
     <p><code>eig2(nb,nge(1),nge(2),nge(3))</code> :  (入力, 実数配列) 軌道エネルギー. 
       移行運動量の分だけグリッドをずらしたものなど.</p>
-    <p><code>ngw(3)</code> :  (入力, 整数配列) 軌道エネルギーのメッシュ数. 
+    <p><code>ngw(3)</code> :  (入力, 整数配列) 積分重みの$k$メッシュ. 
       <code>nge</code>と違っていても構わない(付録参照).</p>
     <p><code>wght(nb,nb,ngw(1),ngw(2),ngw(3))</code> :  (出力, 実数配列) 積分重み</p>
     
@@ -373,7 +372,7 @@ end subroutine libtetrabz_mpi_occstep
       Fermi エネルギーを基準とすること($\varepsilon_{\rm F}=0$). <code>eig2</code> も同様.</p>
     <p><code>eig2(nb,nge(1),nge(2),nge(3))</code> :  (入力, 実数配列) 軌道エネルギー. 
       移行運動量の分だけグリッドをずらしたものなど.</p>
-    <p><code>ngw(3)</code> :  (入力, 整数配列) 軌道エネルギーのメッシュ数. 
+    <p><code>ngw(3)</code> :  (入力, 整数配列) 積分重みの$k$メッシュ. 
       <code>nge</code> と違っていても構わない(付録参照).</p>
     <p><code>wght(nb,nb,ngw(1),ngw(2),ngw(3))</code> :  (出力, 実数配列) 積分重み</p>
 
@@ -414,7 +413,7 @@ end subroutine libtetrabz_mpi_occstep
       Fermi エネルギーを基準とすること($\varepsilon_{\rm F}=0$). <code>eig2</code> も同様.</p>
     <p><code>eig2(nb,nge(1),nge(2),nge(3))</code> :  (入力, 実数配列) 軌道エネルギー. 
       移行運動量の分だけグリッドをずらしたものなど.</p>
-    <p><code>ngw(3)</code> :  (入力, 整数配列) 軌道エネルギーのメッシュ数. 
+    <p><code>ngw(3)</code> :  (入力, 整数配列) 積分重みの$k$メッシュ. 
       <code>nge</code>と違っていても構わない(付録参照).</p>
     <p><code>wght(nb,nb,ngw(1),ngw(2),ngw(3))</code> :  (出力, 実数配列) 積分重み</p>
     
@@ -455,7 +454,7 @@ end subroutine libtetrabz_mpi_fermigr
       Fermi エネルギーを基準とすること($\varepsilon_{\rm F} = 0$). <code>eig2</code>も同様.</p>
     <p><code>eig2(nb,nge(1),nge(2),nge(3))</code> :  (入力, 実数配列) 軌道エネルギー. 
       移行運動量の分だけグリッドをずらしたものなど.</p>
-    <p><code>ngw(3)</code> :  (入力, 整数配列) 軌道エネルギーのメッシュ数. 
+    <p><code>ngw(3)</code> :  (入力, 整数配列) 積分重みの$k$メッシュ. 
       <code>nge</code> と違っていても構わない(付録参照).</p>
     <p><code>wght(ne,nb,nb,ngw(1),ngw(2),ngw(3))</code> :  (出力, 実数配列) 積分重み</p>
     <p><code>ne</code> :  (入力, 整数)フォノンモード数</p>
@@ -497,7 +496,7 @@ end subroutine libtetrabz_mpi_polimg
       Fermi エネルギーを基準とすること($\varepsilon_{\rm F}=0$). <code>eig2</code>も同様.</p>
     <p><code>eig2(nb,nge(1),nge(2),nge(3))</code> :  (入力, 実数配列) 軌道エネルギー. 
       移行運動量の分だけグリッドをずらしたものなど.</p>
-    <p><code>ngw(3)</code> :  (入力, 整数配列) 軌道エネルギーのメッシュ数. 
+    <p><code>ngw(3)</code> :  (入力, 整数配列) 積分重みの$k$メッシュ. 
       <code>nge</code>と違っていても構わない(付録参照).</p>
     <p><code>wght(2,ne,nb,nb,ngw(1),ngw(2),ngw(3))</code> :  (出力, 実数配列) 積分重み . 
       1番目の次元は実部と虚部を格納する.</p>
