@@ -92,14 +92,14 @@
     <p>Copyright (c) 2014 Mitsuaki Kawamura</p>
     <p>Permission is hereby granted, free of charge, 
       to any person obtaining a copy of this software and associated documentation files 
-      (the “Software”), to deal in the Software without restriction, 
+      (the "Software"), to deal in the Software without restriction, 
       including without limitation the rights to use, copy, modify, merge, publish, 
       distribute, sublicense, and/or sell copies of the Software, 
       and to permit persons to whom the Software is furnished to do so, 
       subject to the following conditions:</p>
     <p>The above copyright notice and this permission notice shall be included 
       in all copies or substantial portions of the Software.</p>
-    <p>THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, 
+    <p>THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, 
       EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
       FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS 
       OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER 
@@ -158,7 +158,7 @@ libtetrabz.mod
 libtetrabz_mpi.a
 libtetrabz_mpi.mod
         </code></pre>
-        <p>※ If you do not need the MPI version, <code>make</code> serial version only.</p>
+        <p>* If you do not need the MPI version, <code>make</code> serial version only.</p>
         <pre><code>
 $ cd src
 $ make libtetrabz.a
@@ -171,11 +171,12 @@ $ make libtetrabz.a
 
     <p><span><strong>e. g. / For gfortran</strong></span><br />
       <pre><code>
-$ gfortran program.f90 -L {libtetrabzパス}/src/ -I {libtetrabzパス}/src -ltetrabz -fopenmp
-$ mpif90 program.f90 -L {libtetrabzパス}/src/  -I {libtetrabzパス}/src -ltetrabz_mpi -fopenmp
+$ gfortran program.f90 -L {libtetrabz path}/src/ -I {libtetrabz path}/src -ltetrabz -fopenmp
+$ mpif90 program.f90 -L {libtetrabz path}/src/  -I {libtetrabz path}/src -ltetrabz_mpi -fopenmp
       </code></pre>
-    <p>If you perform followin setting, you do not need <code>-L</code> and <code>-I</code> option.</p>
-    
+    <p>where <code>{libtetrabz path}</code> means the path 
+      to the top directory of <code>libtetrabz</code>.
+      If you perform followin setting, you do not need <code>-L</code> and <code>-I</code> option.</p>
     <ul>
       <li>Copy <p><code>.a</code> files to a directory in <code>$LIBRALLY_PATH</code>.</p></li>
       <li>Copy <p><code>.mod</code> files to a directory in <code>$INCLUDE</code>.</p></li>
@@ -344,8 +345,8 @@ end subroutine libtetrabz_mpi_doubledelta
     <p><code>nge(3)</code> :  (input, integer array) Specify the $k$-grid for input orbital energy.</p>
     <p><code>eig1(nb,nge(1),nge(2),nge(3))</code> :  (input, real array) The orbital energy 
       mesured from the Fermi energy ($\varepsilon_{\rm F} = 0$). Do the same with <code>eig2</code>.</p>
-    <p><code>eig2(nb,nge(1),nge(2),nge(3))</code> :  (input, real array) The orbital energy.
-      移行運動量の分だけグリッドをずらしたものなど.</p>
+    <p><code>eig2(nb,nge(1),nge(2),nge(3))</code> :  (input, real array) Another orbital energy.
+      E. g. $\varepsilon_{k + q}$ on a shifted grid.</p>
     <p><code>ngw(3)</code> :  (input, integer array) Specify the $k$-grid for output integration weights. 
       You can make <code>ngw</code>$\neq$<code>nge</code> (See Appendix).</p>
     <p><code>wght(nb,nb,ngw(1),ngw(2),ngw(3))</code> :  (output, real array) integration weights</p>
@@ -385,7 +386,7 @@ end subroutine libtetrabz_mpi_occstep
     <p><code>eig1(nb,nge(1),nge(2),nge(3))</code> :  (input, real array) The orbital energy 
       mesured from the Fermi energy ($\varepsilon_{\rm F} = 0$). Do the same with <code>eig2</code>.</p>
     <p><code>eig2(nb,nge(1),nge(2),nge(3))</code> :  (input, real array) The orbital energy.. 
-      移行運動量の分だけグリッドをずらしたものなど.</p>
+      E. g. $\varepsilon_{k + q}$ on a shifted grid.</p>
     <p><code>ngw(3)</code> :  (input, integer array) Specify the $k$-grid for output integration weights. 
       You can make <code>ngw</code>$\neq$<code>nge</code> (See Appendix).</p>
     <p><code>wght(nb,nb,ngw(1),ngw(2),ngw(3))</code> :  (output, real array) integration weights</p>
@@ -427,7 +428,7 @@ end subroutine libtetrabz_mpi_polstat
     <p><code>eig1(nb,nge(1),nge(2),nge(3))</code> :  (input, real array) The orbital energy 
       mesured from the Fermi energy ($\varepsilon_{\rm F} = 0$). Do the same with <code>eig2</code>.</p>
     <p><code>eig2(nb,nge(1),nge(2),nge(3))</code> :  (input, real array) The orbital energy.. 
-      移行運動量の分だけグリッドをずらしたものなど.</p>
+      E. g. $\varepsilon_{k + q}$ on a shifted grid.</p>
     <p><code>ngw(3)</code> :  (input, integer array) Specify the $k$-grid for output integration weights. 
       You can make <code>ngw</code>$\neq$<code>nge</code> (See Appendix).</p>
     <p><code>wght(nb,nb,ngw(1),ngw(2),ngw(3))</code> :  (output, real array) integration weights</p>
@@ -468,13 +469,13 @@ end subroutine libtetrabz_mpi_fermigr
     <p><code>nge(3)</code> :  (input, integer array) Specify the $k$-grid for input orbital energy.</p>
     <p><code>eig1(nb,nge(1),nge(2),nge(3))</code> : (input, real array)The orbital energy 
       mesured from the Fermi energy ($\varepsilon_{\rm F} = 0$). Do the same with <code>eig2</code>.</p>
-    <p><code>eig2(nb,nge(1),nge(2),nge(3))</code> :  (入力, 実数配列) 軌道エネルギー. 
-      移行運動量の分だけグリッドをずらしたものなど.</p>
+    <p><code>eig2(nb,nge(1),nge(2),nge(3))</code> :  (input, real array) Another orbital energy. 
+      E. g. $\varepsilon_{k + q}$ on a shifted grid.</p>
     <p><code>ngw(3)</code> :  (input, integer array) Specify the $k$-grid for output integration weights. 
       You can make <code>ngw</code>$\neq$<code>nge</code> (See Appendix).</p>
     <p><code>wght(ne,nb,nb,ngw(1),ngw(2),ngw(3))</code> :  (output, real array) integration weights</p>
-    <p><code>ne</code> :  (input, integer)フォノンモード数</p>
-    <p><code>e0(ne)</code> :  (入力, 実数配列) フォノン振動数</p>
+    <p><code>ne</code> :  (input, integer) The number of branches of the phonon</p>
+    <p><code>e0(ne)</code> :  (input, real array) Phonon frequencies</p>
 
     <hr>
     <h2><a name="polimg">5.8, Polarization function (imaginaly frequency)</h2>
@@ -511,18 +512,20 @@ end subroutine libtetrabz_mpi_polimg
     <p><code>nge(3)</code> :  (input, integer array) Specify the $k$-grid for input orbital energy.</p>
     <p><code>eig1(nb,nge(1),nge(2),nge(3))</code> :  (input, real array) The orbital energy 
       mesured from the Fermi energy ($\varepsilon_{\rm F} = 0$). Do the same with <code>eig2</code>.</p>
-    <p><code>eig2(nb,nge(1),nge(2),nge(3))</code> :  (入力, 実数配列) 軌道エネルギー. 
-      移行運動量の分だけグリッドをずらしたものなど.</p>
+    <p><code>eig2(nb,nge(1),nge(2),nge(3))</code> :  (input, real array) Another orbital energy. 
+      E. g. $\varepsilon_{k + q}$ on a shifted grid.</p>
     <p><code>ngw(3)</code> :  (input, integer array) Specify the $k$-grid for output integration weights. 
       You can make <code>ngw</code>$\neq$<code>nge</code> (See Appendix).</p>
     <p><code>wght(2,ne,nb,nb,ngw(1),ngw(2),ngw(3))</code> :  (output, real array) integration weights. 
-      1番目の次元は実部と虚部を格納する.</p>
-    <p><code>ne</code> :  (input, integer)計算を行う虚振動数の点数</p>
-    <p><code>e0(ne)</code> :  (入力, 実数配列) 計算を行う虚振動数</p>
+      The first dimension means the real part and the imaginary part of weights.</p>
+    <p><code>ne</code> :  (input, integer) The number of imaginary frequencies
+      where polaization functions are calculated.</p>
+    <p><code>e0(ne)</code> :  (input, real array) Imaginary frequencies
+      where polaization functions are calculated.</p>
 
     <hr>
     <h1><a name="samplecode">6, A part of the sample code</h1>
-    <p>以下では電荷密度を計算するサブルーチンを示す。</p>
+    <p>This sample shows the calculation of the charge density.</p>
     <p>
       $$\begin{aligned}
       \rho(r) = 2 \sum_{n k} \theta(\varepsilon_{\rm F} - \varepsilon_{n k}) |\varphi_{n k}(r)|^2
@@ -569,41 +572,48 @@ end subroutin calc_rho
     
     <hr>    
     <h1><a name="contact">7, Contacts</h1>
-    <p>プログラムのバグや質問は以下のフォーラムへご投稿ください.</p>
+
+    <p>Please post bag reports and questions to the forum</p>
     <pre><code>
-http://sourceforge.jp/projects/libtetrabz/forums/
+http://sourceforge.jp/projects/fermisurfer/forums/
     </code></pre>
-    <p>開発に参加したい方は以下の連絡先にて受け付けております.</p>
-    <p>東京大学物性研究所</p>
-    <p>河村光晶</p>
+    <p>When you want to join us, please contact me as follows.</p>
+    <p>The Institute of Solid State Physics</p>
+    <p>Mitsuaki Kawamura</p>
     <p><code>mkawamura@issp.u-tokyo.ac.jp</code></p>
 
     <hr>
     <h1><a name="interpolation">Appendix 1, Inverse interpolation</h1>
-    <p>積分</p>
+    <p>We consider an integration as follows: </p>
     <p>
       $$\begin{aligned}
-      \langle X \rangle = \sum_{k} X_k w(\varepsilon_k)
+      \langle X \rangle = \sum_{k} X_k w(\varepsilon_k).
       \end{aligned}$$
     </p>
-    <p>を計算するとする. このとき,</p>
+    <p>If this integration has conditions that </p>
     <ul>
-      <li><p>$w$は$\varepsilon_k$に敏感な関数(階段関数$\cdot$デルタ関数等)であり, 
-          なるべく細かいグリッド上の$\varepsilon_k$が必要である.</p></li>
-      <li><p>$X_k$を求めるための計算コストが$\varepsilon_k$の計算コストよりかなり大きい.</p></li>
+      <li><p>$w(\varepsilon_k)$ is sensitive to $\varepsilon_k$
+          (e. g. the stepfunction, the delta function, etc.) 
+          and requires $\varepsilon_k$ on a dense $k$ grid, and
+      </p></li>
+      <li><p>the numerical cost to obtain $X_k$ is much larger the const for $\varepsilon_k$ 
+          (e. g. the polarization function),</p></li>
     </ul>
-    <p>という場合には$X_k$のグリッドを補間により増やす方法が有効である. それは,</p>
+    <p>it is efficient to interpolate $X_k$ into a denser $k$ grid and 
+      evaluate that integration in a dense $k$ grid. 
+      This method is parformed as follows: </p>
     <ol>
-      <li><p>$\varepsilon_k$を細かい$k$グリッド上で計算する.</p></li>
-      <li><p>$X_k$を粗いグリッド上で計算し, 
-          それを補間(線形補間, 多項式補間, スプライン補間など)して細かいグリッド上での値を得る.</p>
+      <li><p>Calculate $\varepsilon_k$ on a dense $k$grid.</p></li>
+      <li><p>Calcuate $X_k$ on a coarse $k$ grid and
+          obtain that on a dense $k$ grid by using the linear interpolation, 
+          the polynomial interpolation, the spline interpolation, etc.
         <p>
           $$\begin{aligned}
           X_k^{\rm dense} = \sum_{k'}^{\rm coarse} F_{k k'} X_{k'}^{\rm coarse}
           \end{aligned}$$
         </p>
       </li>
-      <li><p>細かい$k$グリッドで上記の積分を行う.</p>
+      <li><p>Evaluate that integration in the dense $k$ grid.</p>
         <p>
           $$\begin{aligned}
           \langle X \rangle = \sum_{k}^{\rm dense} X_k^{\rm dense} w_k^{\rm dense}
@@ -611,35 +621,42 @@ http://sourceforge.jp/projects/libtetrabz/forums/
         </p>
       </li>
     </ol>
-    <p>という流れで行われる.</p>
-    <p>さらに, この計算と同じ結果を得るように粗いグリッド上での積分重み$w_k^{\rm coarse}$を
-      $w_k{\rm dense}$から求める(逆補間)ことも可能である. すなわち,</p>
+    <p><strong>The inverse interpolation method</strong> arrows as to 
+      obtain the same result to above without interpolating $X_k$ into 
+      a dense $k$ grid. In this method, we map the integration weight
+      on a dense $k$ grid into that on a coarse $k$ grid (inverse interpolation).
+      Therefore, if we require </p>
         <p>
           $$\begin{aligned}
           \sum_k^{\rm dense} X_k^{\rm dense} w_k^{\rm dense}
           =
-          \sum_k^{\rm coarse} X_k^{\rm coarse} w_k^{\rm coarse}
+          \sum_k^{\rm coarse} X_k^{\rm coarse} w_k^{\rm coarse},
           \end{aligned}$$
         </p>
-    <p>が満たされる事を要請すると</p>
+    <p>we obtain</p>
     <p>
       $$\begin{aligned}
-      w_k^{\rm coarse} = \sum_k^{\rm dense} F_{k ' k} w_{k'}^{\rm dense}
+      w_k^{\rm coarse} = \sum_k^{\rm dense} F_{k ' k} w_{k'}^{\rm dense}.
       \end{aligned}$$
     </p>
-    <p>となる. この場合の計算手順は,</p>
+    <p>The numerical procedure for this method is as follows: </p>
     <ol>
-      <li><p>細かい$k$グリッド上の
-          $\varepsilon_k$から$w_k^{\rm dense}$を計算する.</p></li>
-      <li><p>逆補間により$w_k^{\rm coarse}$を求める.</p></li>
-      <li><p>粗いグリッド上での$X_k$との積和を行う.</p></li>
+      <li><p>Calculate the integration weight on a dense $k$ grid $w_k^{\rm dense}$
+          from $\varepsilon_k$ on a dense $k$ grid.</p></li>
+      <li><p>Obtain the integration weight on acoarse $k$ grid $w_k^{\rm coarse}$
+          by using the inverse interpolation method.</p></li>
+      <li><p>Evaluate that integration in a coarse $k$ grid
+          where $X_k$ was calculated.</p></li>
     </ol>
-    <p>となる. このライブラリ内の全ルーチンはこの逆補間の機能を備えており, 
-      軌道エネルギーの$k$グリッドと重み関数の$k$グリッドを
-      異なる値にすると逆補間された$w_k^{\rm coarse}$が出力される.</p>
+    <p>All routines in <code>libtetrabz</code> can parforme
+      the inverse interpolation method;
+      if we make $k$ grids for the orbital energy (<code>nge</code>)
+      and the integration weight (<code>ngw</code>) different, 
+      we obtain $w_k^{\rm coarse}$ calculated by using the inverse interpolation method.</p>
 
     <p><a name="cite">
-        [1] M. Kawamura, Y. Gohda, S. Tsuneyuki, Phys. Rev. B <span><strong>89</strong></span> 094515 (2014).
+        [1] M. Kawamura, Y. Gohda, S. Tsuneyuki, Phys. Rev. B 
+        <span><strong>89</strong></span> 094515 (2014).
     </a></p>
 
   </body>
