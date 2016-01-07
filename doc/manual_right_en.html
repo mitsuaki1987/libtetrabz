@@ -91,9 +91,9 @@
     <hr>
     <h2><a name="filesinthispackage">3.1, Files in this package</a></h2>
 
-    <p><code>doc/manual_en.pdf</code> : Manual in English</p>
-    <p><code>doc/manual_jp.pdf</code> : Manual in Japanese</p>
-    <p><code>examples/</code> : Sample to use this library</p>
+    <p><code>doc/manual_en.html</code> : Manual in English (This file)</p>
+    <p><code>doc/manual_jp.html</code> : Manual in Japanese</p>
+    <p><code>examples/</code> : Sample programs using <code>libtetrabz</code></p>
     <p><code>src/</code> : source files</p>
     <p><code>Makefile</code>, <code>make.sys</code> : Make file and the configuretion file</p>
     
@@ -116,8 +116,8 @@ http://osdn.jp/projects/libtetrabz/releases/
       </li>
       <li><p>Uncompress <code>.tar.gz</code> file and enter the generated directory.</p>
         <pre><code>
-$ tar xzvf 
-$ cd 
+$ tar xzvf xzvf libtetrabz_1.0.1.tar.gz
+$ cd libtetrabz
         </code></pre>
       </li>
       <li><p>Modify <code>make.sys</code> for your platform.
@@ -129,7 +129,7 @@ $ cd
       </li>
       <li><p>Compile.</p>
         <pre><code>$ make </code></pre>
-        <p>If it succeed, you obtain</p>
+        <p>If it succeed, you obtain the following files in <code>src/</code></p>
         <pre><code>
 libtetrabz.a
 libtetrabz.mod
@@ -143,6 +143,13 @@ $ make libtetrabz.a
         </code></pre>
       </li>
     </ol>
+
+    <br>
+    <p>Sample programs using <code>libtetrabz</code> are also compiled in <code>example/<code> .</p>
+    <p><code>example/dos.x</code> : Compute DOS of a tightbinding model in the cubic lattice.
+      The source code is <code>dos.f90</code></p>
+    <p><code>example/lindhard.x</code> : Compute the Lindhard function.
+      The source code is <code>lindhard.f90</code></p>
 
     <hr>
     <h1><a name="linklibrary">4, Linking libtetrabz</a></h1>
@@ -289,7 +296,7 @@ end subroutine libtetrabz_mpi_dos
     <p><code>ne</code> :  (input, integer) The number of energy where DOS is calcuated.</p>
     <p><code>e0(ne)</code> :  (input, real array) Energies where DOS is calcuated.</p>
 
-
+    <hr>
     <h2><a name="nesting">5.4, Nesting function and Fr&oumlhlich parameter</a></h2>
     <p>
       $$\begin{aligned}

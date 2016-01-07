@@ -83,8 +83,8 @@
     <hr>
     <h2><a name="filesinthispackage">3.1, このパッケージに含まれているファイル</a></h2>
 
-    <p><code>doc/manual_en.pdf</code> : マニュアル(英語)</p>
-    <p><code>doc/manual_jp.pdf</code> : マニュアル(日本語)</p>
+    <p><code>doc/manual_en.html</code> : マニュアル(英語)</p>
+    <p><code>doc/manual_jp.html</code> : マニュアル(日本語)(今開いて見ているファイル)</p>
     <p><code>examples/</code> : ライブラリ使用例</p>
     <p><code>src/</code> : ソースファイルディレクトリ</p>
     <p><code>Makefile</code>, <code>make.sys</code> : Makeファイルおよびコンパイル環境設定ファイル</p>
@@ -108,8 +108,8 @@ http://osdn.jp/projects/libtetrabz/releases/
       </li>
       <li><p>ダウンロードした<code>.tar.gz</code>ファイルを展開し, 出来たディレクトリに入る.</p>
         <pre><code>
-$ tar xzvf 
-$ cd 
+$ tar xzvf libtetrabz_1.0.1.tar.gz
+$ cd libtetrabz
         </code></pre>
       </li>
       <li><p>自分の環境に合わせて <code>make.sys</code>の以下の変数を書き換える.</p>
@@ -120,19 +120,25 @@ $ cd
       </li>
       <li><p>次のコマンドを実行しコンパイルする.</p>
         <pre><code>$ make </code></pre>
-        <p>コンパイルが成功すると以下のファイルが生成される.</p>
+        <p>コンパイルが成功すると<code>src/</code>に以下のファイルが生成される.</p>
         <pre><code>
-libtetrabz.a
-libtetrabz.mod
-libtetrabz_mpi.a
-libtetrabz_mpi.mod
+src/libtetrabz.a
+src/libtetrabz.mod
+src/libtetrabz_mpi.a
+src/libtetrabz_mpi.mod
         </code></pre>
         <p>※ シリアル版のみ<code>make</code>したい場合は次の様にする.</p>
         <pre><code>
-$ cd src
+$ cd src 
 $ make libtetrabz.a
         </code></pre>
-      </li>
+        <br>
+        <p>また, <code>example/</code>以下のライブラリ使用例のプログラムもコンパイルされる.</p>
+        <p><code>example/dos.x</code> : 立法格子シングルバンドタイトバインディングモデルのDOSを
+          計算する. ソースコードは<code>dos.f90</code></p>
+        <p><code>example/lindhard.x</code> : リントハルト関数を
+          計算する. ソースコードは<code>lindhard.f90</code></p>
+        </li>
     </ol>
 
     <hr>
@@ -276,7 +282,7 @@ end subroutine libtetrabz_mpi_dos
     <p><code>ne</code> :  (入力, 整数)状態密度を計算するエネルギー点数</p>
     <p><code>e0(ne)</code> :  (入力, 実数配列) 状態密度を計算するエネルギー</p>
 
-
+    <hr>
     <h2><a name="nesting">5.4, ネスティング関数, Fröhlich パラメーター</a></h2>
     <p>
       $$\begin{aligned}
