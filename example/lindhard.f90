@@ -3,16 +3,20 @@ program dos
   use libtetrabz, only : libtetrabz_polstat, libtetrabz_dos
   implicit none
   !
-  integer :: ltetra, nb, nge(3), ngw(3), i1, i2, i3, ik, iq, nq, &
+  integer :: ltetra, nb, ng, nge(3), ngw(3), i1, i2, i3, ik, iq, nq, &
   &          nke, nkw, ikvec(3), ne = 1
   real(8) :: bvec(3,3), ef, kvec(3), qvec(3), qmax, e0(1), VBZ, pi
   real(8),allocatable :: eig(:,:), eig1(:,:), eig2(:,:), wght(:,:,:), wght_dos(:,:,:)
   !
+  write(*,'(a)', advance = "no") "Which tetrahedron method ?(1 = Linear, 2 = Optimized): "
+  read(*,*) ltetra
+  write(*,'(a)', advance = "no") "k-point mesh ?: "
+  read(*,*) ng
+  !
   pi = acos(-1d0)
-  ltetra = 2
   nb = 1
-  nge(1:3) = 10
-  ngw(1:3) = 10
+  nge(1:3) = ng
+  ngw(1:3) = ng
   bvec(1:3,1) = (/3d0, 0d0, 0d0/)
   bvec(1:3,2) = (/0d0, 3d0, 0d0/)
   bvec(1:3,3) = (/0d0, 0d0, 3d0/)
@@ -67,8 +71,9 @@ program dos
   !
   close(10)
   !
-  ! To compare with the analytical result, type below in gnuplot
-  !
-  ! plot "lindhard.dat" u 1:2 w p, 0.5+0.5/x*(1-0.25*x**2)*log(abs((x+2)/(x-2)))
+  write(*,*) "To compare with the analytical result, type below in gnuplot"
+  write(*,*) ""
+  write(*,*) 'plot "lindhard.dat" u 1:2 w p, 0.5+0.5/x*(1-0.25*x**2)*log(abs((x+2)/(x-2)))'
+  write(*,*) ""
   !
 end program dos

@@ -3,15 +3,19 @@ program dos
   use libtetrabz, only : libtetrabz_fermieng, libtetrabz_dos
   implicit none
   !
-  integer :: ltetra, nb, nge(3), ngw(3), i1, i2, i3, ik, ne, ie, nke, nkw
+  integer :: ltetra, nb, ng, nge(3), ngw(3), i1, i2, i3, ik, ne, ie, nke, nkw
   real(8) :: bvec(3,3), ef, nelec, kvec(3), pi
   real(8),allocatable :: eig(:,:), wght(:,:), e0(:), wght_dos(:,:,:)
   !
+  write(*,'(a)', advance = "no") "Which tetrahedron method ?(1 = Linear, 2 = Optimized): "
+  read(*,*) ltetra
+  write(*,'(a)', advance = "no") "k-point mesh ?: "
+  read(*,*) ng
+  !
   pi = acos(-1d0)
-  ltetra = 2
   nb = 1
-  nge(1:3) = 10
-  ngw(1:3) = 10
+  nge(1:3) = ng
+  ngw(1:3) = ng
   nelec = 0.5
   bvec(1:3,1) = (/1d0, 0d0, 0d0/)
   bvec(1:3,2) = (/0d0, 1d0, 0d0/)
