@@ -31,7 +31,7 @@ program dos
         do i1 = 0, nge(1) - 1
            !
            ik = ik + 1
-           kvec(1:3) = 2 * pi * dble((/i1, i2, i3/) - nge(1:3) / 2) / dble(nge(1:3))
+           kvec(1:3) = 2d0 * pi * dble((/i1, i2, i3/) - nge(1:3) / 2) / dble(nge(1:3))
            !
            eig(1,ik) = - sum(cos(kvec(1:3)))
            !

@@ -6,7 +6,7 @@ TOPDIR = /home/usr/libtetrabz/
 #
 F90 = ifort
 MPIF90 = mpiifort
-FFLAGS  = -xHost -openmp -traceback
+FFLAGS  = -xHost -openmp -traceback -g
 
 #
 # for gfortran
