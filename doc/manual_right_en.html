@@ -151,14 +151,35 @@ $ make libtetrabz.a
     <p><code>example/lindhard.x</code> : Compute the Lindhard function.
       The source code is <code>lindhard.f90</code></p>
 
+    <p><img src="dos.jpg" align="middle" width="400" alt="DOS"/>
+      Figure 1: Density of states of the tight-binding model on the cubic lattice
+      calculated by using <code>dos.x</code>
+      The solid line indicates the result converged about the number of $k$.
+      &ldquo;$+$&rdquo; and &ldquo;$\times$&rdquo;indicate results by using
+      the linear tetrahedron method and the optimized tetrahedron method, respectively
+      with $8\times8\times8 k$ grid.</p>
+    <p><img src="lindhard.jpg" align="middle" width="400" alt="Lindhard"/>
+      Figure 2: (solid line) The analytical result of the Lindhard function. 
+      &ldquo;$+$&rdquo; and &ldquo;$\times$&rdquo;indicate results by using
+      the linear tetrahedron method and the optimized tetrahedron method, respectively
+      with $8\times8\times8 k$ grid.</p>
+
     <hr>
     <h1><a name="linklibrary">4, Linking libtetrabz</a></h1>
 
-    <p><span><strong>e. g. / For gfortran</strong></span><br />
+    <p><span><strong>e. g. / For intel fortran</strong></span><br />
       <pre><code>
-$ gfortran program.f90 -L {libtetrabz path}/src/ -I {libtetrabz path}/src -ltetrabz -fopenmp
-$ mpif90 program.f90 -L {libtetrabz path}/src/  -I {libtetrabz path}/src -ltetrabz_mpi -fopenmp
+$ ifort program.f90 -L {libtetrabz path}/src/ -I {libtetrabz path}/src -ltetrabz -fopenmp
+$ mpiifort program.f90 -L {libtetrabz path}/src/  -I {libtetrabz path}/src -ltetrabz_mpi -fopenmp
       </code></pre>
+
+    <p><span><strong>e. g. / For intel C</strong></span><br />
+     <pre><code>
+$ icc -lifcore program.f90 -L libtetrabz path}/src/ -I libtetrabz path}/src -ltetrabz -fopenmp
+$ mpiicc -lifcore program.f90 -L libtetrabz path}/src/  -I libtetrabz path}/src -ltetrabz_mpi -fopenmp
+      </code></pre>
+
+
     <p>where <code>{libtetrabz path}</code> means the path 
       to the top directory of <code>libtetrabz</code>.
       If you perform followin setting, you do not need <code>-L</code> and <code>-I</code> option.</p>
@@ -173,13 +194,29 @@ $ mpif90 program.f90 -L {libtetrabz path}/src/  -I {libtetrabz path}/src -ltetra
     <p>You can call a subroutine in this library as follows:</p>
     <pre><code>
 use libtetrabz, only : libtetrabz_occ
-
-  call libtetrabz_occ(ltetra,bvec,nb,nge,eig,ngw,wght)
+ :
+call libtetrabz_occ(ltetra,bvec,nb,nge,eig,ngw,wght)
     </code></pre>
-    <p>Every subroutine have a name starts from <code>libtetrabz_</code>. 
-      MPI version has a name starts from <code>libtetrabz_mpi_</code>. 
+    <p>Every subroutine has a name starts from <code>libtetrabz_</code>. 
+      MPI version has a name starts from <code>libtetrabz_mpi_</code>
+      and it requires <code>use libtetrabz_mpi</code>. 
       The difference of argumentsv between the serial version and the MPI version
       is an integer input argument <code>comm</code> which specifies the communicator.</p>
+
+
+    For the C program, it can be used as follows:
+    <pre><code>
+#include "libtetrabz.h"
+ :
+libtetrabz_mp_libtetrabz_occ_(&amp;ltetra,bvec,&amp;nb,nge,eig,ngw,wght)
+    </code></pre>
+    The name of a function in C becomes <code>libtetrabz_mp_</code> + 
+    fortran subroutine name + <code>_</code>.
+    For the MPI version, <code>libtetrabz_mpi.h</code> should be included,
+    and the name of a function becomes <code>libtetrabz_mpi_mp_</code> + 
+    fortran subroutine name + <code>_</code>.
+    Variables should be passed as pointers.
+    Arrays should be declared as one dimentional arrays;
 
     <hr>
     <h2><a name="totalenergy">5.1, Total energy, charge density, occupations</a></h2>

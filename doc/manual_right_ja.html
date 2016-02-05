@@ -132,23 +132,40 @@ src/libtetrabz_mpi.mod
 $ cd src 
 $ make libtetrabz.a
         </code></pre>
-        <br>
-        <p>また, <code>example/</code>以下のライブラリ使用例のプログラムもコンパイルされる.</p>
-        <p><code>example/dos.x</code> : 立法格子シングルバンドタイトバインディングモデルのDOSを
-          計算する. ソースコードは<code>dos.f90</code></p>
-        <p><code>example/lindhard.x</code> : リントハルト関数を
-          計算する. ソースコードは<code>lindhard.f90</code></p>
-        </li>
+      </li>
     </ol>
+    <br>
+    <p>また, <code>example/</code>以下のライブラリ使用例のプログラムもコンパイルされる.</p>
+    <p><code>example/dos.x</code> : 立法格子シングルバンドタイトバインディングモデルのDOSを
+      計算する. ソースコードは<code>dos.f90</code></p>
+    <p><code>example/lindhard.x</code> : リントハルト関数を
+      計算する. ソースコードは<code>lindhard.f90</code></p>
+    <p><img src="dos.jpg" align="middle" width="400" alt="DOS計算結果"/>
+      図1: dos.xを使って計算した, 立法格子タイトバインディング模型の状態密度.
+    実線は十分多くの$k$点を利用した時の結果. 
+      &ldquo;$+$&rdquo;, &ldquo;$\times$&rdquo;はそれぞれ$8\times8\times8 k$グリッドでの
+      線形テトラへドロン法および最適化テトラへドロン法の結果.</p>
+    <p><img src="lindhard.jpg" align="middle" width="400" alt="DOS計算結果"/>
+      図2: lindhard.xを使って計算したLindhard関数.
+      実線は解析的な結果. 
+      &ldquo;$+$&rdquo;, &ldquo;$\times$&rdquo;はそれぞれ$8\times8\times8 k$グリッドでの
+      線形テトラへドロン法および最適化テトラへドロン法の結果.</p>
 
     <hr>
     <h1><a name="linklibrary">4, ライブラリのリンク方法</a></h1>
 
-    <p><span><strong>例/ gfortran の場合</strong></span><br />
+    <p><span><strong>例/ intel fortran の場合</strong></span><br />
       <pre><code>
-$ gfortran program.f90 -L {libtetrabzパス}/src/ -I {libtetrabzパス}/src -ltetrabz -fopenmp
-$ mpif90 program.f90 -L {libtetrabzパス}/src/  -I {libtetrabzパス}/src -ltetrabz_mpi -fopenmp
+$ ifort program.f90 -L {libtetrabzパス}/src/ -I {libtetrabzパス}/src -ltetrabz -fopenmp
+$ mpiifort program.f90 -L {libtetrabzパス}/src/  -I {libtetrabzパス}/src -ltetrabz_mpi -fopenmp
       </code></pre>
+
+    <p><span><strong>例/ intel C の場合</strong></span><br />
+      <pre><code>
+$ icc -lifcore program.f90 -L {libtetrabzパス}/src/ -I {libtetrabzパス}/src -ltetrabz -fopenmp
+$ mpiicc -lifcore program.f90 -L {libtetrabzパス}/src/  -I {libtetrabzパス}/src -ltetrabz_mpi -fopenmp
+      </code></pre>
+
     <p><code>-L</code>, <code>-I</code> オプションについては, 以下のように設定すればつける必要は無い.</p>
     
     <ul>
@@ -163,11 +180,27 @@ $ mpif90 program.f90 -L {libtetrabzパス}/src/  -I {libtetrabzパス}/src -ltet
     
     <p>以下のサブルーチンを任意のプログラム内で</p>
     <pre><code>
+use libtetrabz, only : libtetrabz_occ
+ :
 call libtetrabz_occ(ltetra,bvec,nb,nge,eig,ngw,wght)
     </code></pre>
     <p>のように呼び出して使用できる. サブルーチン名はすべて<code>libtetrabz_</code>からはじまる. 
-      MPI版については<code>libtetrabz_mpi_</code>からはじまる. 
+      MPI版については<code>libtetrabz_mpi_</code>からはじまる.
+      またMPI版では<code>libtetrabz_mpi</code>モジュールをつかう.
       シリアル版と MPI 版の引数の違いはコミニュケータを指定する整数<code>comm</code>だけで, 他は同じである.</p>
+
+    <p>C言語で書かれたプログラムから呼び出す場合には次のようにする.</p>
+    <pre><code>
+#include "libtetrabz.h"
+ :
+libtetrabz_mp_libtetrabz_occ_(&amp;ltetra,bvec,&amp;nb,nge,eig,ngw,wght)
+    </code></pre>
+    fortranサブルーチン名の前に<code>libtetrabz_mp_</code>を, うしろに<code>_</code>をつけたものが
+    Cでの関数名となる.
+    MPI版では<code>libtetrabz_mpi.h</code>をインクルードし, fortranサブルーチン名の前には
+    <code>libtetrabz_mpi_mp_</code>をつける.
+    変数はすべてポインタとして渡す.
+    配列はすべて1次元配列として定義し一番左の添字が内側のループとなるようにする.
 
     <hr>
     <h2><a name="totalenergy">5.1, 全エネルギー, 電荷密度等(占有率の計算)</a></h2>
