@@ -38,8 +38,8 @@
 	<a href="http://osdn.jp/projects/libtetrabz/releases/">
 	  <h3>Download</h3>
 	</a>
-	<a href="./manual_ja.html"><h4>日本語マニュアル</h4></a>
-	<a href="./manual_en.html"><h4>Manual in English</h4></a>
+	<h4>日本語マニュアル(<a href="./ja/index.html">HTML</a>/<a href="./ja/libtetrabz.pdf">PDF</a>)</h4>
+	<h4>Manual in English(<a href="./en/index.html">HTML</a>/<a href="./en/libtetrabz.pdf">PDF</a>)</h4>
 	<a href="http://osdn.jp/projects/libtetrabz/ticket/"><h4>Report Bugs</h4></a>
 	<a href="http://osdn.jp/projects/libtetrabz/forums/"><h4>Forum</h4></a>
 	<a href="http://osdn.jp/projects/libtetrabz/lists/"><h4>Mailing list</h4></a>
