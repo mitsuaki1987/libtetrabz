@@ -19,6 +19,7 @@ Contents:
    libtetrabz_sample_en
    libtetrabz_contact_en
    libtetrabz_app_en
+   libtetrabz_ref_en
 
 .. Indices and tables
 .. ==================

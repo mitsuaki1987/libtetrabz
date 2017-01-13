@@ -56,7 +56,7 @@ Parameters
    
       Specify the type of the tetrahedron method.
       1 :math:`\cdots` the linear tetrahedron method.
-      2 :math:`\cdots` the optimized tetrahedron method.
+      2 :math:`\cdots` the optimized tetrahedron method :ref:`[1] <ref>`.
 
    .. code-block:: fortran
                    
@@ -137,7 +137,7 @@ Parameters
    
       Specify the type of the tetrahedron method.
       1 :math:`\cdots` the linear tetrahedron method.
-      2 :math:`\cdots` the optimized tetrahedron method.
+      2 :math:`\cdots` the optimized tetrahedron method :ref:`[1] <ref>`.
 
    .. code-block:: fortran
                    
@@ -232,7 +232,7 @@ Parameters
    
       Specify the type of the tetrahedron method.
       1 :math:`\cdots` the linear tetrahedron method.
-      2 :math:`\cdots` the optimized tetrahedron method.
+      2 :math:`\cdots` the optimized tetrahedron method :ref:`[1] <ref>`.
 
    .. code-block:: fortran
                    
@@ -328,7 +328,7 @@ Parameters
    
       Specify the type of the tetrahedron method.
       1 :math:`\cdots` the linear tetrahedron method.
-      2 :math:`\cdots` the optimized tetrahedron method.
+      2 :math:`\cdots` the optimized tetrahedron method :ref:`[1] <ref>`.
 
    .. code-block:: fortran
                    
@@ -419,7 +419,7 @@ Parameters
    
       Specify the type of the tetrahedron method.
       1 :math:`\cdots` the linear tetrahedron method.
-      2 :math:`\cdots` the optimized tetrahedron method.
+      2 :math:`\cdots` the optimized tetrahedron method :ref:`[1] <ref>`.
 
    .. code-block:: fortran
                    
@@ -511,7 +511,7 @@ Parameters
    
       Specify the type of the tetrahedron method.
       1 :math:`\cdots` the linear tetrahedron method.
-      2 :math:`\cdots` the optimized tetrahedron method.
+      2 :math:`\cdots` the optimized tetrahedron method :ref:`[1] <ref>`.
 
    .. code-block:: fortran
                    
@@ -603,7 +603,7 @@ Parameters
    
       Specify the type of the tetrahedron method.
       1 :math:`\cdots` the linear tetrahedron method.
-      2 :math:`\cdots` the optimized tetrahedron method.
+      2 :math:`\cdots` the optimized tetrahedron method :ref:`[1] <ref>`.
 
    .. code-block:: fortran
                    
@@ -709,7 +709,7 @@ Parameters
    
       Specify the type of the tetrahedron method.
       1 :math:`\cdots` the linear tetrahedron method.
-      2 :math:`\cdots` the optimized tetrahedron method.
+      2 :math:`\cdots` the optimized tetrahedron method :ref:`[1] <ref>`.
 
    .. code-block:: fortran
                    

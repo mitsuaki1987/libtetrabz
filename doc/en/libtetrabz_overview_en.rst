@@ -4,10 +4,9 @@ Introduction
 This document explains a tetrahedron method library ``libtetrabz``.
 ``libtetrabz`` is a library to calculate the total energy, the charge
 density, partial density of states, response functions, etc. in a solid
-by using the optimized tetrahedron method. Subroutines
-in this library receive the orbital (Kohn-Sham) energies as an input and
+by using the optimized tetrahedron method :ref:`[1] <ref>`.
+Subroutines in this library receive the orbital (Kohn-Sham) energies as an input and
 calculate weights :math:`w_{n n' k}` for integration such as
-
 
 .. math::
 

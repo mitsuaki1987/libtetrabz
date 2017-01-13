@@ -1,7 +1,7 @@
 Contacts
 ========
 
-Please post bag reports and questions to the forum
+Please post bug reports and questions to the forum
 
    http://sourceforge.jp/projects/fermisurfer/forums/
    

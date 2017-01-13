@@ -19,6 +19,7 @@ Contents:
    libtetrabz_sample_ja
    libtetrabz_contact_ja
    libtetrabz_app_ja
+   libtetrabz_ref_ja
 
 .. Indices and tables
 .. ==================

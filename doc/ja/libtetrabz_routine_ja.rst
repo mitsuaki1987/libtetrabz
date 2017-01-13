@@ -55,7 +55,7 @@ fortranサブルーチン名の前には ``libtetrabz_mpi_mp_`` をつける.
    
       テトラへドロン法の種類を決める.
       1 :math:`\cdots` 線形テトラへドロン法,
-      2 :math:`\cdots` 最適化線形テトラへドロン法
+      2 :math:`\cdots` 最適化線形テトラへドロン法 :ref:`[1] <ref>`
 
    .. code-block:: fortran
                    
@@ -134,7 +134,7 @@ Fermi エネルギー(占有率も同時に計算する)
    
       テトラへドロン法の種類を決める.
       1 :math:`\cdots` 線形テトラへドロン法,
-      2 :math:`\cdots` 最適化線形テトラへドロン法
+      2 :math:`\cdots` 最適化線形テトラへドロン法 :ref:`[1] <ref>`
 
    .. code-block:: fortran
                          
@@ -233,7 +233,7 @@ Fermi エネルギー(占有率も同時に計算する)
    
       テトラへドロン法の種類を決める.
       1 :math:`\cdots` 線形テトラへドロン法,
-      2 :math:`\cdots` 最適化線形テトラへドロン法
+      2 :math:`\cdots` 最適化線形テトラへドロン法 :ref:`[1] <ref>`
 
    .. code-block:: fortran
                          
@@ -326,7 +326,7 @@ Fermi エネルギー(占有率も同時に計算する)
    
       テトラへドロン法の種類を決める.
       1 :math:`\cdots` 線形テトラへドロン法,
-      2 :math:`\cdots` 最適化線形テトラへドロン法
+      2 :math:`\cdots` 最適化線形テトラへドロン法 :ref:`[1] <ref>`
 
    .. code-block:: fortran
                          
@@ -415,7 +415,7 @@ DFPT 計算の一部
    
       テトラへドロン法の種類を決める.
       1 :math:`\cdots` 線形テトラへドロン法,
-      2 :math:`\cdots` 最適化線形テトラへドロン法
+      2 :math:`\cdots` 最適化線形テトラへドロン法 :ref:`[1] <ref>`
 
    .. code-block:: fortran
                          
@@ -505,7 +505,7 @@ DFPT 計算の一部
    
       テトラへドロン法の種類を決める.
       1 :math:`\cdots` 線形テトラへドロン法,
-      2 :math:`\cdots` 最適化線形テトラへドロン法
+      2 :math:`\cdots` 最適化線形テトラへドロン法 :ref:`[1] <ref>`
 
    .. code-block:: fortran
                          
@@ -595,7 +595,7 @@ DFPT 計算の一部
    
       テトラへドロン法の種類を決める.
       1 :math:`\cdots` 線形テトラへドロン法,
-      2 :math:`\cdots` 最適化線形テトラへドロン法
+      2 :math:`\cdots` 最適化線形テトラへドロン法 :ref:`[1] <ref>`
 
    .. code-block:: fortran
                          
@@ -699,7 +699,7 @@ DFPT 計算の一部
    
       テトラへドロン法の種類を決める.
       1 :math:`\cdots` 線形テトラへドロン法,
-      2 :math:`\cdots` 最適化線形テトラへドロン法
+      2 :math:`\cdots` 最適化線形テトラへドロン法 :ref:`[1] <ref>`
 
    .. code-block:: fortran
                          
