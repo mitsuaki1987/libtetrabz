@@ -6,8 +6,6 @@
 Welcome to LibTetraBZ's documentation!
 =============================================
 
-Contents:
-
 .. toctree::
    :maxdepth: 3
 
