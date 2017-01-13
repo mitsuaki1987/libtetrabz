@@ -79,7 +79,7 @@ Sample programs using ``libtetrabz`` are also compiled in ``example/`` .
 ``example/dos.x`` : Compute DOS of a tight-binding model in the cubic
 lattice. The source code is ``dos.f90``
 
-   .. figure:: ../dos.png
+   .. figure:: ../figs/dos.png
                :scale: 50
 
                Density of states of the tight-binding model on the
@@ -94,7 +94,7 @@ lattice. The source code is ``dos.f90``
 ``example/lindhard.x`` : Compute the Lindhard function. The source code
 is ``lindhard.f90``
 
-   .. figure:: ../lindhard.png
+   .. figure:: ../figs/lindhard.png
                :scale: 50
 
                (solid line) The analytical result of the Lindhard

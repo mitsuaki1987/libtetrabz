@@ -15,7 +15,7 @@
     <div id="frame">
       <div id="innerframe">
         <p align="left">日本語 
-          <a href="index.html.en">English</a></p>
+          <a href="index.html">English</a></p>
         <hr>
         <h1><a href="http://osdn.jp/projects/libtetrabz/">libtetrabz</a></h1>
         <p>
@@ -38,8 +38,14 @@
 	<a href="http://osdn.jp/projects/libtetrabz/releases/">
 	  <h3>ダウンロード</h3>
 	</a>
-	<h4>日本語マニュアル(<a href="./ja/index.html">HTML</a>/<a href="./ja/libtetrabz.pdf">PDF</a>)</h4>
-	<h4>Manual in English(<a href="./en/index.html">HTML</a>/<a href="./en/libtetrabz.pdf">PDF</a>)</h4>
+	<h4>日本語マニュアル(
+      <a href="./ja/_build/html/index.html">HTML</a>/
+      <a href="./ja/_build/latex/libtetrabz.pdf">PDF</a>)
+    </h4>
+	<h4>Manual in English(
+      <a href="./en/_build/html/index.html">HTML</a>/
+      <a href="./en/_build/latex/libtetrabz.pdf">PDF</a>)
+    </h4>
 	<a href="http://osdn.jp/projects/libtetrabz/ticket/"><h4>バグ報告</h4></a>
 	<a href="http://osdn.jp/projects/libtetrabz/forums/"><h4>フォーラム</h4></a>
 	<a href="http://osdn.jp/projects/libtetrabz/lists/"><h4>メーリングリスト</h4></a>

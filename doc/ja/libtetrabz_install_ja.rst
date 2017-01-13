@@ -81,7 +81,7 @@ Makeファイルおよびコンパイル環境設定ファイル
 立法格子シングルバンドタイトバインディングモデルのDOSを 計算する.
 ソースコードは ``dos.f90``
 
-   .. figure:: ../dos.png
+   .. figure:: ../figs/dos.png
                :scale: 50
 
                dos.xを使って計算した,
@@ -95,7 +95,7 @@ Makeファイルおよびコンパイル環境設定ファイル
 ``example/lindhard.x`` : リントハルト関数を計算する.
 ソースコードは ``lindhard.f90``
 
-   .. figure:: ../lindhard.png
+   .. figure:: ../figs/lindhard.png
                :scale: 50
 
                lindhard.xを使って計算したLindhard関数.
