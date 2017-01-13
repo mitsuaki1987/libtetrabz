@@ -9,7 +9,6 @@
     
    call libtetrabz_occ(ltetra,bvec,nb,nge,eig,ngw,wght)
         
-
 のように呼び出して使用できる.
 サブルーチン名はすべて ``libtetrabz_`` からはじまる.
 MPI版については ``libtetrabz_mpi_`` からはじまる.
@@ -25,7 +24,6 @@ C言語で書かれたプログラムから呼び出す場合には次のよう�
    
    libtetrabz_mp_libtetrabz_occ_(&ltetra,bvec,&nb,nge,eig,ngw,wght)
         
-
 fortranサブルーチン名の前に ``libtetrabz_mp_`` を,
 うしろに ``_`` をつけたものが Cでの関数名となる.
 MPI版では ``libtetrabz_mpi.h`` をインクルードし,

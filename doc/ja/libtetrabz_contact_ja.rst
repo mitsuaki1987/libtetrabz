@@ -5,7 +5,6 @@
 
     http://sourceforge.jp/projects/libtetrabz/forums/
         
-
 開発に参加したい方は以下の連絡先にて受け付けております.
 
 東京大学物性研究所
