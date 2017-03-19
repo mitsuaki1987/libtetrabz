@@ -18,52 +18,41 @@
           <a href="index.html">English</a></p>
         <hr>
         <h1><a href="http://osdn.jp/projects/libtetrabz/">libtetrabz</a></h1>
-        <p>
-          <a href="http://osdn.jp/">OSDN</a>
-          <a href="http://osdn.jp/softwaremap/">プロジェクト</a>
-          <a href="http://osdn.jp/projects/libtetrabz/">libtetrabz</a>
-	  概要
-        </p>
-
-	<p>固体中の電子状態計算においてBrillouin Zone積分を効率的に行うテトラへドロン法を
-          任意のコードに実装するためのライブラリ群です。</p>
+        
+	    <h4>固体中の電子状態計算においてBrillouin Zone積分を効率的に行うテトラへドロン法を
+          任意のコードに実装するためのライブラリ群です。</h4>
 
 
         <script type="text/javascript">
-	  var sfjp_widget_width = null;
-	  var sfjp_widget_customcss = null;
+	      var sfjp_widget_width = null;
+	      var sfjp_widget_customcss = null;
         </script>
-        <script src="http://osdn.jp/projects/libtetrabz/files/compact.js" type="text/javascript" charset="utf-8"></script>
-
-	<a href="http://osdn.jp/projects/libtetrabz/releases/">
-	  <h3>ダウンロード</h3>
-	</a>
-	<h4>日本語マニュアル(
-      <a href="./ja/_build/html/index.html">HTML</a>/
-      <a href="./ja/_build/latex/libtetrabz.pdf">PDF</a>)
-    </h4>
-	<h4>Manual in English(
-      <a href="./en/_build/html/index.html">HTML</a>/
-      <a href="./en/_build/latex/libtetrabz.pdf">PDF</a>)
-    </h4>
-	<a href="http://osdn.jp/projects/libtetrabz/ticket/"><h4>バグ報告</h4></a>
-	<a href="http://osdn.jp/projects/libtetrabz/forums/"><h4>フォーラム</h4></a>
-	<a href="http://osdn.jp/projects/libtetrabz/lists/"><h4>メーリングリスト</h4></a>
-
+        <script src="http://osdn.jp/projects/libtetrabz/files/compact.js"
+                type="text/javascript" charset="utf-8"></script>
+        
+	    <a href="http://osdn.jp/projects/libtetrabz/releases/">
+	      <h3>全てのバージョンを見る</h3>
+	    </a>
+	    <h3>日本語マニュアル(
+          <a href="./ja/_build/html/index.html">HTML</a>/
+          <a href="./ja/_build/latex/libtetrabz.pdf">PDF</a>)
+        </h3>
+	    <h3>Manual in English(
+          <a href="./en/_build/html/index.html">HTML</a>/
+          <a href="./en/_build/latex/libtetrabz.pdf">PDF</a>)
+        </h3>
+	    <a href="http://osdn.jp/projects/libtetrabz/ticket/"><h3>バグ報告</h3></a>
+	    <a href="http://osdn.jp/projects/libtetrabz/forums/"><h3>フォーラム</h3></a>
+	    <a href="http://osdn.jp/projects/libtetrabz/lists/"><h3>メーリングリスト</h3></a>
+        
         <br />
-
-        <div style="border: 1px solid #9cf; padding: .5em;">
-
-	  <div>
+        <hr>
+        
 	    <a href="http://osdn.jp/">
 	      <img src="http://osdn.jp/sflogo.php?group_id=9673&type=3"
-		   width="210" height="63" border="0" alt="OSDN">
+		       width="210" height="63" border="0" alt="OSDN">
 	    </a>
-	  </div>
-
-	  <br style="clear: right;" />
-        </div>
-
+        
         <script type="text/javascript"><!--
                                            google_ad_client = "ca-pub-9941151214016196";
                                            google_ad_slot = "3654106219";
@@ -73,7 +62,6 @@
         </script>
       </div>
     </div>
-</div>
 
-</body>
+  </body>
 </html>
