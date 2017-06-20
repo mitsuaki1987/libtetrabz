@@ -1,23 +1,26 @@
 MODULE libtetrabz_val
   !
+  LOGICAL,SAVE :: &
+  & lmpi, &
+  & linterpol
+  !
   INTEGER,SAVE :: &
-  & fst,          & !
-  & lst,          & !
-  & nk,           & !
-  & nk0,          & !
-  & nt,           & !
+  & nkBZ, &
+  & comm,         & !
+  & nt_local,     & !
+  & nk_local,     & !
   & nb,           & !
   & ne,           & !
-  & ng(3),        & !
-  & ltetra,       & !
-  & ivvec(3,20,6)   !
+  & ng(3)         !
   !
   REAL(8),SAVE :: &
   & wlsm(4,20)      !
   !
-  INTEGER,SAVE,ALLOCATABLE:: &
-  & indx1(:,:), &
-  & indx2(:,:), &
-  & indx3(:)
+  INTEGER,SAVE,ALLOCATABLE :: &
+  & ik_global(:,:), &
+  & ik_local(:,:)
+  !
+  REAL(8),SAVE,ALLOCATABLE :: &
+  & kvec(:,:)
   !
 END MODULE libtetrabz_val

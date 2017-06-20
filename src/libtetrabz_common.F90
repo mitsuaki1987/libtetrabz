@@ -1,4 +1,4 @@
-MODULE libtetrabz_routines
+MODULE libtetrabz_common
   !
   IMPLICIT NONE
   !
@@ -6,18 +6,23 @@ CONTAINS
 !
 ! define shortest diagonal line & define type of tetragonal
 !
-SUBROUTINE libtetrabz_initialize(bvec)
+SUBROUTINE libtetrabz_initialize(ltetra,bvec,nge,ngw,nb0,ne0)
   !
-  USE libterabz_val, ONLY : ltetra, ng, wlsm, ivvec, nt, nk, ng
+  USE libtetrabz_val, ONLY : wlsm, nb, ne, ng, linterpol, nkBZ
   IMPLICIT NONE
   !
+  INTEGER,INTENT(IN) :: ltetra, nb0, nge(3), ngw(3)
   REAL(8),INTENT(IN) :: bvec(3,3)
+  INTEGER,INTENT(IN),OPTIONAL :: ne0
   !
-  INTEGER :: itype, i1, i2, i3, it, ii, divvec(4,4), ivvec0(4)
+  INTEGER :: itype, i1, i2, i3, it, ii, divvec(4,4), ivvec0(4), ivvec(3,20,6)
   REAL(8) :: l(4), bvec2(3,3), bvec3(3,4)
   !
-  nk = PRODUCT(ng(1:3))
-  nt = nk * 6
+  nb = nb0
+  ng(1:3) = nge(1:3)
+  nkBZ = PRODUCT(ng(1:3))
+  linterpol = .NOT. ALL(nge(1:3) == ngw(1:3))
+  IF(PRESENT(ne0)) ne = ne0
   !
   DO i1 = 1, 3
      bvec2(1:3,i1) = bvec(1:3,i1) / DBLE(ng(i1))
@@ -138,37 +143,138 @@ SUBROUTINE libtetrabz_initialize(bvec)
      !
   END IF
   !
+  CALL libtetrabz_kgrid(ivvec)
+  !
 END SUBROUTINE libtetrabz_initialize
-  for (i = 0; i < n; ++i) swap[i] = i;
-
-  for (i = 0; i < n - 1; ++i) {
-    for (j = i + 1; j < n; ++j) {
-      if (key[swap[j]] < key[swap[i]]) {
-        /*
-         Swap
-        */
-        k = swap[j];
-        swap[j] = swap[i];
-        swap[i] = k;
-      }/*if (sortee[j][0] < sortee[i][0])*/
-    }/*for (j = i + 1; j < n; ++j)*/
-  }/*for (i = 0; i < n - 1; ++i)*/
+!
+! Initialize grid
+!
+SUBROUTINE libtetrabz_kgrid(ivvec)
+  !
+  USE libtetrabz_val, ONLY : nk_local, ik_global, ik_local, kvec, ng, nt_local, lmpi, linterpol, nkBZ
+  IMPLICIT NONE
+  !
+  INTEGER,INTENT(IN) :: ivvec(3,20,6)
+  !
+  INTEGER :: it, i1, i2, i3, ii, ikv(3), nt, ik, nt_front, loc2glob(nkBZ)
+  !
+  CALL libtetrabz_fst_and_lst(6 * nkBZ, nt_front, nt_local)
+  ALLOCATE(ik_global(20, nt_local), ik_local(20, nt_local))
+  !
+  ! k-index for energy (Global index)
+  !
+  nt = 0
+  DO i3 = 1, ng(3)
+     DO i2 = 1, ng(2)
+        DO i1 = 1, ng(1)
+           !
+           DO it = 1, 6
+              !
+              nt = nt + 1
+              IF(nt <= nt_front .OR. nt_front + nt_local < nt) CYCLE
+              !
+              DO ii = 1, 20
+                 !
+                 ikv(1:3) = (/i1, i2, i3/) + ivvec(1:3,ii,it) - 1
+                 ikv(1:3) = MODULO(ikv(1:3), ng(1:3))
+                 !
+                 ik_global(ii,nt - nt_front) = 1 + ikv(1) + ng(1) * ikv(2) + ng(1) * ng(2) * ikv(3)
+                 !
+              END DO
+              !
+           END DO
+           !
+        END DO
+     END DO
+  END DO
+  !
+  ! k-index for weight (Local index)
+  !
+  ik_local(1:20,1:nt_local) = ik_global(1:20,1:nt_local)
+  IF((.NOT. lmpi) .AND. (.NOT. linterpol)) THEN
+     nk_local = PRODUCT(ng(1:3))
+     RETURN
+  END IF
+  !
+  nk_local = 0
+  DO nt = 1, nt_local
+     DO ii = 1, 20
+        !
+        IF(ik_local(ii,nt) <= nk_local) CYCLE
+        !
+        nk_local = nk_local + 1
+        loc2glob(nk_local) = ik_local(ii,nt)
+        WHERE(ik_local(1:20,1:nt_local) == loc2glob(nk_local)) &
+        &  ik_local(1:20,1:nt_local) = nk_local
+        !
+     END DO
+  END DO
+  !
+  ! k-vector in the fractional coordinate
+  !
+  ALLOCATE(kvec(3,nk_local))
+  DO ik = 1, nk_local
+     ! loc2glob(ik) - 1 = i1 + ng(1) * i2 + ng(1) * ng(2) * i3
+     i1 = MOD(loc2glob(ik) - 1, ng(1))
+     i2 = MOD((loc2glob(ik) - 1) / ng(1), ng(2))
+     i3 = (loc2glob(ik) - 1) / (ng(1) * ng(2))
+     kvec(1:3,ik) = DBLE((/i1, i2, i3/) - 1) / DBLE(ng(1:3))
+  END DO
+  !
+END SUBROUTINE libtetrabz_kgrid
+!
+! Compute cnt and dsp
+!
+SUBROUTINE libtetrabz_fst_and_lst(nt,nt_front,nt_local)
+  !
+#if defined(__MPI)
+  USE mpi, ONLY : mpi_comm_size, mpi_comm_rank
+#endif
+  USE libtetrabz_val, ONLY : comm, lmpi
+  IMPLICIT NONE
+  !
+  INTEGER,INTENT(IN) :: nt
+  INTEGER,INTENT(OUT) :: nt_front, nt_local
+  !
+  INTEGER :: petot, my_rank
+#if defined(__MPI)
+  INTEGER :: ierr
+#endif
+  !
+  petot = 1
+  my_rank = 0
+#if defined(__MPI)
+  IF(lmpi) THEN
+     CALL MPI_COMM_SIZE(comm, petot, ierr)
+     CALL MPI_COMM_RANK(comm, my_rank, ierr)
+  END if
+#endif
+  !
+  IF(my_rank < MOD(nt, petot)) THEN
+     nt_local = nt / petot + 1
+     nt_front = my_rank * nt_local
+  ELSE
+     nt_local = nt / petot
+     nt_front = my_rank * nt_local + MOD(nt, petot)
+  END IF
+  !
+END SUBROUTINE libtetrabz_fst_and_lst
 !
 ! Simple sort
 !
-SUBROUTINE libtetrabz_sort(n,key,sind)
+SUBROUTINE libtetrabz_sort(n,key,indx)
   !
   IMPLICIT NONE
   !
   integer,INTENT(IN) :: n
   REAL(8),INTENT(inout) :: key(n)
-  INTEGER,INTENT(OUT) :: sind(n)
+  INTEGER,INTENT(OUT) :: indx(n)
   !
-  INTEGER :: i, i0, sind0
+  INTEGER :: i, i0, indx0
   REAL(8) :: key0
   !
   DO i = 1, n
-     sind(i) = i
+     indx(i) = i
   END DO
   !
   DO i = 1, n - 1
@@ -178,151 +284,48 @@ SUBROUTINE libtetrabz_sort(n,key,sind)
         key(i0) = key(i)
         key(i) = key0
         !
-        sind0 = sind(i0)
-        sind(i0) = sind(i)
-        sind(i) = sind0
+        indx0 = indx(i0)
+        indx(i0) = indx(i)
+        indx(i) = indx0
      END IF
   END DO
   !
 END SUBROUTINE libtetrabz_sort
 !
-! Interpolate integration weight
+! Linear interpolation
 !
-SUBROUTINE libtetrabz_interpol_weight(nb,ngc,ngd,wc,wd)
+SUBROUTINE libtetrabz_interpol_indx(ng,kvec,kintp,wintp)
   !
-  USE libterabz_val, ONLY : nk0, indx3
   IMPLICIT NONE
   !
-  integer,INTENT(IN) :: nb, ngc(3), ngd(3)
-  REAL(8),INTENT(IN) :: wd(nb,nk0)
-  REAL(8),INTENT(OUT) :: wc(nb,product(ngc(1:3)))
+  INTEGER,INTENT(in) :: ng(3)
+  REAL(8),INTENT(in) :: kvec(3)
+  INTEGER,INTENT(out) :: kintp(4)
+  REAL(8),INTENT(out) :: wintp(4)
   !
-  INTEGER :: i1, i2, i3, ik, nkc, nkd
-  REAL(8) :: kv(3, PRODUCT(ngd(1:3)))
-  !
-  nkc = PRODUCT(ngc(1:3))
-  nkd = PRODUCT(ngd(1:3))
-  !
-  ik = 0
-  DO i3 = 1, ngd(3)
-     DO i2 = 1, ngd(2)
-        DO i1 = 1, ngd(1)
-           ik = ik + 1
-           kv(1:3,ik) = DBLE((/i1, i2, i3/) - 1) / DBLE(ngd(1:3))
-        END DO
-     END DO
-  END DO
-  !
-  wc(1:nb,1:nkc) = 0d0
-  !
-  !$OMP PARALLEL DEFAULT(NONE) &
-  !$OMP & SHARED(nk0,nkc,nkd,nb,ngc,kv,wc,wd,indx3) &
-  !$OMP PRIVATE(ik)
-  !
-  !$OMP DO REDUCTION(+: wc)
-  DO ik = 1, nk0
-     CALL libtetrabz_interpol_weight2(nkc, nb, ngc, kv(1:3,indx3(ik)), wd(1:nb,ik), wc)
-  END DO
-  !$OMP END DO
-  !$OMP END PARALLEL
-  !
-END SUBROUTINE libtetrabz_interpol_weight
-!
-! first or third order interpolation of weights
-!
-SUBROUTINE libtetrabz_interpol_weight2(nk,nb,ng,ko,wi,wo)
-  !
-  USE libterabz_val, ONLY : ltetra, ivvec
-  IMPLICIT NONE
-  !
-  INTEGER,INTENT(IN)  :: nk, nb, ng(3)
-  REAL(8),INTENT(IN)  :: ko(3)
-  REAL(8),INTENT(IN) :: wi(nb)
-  REAL(8),INTENT(INOUT) :: wo(nb,nk)
-  !
-  INTEGER :: ikv(3), ikv1(3), ik(20), ii, it, it0, ierr
-  REAL(8) :: rot(3,3), res(3), prod(3), u, x, y, z, thr = 1d-10
-  !
-  rot(1:3,1) = (/  2d0, - 1d0,   0d0/)
-  rot(1:3,2) = (/- 1d0,   2d0, - 1d0/)
-  rot(1:3,3) = (/  0d0, - 1d0,   1d0/)
+  INTEGER :: ikv0(3), ikv1(3), dikv(3), ii
+  REAL(8) :: x(3)
   !
   ! Search nearest neighbor grid points.
   !
-  res(1:3) = ko(1:3) * DBLE(ng(1:3))
-  ikv(1:3) = FLOOR(res(1:3))
-  res(1:3) = res(1:3) - DBLE(ikv(1:3))
+  x(1:3) = kvec(1:3) * DBLE(ng(1:3))
+  ikv0(1:3) = NINT(x(1:3))
+  dikv(1:3) = ikv0(1:3) - FLOOR(x(1:3))
+  dikv(1:3) = 1 - 2 * dikv(1:3)
+  x(1:3) = ABS(x(1:3) - DBLE(ikv0(1:3)))
   !
-  DO it = 1, 6
-     !
-     DO ii = 1, 3
-        prod(ii) = DOT_PRODUCT(DBLE(ivvec(1:3,1 + ii,it) - ivvec(1:3,1,it)), &
-        &                                  res(1:3) - DBLE(ivvec(1:3,1,it))  )
-     END DO
-     !
-     prod(1:3) = MATMUL(rot(1:3,1:3), prod(1:3))
-     !
-     IF(MINVAL(prod(1:3)) > - thr .AND. SUM(prod(1:3)) < 1d0 + thr) THEN
-        it0 = it
-        GOTO 10
-     END IF
-     !
+  ! Interpolation k & weights
+  !
+  DO ii = 1, 3
+     wintp(ii) = x(ii)
+     ikv1(1:3) = ikv0(1:3)
+     ikv1(ii) = ikv1(ii) + dikv(ii)
+     kintp(ii) = 1 + ikv1(1) + ng(1) * ikv1(2) + ng(1) * ng(2) * ikv1(3)
   END DO
+  wintp(4) = 1d0 - SUM(x(1:3))
+  kintp(4) = 1 + ikv0(1) + ng(1) * ikv0(2) + ng(1) * ng(2) * ikv0(3)
   !
-  STOP "interpol"
-  !
-10 CONTINUE
-  !
-  x = prod(1)
-  y = prod(2)
-  z = prod(3)
-  u = 1d0 - x - y - z
-  !
-  DO ii = 1, 20
-     !
-     ikv1(1:3) = ikv(1:3) + ivvec(1:3,ii,it0)
-     ikv1(1:3) = MODULO(ikv1(1:3), ng(1:3))
-     ik(ii) = 1 + ikv1(1) + ikv1(2) * ng(1) + ikv1(3) * ng(1) * ng(2)
-     !
-  END DO
-  !
-  IF(ltetra == 0 .OR. ltetra == 1) THEN
-     !
-     wo(1:nb,ik(1)) = wo(1:nb,ik(1)) + wi(1:nb) * u
-     wo(1:nb,ik(2)) = wo(1:nb,ik(2)) + wi(1:nb) * x
-     wo(1:nb,ik(3)) = wo(1:nb,ik(3)) + wi(1:nb) * y
-     wo(1:nb,ik(4)) = wo(1:nb,ik(4)) + wi(1:nb) * z
-     !
-  ELSE IF(ltetra == 2) THEN
-     !
-     wo(1:nb,ik( 1)) = wo(1:nb,ik( 1)) + wi(1:nb) * 0.5d0 * u * (2d0 + u * (1d0 - u) + 2d0 * y * (x + z))
-     wo(1:nb,ik( 2)) = wo(1:nb,ik( 2)) + wi(1:nb) * 0.5d0 * x * (2d0 + x * (1d0 - x) + 2d0 * z * (u + y))
-     wo(1:nb,ik( 3)) = wo(1:nb,ik( 3)) + wi(1:nb) * 0.5d0 * y * (2d0 + y * (1d0 - y) + 2d0 * u * (x + z))
-     wo(1:nb,ik( 4)) = wo(1:nb,ik( 4)) + wi(1:nb) * 0.5d0 * z * (2d0 + z * (1d0 - z) + 2d0 * x * (u + y))
-     wo(1:nb,ik( 5)) = wo(1:nb,ik( 5)) + wi(1:nb) * x * u * (2d0 * y - u - 1d0) / 6d0
-     wo(1:nb,ik( 6)) = wo(1:nb,ik( 6)) + wi(1:nb) * x * y * (2d0 * z - x - 1d0) / 6d0
-     wo(1:nb,ik( 7)) = wo(1:nb,ik( 7)) + wi(1:nb) * y * z * (2d0 * u - y - 1d0) / 6d0
-     wo(1:nb,ik( 8)) = wo(1:nb,ik( 8)) + wi(1:nb) * z * u * (2d0 * x - z - 1d0) / 6d0
-     wo(1:nb,ik( 9)) = wo(1:nb,ik( 9)) + wi(1:nb) * y * u * (2d0 * y + u - 3d0) / 6d0
-     wo(1:nb,ik(10)) = wo(1:nb,ik(10)) + wi(1:nb) * x * z * (2d0 * z + x - 3d0) / 6d0
-     wo(1:nb,ik(11)) = wo(1:nb,ik(11)) + wi(1:nb) * y * u * (2d0 * u + y - 3d0) / 6d0
-     wo(1:nb,ik(12)) = wo(1:nb,ik(12)) + wi(1:nb) * x * z * (2d0 * x + z - 3d0) / 6d0
-     wo(1:nb,ik(13)) = wo(1:nb,ik(13)) + wi(1:nb) * z * u * (2d0 * y - u - 1d0) / 6d0
-     wo(1:nb,ik(14)) = wo(1:nb,ik(14)) + wi(1:nb) * x * u * (2d0 * z - x - 1d0) / 6d0
-     wo(1:nb,ik(15)) = wo(1:nb,ik(15)) + wi(1:nb) * x * y * (2d0 * u - y - 1d0) / 6d0
-     wo(1:nb,ik(16)) = wo(1:nb,ik(16)) + wi(1:nb) * y * z * (2d0 * x - z - 1d0) / 6d0
-     wo(1:nb,ik(17)) = wo(1:nb,ik(17)) + wi(1:nb) * (- x * z * u)
-     wo(1:nb,ik(18)) = wo(1:nb,ik(18)) + wi(1:nb) * (- x * y * u)
-     wo(1:nb,ik(19)) = wo(1:nb,ik(19)) + wi(1:nb) * (- x * y * z)
-     wo(1:nb,ik(20)) = wo(1:nb,ik(20)) + wi(1:nb) * (- y * z * u)
-     !
-  ELSE
-     !
-     STOP "interpol2"
-     ! 
-  END IF
-  !
-END SUBROUTINE libtetrabz_interpol_weight2
+end subroutine libtetrabz_interpol_indx
 !
 ! Cut small tetrahedron A1
 !
@@ -610,4 +613,4 @@ SUBROUTINE libtetrabz_triangle_c1(e,V,tsmall)
   !
 END SUBROUTINE libtetrabz_triangle_c1
 !
-END MODULE libtetrabz_routines
+END MODULE libtetrabz_common

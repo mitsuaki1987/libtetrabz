@@ -1,21 +1,38 @@
 include ../make.sys
 
-all:libtetrabz.a libtetrabz_mpi.a
+OBJS = \
+libtetrabz.o \
+libtetrabz_common.o \
+libtetrabz_dbldelta_mod.o \
+libtetrabz_dblstep_mod.o \
+libtetrabz_dos_mod.o \
+libtetrabz_fermigr_mod.o \
+libtetrabz_occ_mod.o \
+libtetrabz_polcmplx_mod.o \
+libtetrabz_polstat_mod.o \
+libtetrabz_val.o
+
+.SUFFIXES :
+.SUFFIXES : .o .F90
+
+all:libtetrabz.a
+
+.F90.o:
+	$(F90) $(FFLAG) -c $<
 
 clean:
 	rm -f *.a *.o *.mod
 
-libtetrabz.a:libtetrabz_common.o libtetrabz.o
-	ar cr $@ libtetrabz_common.o libtetrabz.o
+libtetrabz.a:$(OBJS)
+	ar cr $@ $(OBJS)
 
-libtetrabz_mpi.a:libtetrabz_common.o libtetrabz_mpi.o
-	ar cr $@ libtetrabz_common.o libtetrabz_mpi.o
-
-libtetrabz.o:libtetrabz_common.o libtetrabz.F90
-	$(F90) libtetrabz.F90 $(FFLAGS) -c
-
-libtetrabz_mpi.o:libtetrabz_common.o libtetrabz_mpi.F90
-	$(MPIF90) libtetrabz_mpi.F90 $(FFLAGS) -c
-
-libtetrabz_common.o:libtetrabz_common.F90
-	$(F90) libtetrabz_common.F90 $(FFLAGS) -c
+libtetrabz.o :  libtetrabz_polcmplx_mod.o libtetrabz_fermigr_mod.o libtetrabz_polstat_mod.o libtetrabz_dbldelta_mod.o libtetrabz_dblstep_mod.o libtetrabz_dos_mod.o libtetrabz_occ_mod.o
+libtetrabz_common.o : libtetrabz_common.F90 libtetrabz_val.o
+libtetrabz_dbldelta_mod.o : libtetrabz_dbldelta_mod.F90 libtetrabz_common.o libtetrabz_val.o
+libtetrabz_dblstep_mod.o : libtetrabz_dblstep_mod.F90 libtetrabz_common.o libtetrabz_val.o
+libtetrabz_dos_mod.o : libtetrabz_dos_mod.F90 libtetrabz_common.o libtetrabz_val.o
+libtetrabz_fermigr_mod.o : libtetrabz_fermigr_mod.F90 libtetrabz_common.o libtetrabz_val.o
+libtetrabz_occ_mod.o : libtetrabz_occ_mod.F90 libtetrabz_common.o libtetrabz_val.o
+libtetrabz_polcmplx_mod.o : libtetrabz_polcmplx_mod.F90 libtetrabz_common.o libtetrabz_val.o
+libtetrabz_polstat_mod.o : libtetrabz_polstat_mod.F90 libtetrabz_common.o libtetrabz_val.o
+libtetrabz_val.o : libtetrabz_val.F90

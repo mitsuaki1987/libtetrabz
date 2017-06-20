@@ -6,70 +6,96 @@ CONTAINS
 !
 ! Compute Static polalization function
 !
-SUBROUTINE libtetrabz_mpi_polstat(ltetra0,comm0,bvec,nb0,nge,eig1,eig2,ngw,wght0)
+SUBROUTINE libtetrabz_polstat(ltetra,comm0,bvec,nb,nge,eig1,eig2,ngw,wght0) BIND(C)
   !
+#if defined(__MPI)
   USE mpi, ONLY : MPI_IN_PLACE, MPI_DOUBLE_PRECISION, MPI_SUM
-  USE libtetrabz_vals, ONLY : ltetra, ng, nb, nk0, indx1, indx2, indx3
-  USE libtetrabz_common, ONLY : libtetrabz_initialize, libtetrabz_interpol_weight
-  USE libtetrabz_polstat_mod, ONLY : libtetrabz_polstat_main
+#endif
+  USE ISO_C_BINDING
+  USE libtetrabz_val,   ONLY : nk_local, ik_global, ik_local, kvec, lmpi, linterpol, comm
+  USE libtetrabz_common, ONLY : libtetrabz_initialize, libtetrabz_interpol_indx
+  IMPLICIT NONE
   !
-  USE libtetrabz_mpi_routines, ONLY : comm, libtetrabz_mpi_kgrid
+  INTEGER(C_INT),INTENT(IN) :: ltetra, nge(3), ngw(3), nb
+  REAL(C_DOUBLE),INTENT(IN) :: bvec(3,3)
+  REAL(C_DOUBLE),INTENT(IN) :: eig1(nb,PRODUCT(nge(1:3))), eig2(nb,PRODUCT(nge(1:3)))
+  REAL(C_DOUBLE),INTENT(OUT) :: wght0(nb,nb,PRODUCT(ngw(1:3)))
+  INTEGER(C_INT),INTENT(IN),OPTIONAL :: comm0
   !
-  INTEGER,INTENT(IN) :: ltetra0, comm0, nge(3), ngw(3), nb0
-  REAL(8),INTENT(IN) :: bvec(3,3)
-  REAL(8),INTENT(IN) :: eig1(nb0,PRODUCT(nge(1:3))), eig2(nb0,PRODUCT(nge(1:3)))
-  REAL(8),INTENT(OUT) :: wght0(nb0,nb0,PRODUCT(ngw(1:3)))
+  INTEGER :: ii, ik, kintp(4)
+  REAL(8) :: wintp(4)
+  REAL(8),ALLOCATABLE :: wght1(:,:,:)
+#if defined(__MPI)
+  INTEGER :: ierr
+#endif
   !
-  INTEGER :: ierr, nn
-  REAL(8),ALLOCATABLE :: wght1(:,:)
+  lmpi = .FALSE.
+  IF(PRESENT(comm0)) THEN
+     comm = comm0
+#if defined(__MPI)
+     lmpi = .TRUE.
+#endif
+  END IF
   !
-  ltetra = ltetra0
-  comm = comm0
-  nb = nb0
-  ng(1:3) = nge(1:3)
-  nn = nb * nb
+  CALL libtetrabz_initialize(ltetra,bvec,nge,ngw,nb)
   !
-  CALL libtetrabz_initialize(bvec)
-  CALL libtetrabz_mpi_kgrid()
+  IF(lmpi .OR. linterpol) THEN
+     !
+     ALLOCATE(wght1(nb,nb,nk_local))
+     CALL libtetrabz_polstat_main(eig1,eig2,wght1)
+     !
+     ! Interpolation
+     !
+     wght0(1:nb,1:nb,1:PRODUCT(ngw(1:3))) = 0d0
+     DO ik = 1, nk_local
+        CALL libtetrabz_interpol_indx(ngw,kvec(1:3,ik),kintp,wintp)
+        DO ii = 1, 4
+           wght0(1:nb,1:nb,kintp(ii)) = wght0(1:nb,1:nb,       kintp(ii)) &
+           &                          + wght1(1:nb,1:nb, ik) * wintp(ii)
+        END DO
+     END DO ! ik = 1, nk_local
+     DEALLOCATE(wght1, kvec)
+     !
+#if defined(__MPI)
+     IF(lmpi) &
+     &  CALL MPI_allREDUCE(MPI_IN_PLACE, wght0, nb * nb * PRODUCT(ngw(1:3)), &
+     &                     MPI_DOUBLE_PRECISION, MPI_SUM, comm, ierr)
+#endif
+     !
+  ELSE
+     CALL libtetrabz_polstat_main(eig1,eig2,wght0)
+  END IF
   !
-  ALLOCATE(wght1(nn, nk0))
-  CALL libtetrabz_polstat_main(eig1,eig2,wght1)
+  DEALLOCATE(ik_global, ik_local)
   !
-  CALL libtetrabz_interpol_weight(nn,ngw,nge,wght0,wght1)
-  !
-  DEALLOCATE(wght1, indx1, indx2, indx3)
-  !
-  CALL MPI_allREDUCE(MPI_IN_PLACE, wght0, nn * PRODUCT(ngw(1:3)), &
-  &                  MPI_DOUBLE_PRECISION, MPI_SUM, comm, ierr)
-  !
-END SUBROUTINE libtetrabz_mpi_polstat
+END SUBROUTINE libtetrabz_polstat
 !
 ! Main SUBROUTINE for polalization function : Theta(- E1) * Theta(E2) / (E2 - E1)
 !
 SUBROUTINE libtetrabz_polstat_main(eig1,eig2,pols)
   !
-  USE libterabz_val, ONLY : nk, nk0, nb, fst, lst, indx1, indx2, wlsm
+  USE libtetrabz_val, ONLY : nb, nk_local, nt_local, wlsm, ik_global, ik_local, nkBZ
   IMPLICIT NONE
   !
-  REAL(8),INTENT(IN) :: eig1(nb,nk), eig2(nb,nk)
-  REAL(8),INTENT(OUT) :: pols(nb,nb,nk0)
+  REAL(8),INTENT(IN) :: eig1(nb,nkBZ), eig2(nb,nkBZ)
+  REAL(8),INTENT(OUT) :: pols(nb,nb,nk_local)
   !
-  INTEGER :: it, ib
-  REAL(8) :: e(4), a(4,4), V, thr = 1d-10, &
-  &          ei1(4,nb), ei2(4), ej2(4,nb), ej2(4,nb), &
+  INTEGER :: it, ib, indx(4)
+  REAL(8) :: e(4), a(4,4), V, thr = 1d-10, tsmall(4,4), &
+  &          ei1(4,nb), ei2(4), ej1(4,nb), ej2(4,nb), &
   &          w1(nb,4), w2(nb,4)
   !
-  pols(1:nb,1:nb,1:nk0) = 0d0
+  pols(1:nb,1:nb,1:nk_local) = 0d0
   !
   !$OMP PARALLEL DEFAULT(NONE) &
-  !$OMP & SHARED(fst,lst,nb,nn,indx1,indx2,wlsm,eig1,eig2,w0,pols,thr) &
-  !$OMP & PRIVATE(ib,it,ii,e,a,tmp,tmp2,w1,w2,ei,ei2,ej,ej2,V)
+  !$OMP & SHARED(nt_local,nb,ik_global,ik_local,wlsm,eig1,eig2,pols,thr) &
+  !$OMP & PRIVATE(ib,it,e,w1,w2,ei1,ei2,ej1,ej2,V,indx)
   !
-  DO it = fst, lst
+  DO it = 1, nt_local
      !
      DO ib = 1, nb
-        ei1(1:4, ib) = MATMUL(wlsm(1:4,1:20) * eig1(ib, indx1(1:20,it)))
-        ej1(1:4, ib) = MATMUL(wlsm(1:4,1:20) * eig2(ib, indx1(1:20,it)))
+        ei1(1:4, ib) = MATMUL(wlsm(1:4,1:20), eig1(ib, ik_global(1:20,it)))
+        ej1(1:4, ib) = MATMUL(wlsm(1:4,1:20), eig2(ib, ik_global(1:20,it)))
      END DO
      !
      !$OMP DO
@@ -77,7 +103,7 @@ SUBROUTINE libtetrabz_polstat_main(eig1,eig2,pols)
         !
         w1(1:nb,1:4) = 0d0
         e(1:4) = ei1(1:4, ib)
-        CALL libtetrabz_sort(4,e,sind)
+        CALL libtetrabz_sort(4,e,indx)
         !
         IF(e(1) <= 0d0 .AND. 0d0 < e(2)) THEN
            !
@@ -85,10 +111,10 @@ SUBROUTINE libtetrabz_polstat_main(eig1,eig2,pols)
            !
            IF(V > thr) THEN
               !
-              ei2(1:4     ) = MATMUL(tsmall(1:4,1:4), ei1(sind(1:4),  ib))
-              ej2(1:4,1:nb) = MATMUL(tsmall(1:4,1:4), ej1(sind(1:4),1:nb))
+              ei2(1:4     ) = MATMUL(tsmall(1:4,1:4), ei1(indx(1:4),  ib))
+              ej2(1:4,1:nb) = MATMUL(tsmall(1:4,1:4), ej1(indx(1:4),1:nb))
               CALL libtetrabz_polstat2(ei2,ej2,w2)
-              w1(1:nb,sind(1:4)) = w1(1:nb,            sind(1:4)) &
+              w1(1:nb,indx(1:4)) = w1(1:nb,            indx(1:4)) &
               &       + V * MATMUL(w2(1:nb,1:4), tsmall(1:4,1:4))
               !
            END IF
@@ -99,10 +125,10 @@ SUBROUTINE libtetrabz_polstat_main(eig1,eig2,pols)
            !
            IF(V > thr) THEN
               !
-              ei2(1:4     ) = MATMUL(tsmall(1:4,1:4), ei1(sind(1:4),  ib))
-              ej2(1:4,1:nb) = MATMUL(tsmall(1:4,1:4), ej1(sind(1:4),1:nb))
+              ei2(1:4     ) = MATMUL(tsmall(1:4,1:4), ei1(indx(1:4),  ib))
+              ej2(1:4,1:nb) = MATMUL(tsmall(1:4,1:4), ej1(indx(1:4),1:nb))
               CALL libtetrabz_polstat2(ei2,ej2,w2)
-              w1(1:nb,sind(1:4)) = w1(1:nb,            sind(1:4)) &
+              w1(1:nb,indx(1:4)) = w1(1:nb,            indx(1:4)) &
               &       + V * MATMUL(w2(1:nb,1:4), tsmall(1:4,1:4))
               !
            END IF
@@ -111,10 +137,10 @@ SUBROUTINE libtetrabz_polstat_main(eig1,eig2,pols)
            !
            IF(V > thr) THEN
               !
-              ei2(1:4     ) = MATMUL(tsmall(1:4,1:4), ei1(sind(1:4),  ib))
-              ej2(1:4,1:nb) = MATMUL(tsmall(1:4,1:4), ej1(sind(1:4),1:nb))
+              ei2(1:4     ) = MATMUL(tsmall(1:4,1:4), ei1(indx(1:4),  ib))
+              ej2(1:4,1:nb) = MATMUL(tsmall(1:4,1:4), ej1(indx(1:4),1:nb))
               CALL libtetrabz_polstat2(ei2,ej2,w2)
-              w1(1:nb,sind(1:4)) = w1(1:nb,            sind(1:4)) &
+              w1(1:nb,indx(1:4)) = w1(1:nb,            indx(1:4)) &
               &       + V * MATMUL(w2(1:nb,1:4), tsmall(1:4,1:4))
               !
            END IF
@@ -123,10 +149,10 @@ SUBROUTINE libtetrabz_polstat_main(eig1,eig2,pols)
            !
            IF(V > thr) THEN
               !
-              ei2(1:4     ) = MATMUL(tsmall(1:4,1:4), ei1(sind(1:4),  ib))
-              ej2(1:4,1:nb) = MATMUL(tsmall(1:4,1:4), ej1(sind(1:4),1:nb))
+              ei2(1:4     ) = MATMUL(tsmall(1:4,1:4), ei1(indx(1:4),  ib))
+              ej2(1:4,1:nb) = MATMUL(tsmall(1:4,1:4), ej1(indx(1:4),1:nb))
               CALL libtetrabz_polstat2(ei2,ej2,w2)
-              w1(1:nb,sind(1:4)) = w1(1:nb,            sind(1:4)) &
+              w1(1:nb,indx(1:4)) = w1(1:nb,            indx(1:4)) &
               &       + V * MATMUL(w2(1:nb,1:4), tsmall(1:4,1:4))
               !
            END IF
@@ -137,10 +163,10 @@ SUBROUTINE libtetrabz_polstat_main(eig1,eig2,pols)
            !
            IF(V > thr) THEN
               !
-              ei2(1:4     ) = MATMUL(tsmall(1:4,1:4), ei1(sind(1:4),  ib))
-              ej2(1:4,1:nb) = MATMUL(tsmall(1:4,1:4), ej1(sind(1:4),1:nb))
+              ei2(1:4     ) = MATMUL(tsmall(1:4,1:4), ei1(indx(1:4),  ib))
+              ej2(1:4,1:nb) = MATMUL(tsmall(1:4,1:4), ej1(indx(1:4),1:nb))
               CALL libtetrabz_polstat2(ei2,ej2,w2)
-              w1(1:nb,sind(1:4)) = w1(1:nb,            sind(1:4)) &
+              w1(1:nb,indx(1:4)) = w1(1:nb,            indx(1:4)) &
               &       + V * MATMUL(w2(1:nb,1:4), tsmall(1:4,1:4))
               !
            END IF
@@ -149,10 +175,10 @@ SUBROUTINE libtetrabz_polstat_main(eig1,eig2,pols)
            !
            IF(V > thr) THEN
               !
-              ei2(1:4     ) = MATMUL(tsmall(1:4,1:4), ei1(sind(1:4),  ib))
-              ej2(1:4,1:nb) = MATMUL(tsmall(1:4,1:4), ej1(sind(1:4),1:nb))
+              ei2(1:4     ) = MATMUL(tsmall(1:4,1:4), ei1(indx(1:4),  ib))
+              ej2(1:4,1:nb) = MATMUL(tsmall(1:4,1:4), ej1(indx(1:4),1:nb))
               CALL libtetrabz_polstat2(ei2,ej2,w2)
-              w1(1:nb,sind(1:4)) = w1(1:nb,            sind(1:4)) &
+              w1(1:nb,indx(1:4)) = w1(1:nb,            indx(1:4)) &
               &       + V * MATMUL(w2(1:nb,1:4), tsmall(1:4,1:4))
               !
            END IF
@@ -161,18 +187,18 @@ SUBROUTINE libtetrabz_polstat_main(eig1,eig2,pols)
            !
            IF(V > thr) THEN
               !
-              ei2(1:4     ) = MATMUL(tsmall(1:4,1:4), ei1(sind(1:4),  ib))
-              ej2(1:4,1:nb) = MATMUL(tsmall(1:4,1:4), ej1(sind(1:4),1:nb))
+              ei2(1:4     ) = MATMUL(tsmall(1:4,1:4), ei1(indx(1:4),  ib))
+              ej2(1:4,1:nb) = MATMUL(tsmall(1:4,1:4), ej1(indx(1:4),1:nb))
               CALL libtetrabz_polstat2(ei2,ej2,w2)
-              w1(1:nb,sind(1:4)) = w1(1:nb,            sind(1:4)) &
+              w1(1:nb,indx(1:4)) = w1(1:nb,            indx(1:4)) &
               &       + V * MATMUL(w2(1:nb,1:4), tsmall(1:4,1:4))
               !
            END IF
            !
         ELSE IF(e(4) <= 0d0) THEN
            !
-           ei2(1:4     ) = ei(1:4,  ib)
-           ej2(1:4,1:nb) = ej(1:4,1:nb)
+           ei2(1:4     ) = ei1(1:4,  ib)
+           ej2(1:4,1:nb) = ej1(1:4,1:nb)
            CALL libtetrabz_polstat2(ei2,ej2,w2)
            w1(1:nb,1:4) = w1(1:nb,1:4) + w2(1:nb,1:4)
            !
@@ -182,8 +208,8 @@ SUBROUTINE libtetrabz_polstat_main(eig1,eig2,pols)
            !
         END IF
         !
-        pols(1:nb,ib,indx2(1:20,it)) = pols(1:nb,ib,      indx2(1:20,it)) &
-        &                       + MATMUL(w1(1:nb,1:4), wlsm(1:4,1:20))
+        pols(1:nb,ib,ik_local(1:20,it)) = pols(1:nb,ib,   ik_local(1:20,it)) &
+        &                          + MATMUL(w1(1:nb,1:4), wlsm(1:4,1:20))
         !
      END DO ! ib
      !$OMP END DO NOWAIT
@@ -192,7 +218,7 @@ SUBROUTINE libtetrabz_polstat_main(eig1,eig2,pols)
   !
   !$OMP END PARALLEL
   !
-  pols(1:nb,1:nb,1:nk0) = pols(1:nb,1:nb,1:nk0) / DBLE(6 * nk)
+  pols(1:nb,1:nb,1:nk_local) = pols(1:nb,1:nb,1:nk_local) / DBLE(6 * nkBZ)
   !
 END SUBROUTINE libtetrabz_polstat_main
 !
@@ -200,21 +226,21 @@ END SUBROUTINE libtetrabz_polstat_main
 !
 SUBROUTINE libtetrabz_polstat2(ei1,ej1,w1)
   !
-  USE libterabz_val, ONLY : nb
+  USE libtetrabz_val, ONLY : nb
   IMPLICIT NONE
   !
   REAL(8),INTENT(IN) :: ei1(4), ej1(4,nb)
   REAL(8),INTENT(INOUT) :: w1(nb,4)
   !
-  INTEGER :: ii, jj, ib
+  INTEGER :: ib, indx(4)
   REAL(8) :: V, w2(4), thr = 1d-8, &
-  &          e(4), ei2(4), ej2(4)
+  &          e(4), ei2(4), ej2(4), tsmall(4,4)
   !
   DO ib = 1, nb
      !
      w1(ib,1:4) = 0d0
      e(1:4) = - ej1(1:4, ib)
-     CALL libtetrabz_sort(4,e,sind)
+     CALL libtetrabz_sort(4,e,indx)
      !
      IF((e(1) <= 0d0 .AND. 0d0 < e(2)) .OR. (e(1) < 0d0 .AND. 0d0 <= e(2))) THEN
         !
@@ -222,10 +248,10 @@ SUBROUTINE libtetrabz_polstat2(ei1,ej1,w1)
         !
         IF(V > thr) THEN
            !
-           ei2(1:4) = MATMUL(tsmall(1:4,1:4), ei1(sind(1:4)   ))
-           ej2(1:4) = MATMUL(tsmall(1:4,1:4), ej1(sind(1:4),ib))
+           ei2(1:4) = MATMUL(tsmall(1:4,1:4), ei1(indx(1:4)   ))
+           ej2(1:4) = MATMUL(tsmall(1:4,1:4), ej1(indx(1:4),ib))
            CALL libtetrabz_polstat3(ei2,ej2,w2)
-           w1(ib,sind(1:4)) = w1(ib,                    sind(1:4)) &
+           w1(ib,indx(1:4)) = w1(ib,                    indx(1:4)) &
            &                + V * MATMUL(w2(1:4), tsmall(1:4,1:4))
            !
         END IF
@@ -236,10 +262,10 @@ SUBROUTINE libtetrabz_polstat2(ei1,ej1,w1)
         !
         IF(V > thr) THEN
            !
-           ei2(1:4) = MATMUL(tsmall(1:4,1:4), ei1(sind(1:4)   ))
-           ej2(1:4) = MATMUL(tsmall(1:4,1:4), ej1(sind(1:4),ib))
+           ei2(1:4) = MATMUL(tsmall(1:4,1:4), ei1(indx(1:4)   ))
+           ej2(1:4) = MATMUL(tsmall(1:4,1:4), ej1(indx(1:4),ib))
            CALL libtetrabz_polstat3(ei2,ej2,w2)
-           w1(ib,sind(1:4)) = w1(ib,sind(1:4)) &
+           w1(ib,indx(1:4)) = w1(ib,indx(1:4)) &
            &          + V * MATMUL(w2(        1:4 ), tsmall(1:4,1:4))
            !
         END IF
@@ -248,10 +274,10 @@ SUBROUTINE libtetrabz_polstat2(ei1,ej1,w1)
         !
         IF(V > thr) THEN
            !
-           ei2(1:4) = MATMUL(tsmall(1:4,1:4), ei1(sind(1:4)   ))
-           ej2(1:4) = MATMUL(tsmall(1:4,1:4), ej1(sind(1:4),ib))
+           ei2(1:4) = MATMUL(tsmall(1:4,1:4), ei1(indx(1:4)   ))
+           ej2(1:4) = MATMUL(tsmall(1:4,1:4), ej1(indx(1:4),ib))
            CALL libtetrabz_polstat3(ei2,ej2,w2)
-           w1(ib,sind(1:4)) = w1(ib,                    sind(1:4)) &
+           w1(ib,indx(1:4)) = w1(ib,                    indx(1:4)) &
            &                + V * MATMUL(w2(1:4), tsmall(1:4,1:4))
            !
         END IF
@@ -260,9 +286,11 @@ SUBROUTINE libtetrabz_polstat2(ei1,ej1,w1)
         !
         IF(V > thr) THEN
            !
-           ei2(1:4) = MATMUL(tsmall(1:4,1:4), ei1(sind(1:4)   ))
-           ej2(1:4) = MATMUL(tsmall(1:4,1:4), ej1(sind(1:4),ib))
+           ei2(1:4) = MATMUL(tsmall(1:4,1:4), ei1(indx(1:4)   ))
+           ej2(1:4) = MATMUL(tsmall(1:4,1:4), ej1(indx(1:4),ib))
            CALL libtetrabz_polstat3(ei2,ej2,w2)
+           w1(ib,indx(1:4)) = w1(ib,                    indx(1:4)) &
+           &                + V * MATMUL(w2(1:4), tsmall(1:4,1:4))
            !
         END IF
         !
@@ -272,10 +300,10 @@ SUBROUTINE libtetrabz_polstat2(ei1,ej1,w1)
         !
         IF(V > thr) THEN
            !
-           ei2(1:4) = MATMUL(tsmall(1:4,1:4), ei1(sind(1:4)   ))
-           ej2(1:4) = MATMUL(tsmall(1:4,1:4), ej1(sind(1:4),ib))
+           ei2(1:4) = MATMUL(tsmall(1:4,1:4), ei1(indx(1:4)   ))
+           ej2(1:4) = MATMUL(tsmall(1:4,1:4), ej1(indx(1:4),ib))
            CALL libtetrabz_polstat3(ei2,ej2,w2)
-           w1(ib,sind(1:4)) = w1(ib,                    sind(1:4)) &
+           w1(ib,indx(1:4)) = w1(ib,                    indx(1:4)) &
            &                + V * MATMUL(w2(1:4), tsmall(1:4,1:4))
            !
         END IF
@@ -284,10 +312,10 @@ SUBROUTINE libtetrabz_polstat2(ei1,ej1,w1)
         !
         IF(V > thr) THEN
            !
-           ei2(1:4) = MATMUL(tsmall(1:4,1:4), ei1(sind(1:4)   ))
-           ej2(1:4) = MATMUL(tsmall(1:4,1:4), ej1(sind(1:4),ib))
+           ei2(1:4) = MATMUL(tsmall(1:4,1:4), ei1(indx(1:4)   ))
+           ej2(1:4) = MATMUL(tsmall(1:4,1:4), ej1(indx(1:4),ib))
            CALL libtetrabz_polstat3(ei2,ej2,w2)
-           w1(ib,sind(1:4)) = w1(ib,                    sind(1:4)) &
+           w1(ib,indx(1:4)) = w1(ib,                    indx(1:4)) &
            &                + V * MATMUL(w2(1:4), tsmall(1:4,1:4))
            !
         END IF
@@ -296,10 +324,10 @@ SUBROUTINE libtetrabz_polstat2(ei1,ej1,w1)
         !
         IF(V > thr) THEN
            !
-           ei2(1:4) = MATMUL(tsmall(1:4,1:4), ei1(sind(1:4)   ))
-           ej2(1:4) = MATMUL(tsmall(1:4,1:4), ej1(sind(1:4),ib))
+           ei2(1:4) = MATMUL(tsmall(1:4,1:4), ei1(indx(1:4)   ))
+           ej2(1:4) = MATMUL(tsmall(1:4,1:4), ej1(indx(1:4),ib))
            CALL libtetrabz_polstat3(ei2,ej2,w2)
-           w1(ib,sind(1:4)) = w1(ib,                    sind(1:4)) &
+           w1(ib,indx(1:4)) = w1(ib,                    indx(1:4)) &
            &                + V * MATMUL(w2(1:4), tsmall(1:4,1:4))
            !
         END IF
@@ -309,8 +337,7 @@ SUBROUTINE libtetrabz_polstat2(ei1,ej1,w1)
         ei2(1:4) = ei1(1:4)
         ej2(1:4) = ej1(1:4,ib)
         CALL libtetrabz_polstat3(ei2,ej2,w2)
-        w1(ib,sind(1:4)) = w1(ib,                    sind(1:4)) &
-        &                + V * MATMUL(w2(1:4), tsmall(1:4,1:4))
+        w1(ib,1:4) = w1(ib,1:4) + V * w2(1:4)
         !
      END IF
      !
@@ -327,11 +354,11 @@ SUBROUTINE libtetrabz_polstat3(ei1,ej1,w1)
   REAL(8),INTENT(IN) :: ei1(4), ej1(4)
   REAL(8),INTENT(INOUT) :: w1(4)
   !
-  INTEGER :: ii
+  INTEGER :: ii, indx(4)
   REAL(8) :: e(4), ln(4), thr, thr2
   !
   e(1:4) = ej1(1:4) - ei1(1:4)
-  CALL libtetrabz_sort(4,de,sind)
+  CALL libtetrabz_sort(4,e,indx)
   !
   thr = MAXVAL(e(1:4)) * 1d-3
   thr2 = 1d-8
@@ -354,23 +381,23 @@ SUBROUTINE libtetrabz_polstat3(ei1,ej1,w1)
            !
            ! e(4) = e(3) = e(2) = e(1)
            !
-           w1(sind(4)) = 0.25d0 / e(4)
-           w1(sind(3)) = w1(sind(4))
-           w1(sind(2)) = w1(sind(4))
-           w1(sind(1)) = w1(sind(4))
+           w1(indx(4)) = 0.25d0 / e(4)
+           w1(indx(3)) = w1(indx(4))
+           w1(indx(2)) = w1(indx(4))
+           w1(indx(1)) = w1(indx(4))
            !
         ELSE
            !
            ! e(4) = e(3) = e(2)
            !
-           w1(sind(4)) = libtetrabz_polstat_1211(e(4),e(1),ln(4),ln(1))
-           w1(sind(3)) = w1(sind(4))
-           w1(sind(2)) = w1(sind(4))
-           w1(sind(1)) = libtetrabz_polstat_1222(e(1),e(4),ln(1),ln(4))
+           w1(indx(4)) = libtetrabz_polstat_1211(e(4),e(1),ln(4),ln(1))
+           w1(indx(3)) = w1(indx(4))
+           w1(indx(2)) = w1(indx(4))
+           w1(indx(1)) = libtetrabz_polstat_1222(e(1),e(4),ln(1),ln(4))
            !
            IF(ANY(w1(1:4) < 0d0)) THEN
               WRITE(*,'(100e15.5)') e(1:4)
-              WRITE(*,'(100e15.5)') w1(sind(1:4))
+              WRITE(*,'(100e15.5)') w1(indx(1:4))
               STOP "weighting 4=3=2"
            END IF
            !
@@ -379,14 +406,14 @@ SUBROUTINE libtetrabz_polstat3(ei1,ej1,w1)
         !
         ! e(4) = e(3), e(2) = e(1)
         !
-        w1(sind(4)) = libtetrabz_polstat_1221(e(4),e(2), ln(4),ln(2))
-        w1(sind(3)) = w1(sind(4))
-        w1(sind(2)) = libtetrabz_polstat_1221(e(2),e(4), ln(2),ln(4))
-        w1(sind(1)) = w1(sind(2))
+        w1(indx(4)) = libtetrabz_polstat_1221(e(4),e(2), ln(4),ln(2))
+        w1(indx(3)) = w1(indx(4))
+        w1(indx(2)) = libtetrabz_polstat_1221(e(2),e(4), ln(2),ln(4))
+        w1(indx(1)) = w1(indx(2))
         !
         IF(ANY(w1(1:4) < 0d0)) THEN
            WRITE(*,'(100e15.5)') e(1:4)
-           WRITE(*,'(100e15.5)') w1(sind(1:4))
+           WRITE(*,'(100e15.5)') w1(indx(1:4))
            STOP "weighting 4=3 2=1"
         END IF
         !
@@ -394,14 +421,14 @@ SUBROUTINE libtetrabz_polstat3(ei1,ej1,w1)
         !
         ! e(4) = e(3)
         !
-        w1(sind(4)) = libtetrabz_polstat_1231(e(4),e(1),e(2),ln(4),ln(1),ln(2))
-        w1(sind(3)) = w1(sind(4))
-        w1(sind(2)) = libtetrabz_polstat_1233(e(2),e(1),e(4),ln(2),ln(1),ln(4))
-        w1(sind(1)) = libtetrabz_polstat_1233(e(1),e(2),e(4),ln(1),ln(2),ln(4))
+        w1(indx(4)) = libtetrabz_polstat_1231(e(4),e(1),e(2),ln(4),ln(1),ln(2))
+        w1(indx(3)) = w1(indx(4))
+        w1(indx(2)) = libtetrabz_polstat_1233(e(2),e(1),e(4),ln(2),ln(1),ln(4))
+        w1(indx(1)) = libtetrabz_polstat_1233(e(1),e(2),e(4),ln(1),ln(2),ln(4))
         !
         IF(ANY(w1(1:4) < 0d0)) THEN
            WRITE(*,'(100e15.5)') e(1:4)
-           WRITE(*,'(100e15.5)') w1(sind(1:4))
+           WRITE(*,'(100e15.5)') w1(indx(1:4))
            STOP "weighting 4=3"
         END IF
         !
@@ -411,14 +438,14 @@ SUBROUTINE libtetrabz_polstat3(ei1,ej1,w1)
         !
         ! e(3) = e(2) = e(1)
         !
-        w1(sind(4)) = libtetrabz_polstat_1222(e(4),e(3), ln(4),ln(3))
-        w1(sind(3)) = libtetrabz_polstat_1211(e(3),e(4), ln(3),ln(4))
-        w1(sind(2)) = w1(sind(3))
-        w1(sind(1)) = w1(sind(3))
+        w1(indx(4)) = libtetrabz_polstat_1222(e(4),e(3), ln(4),ln(3))
+        w1(indx(3)) = libtetrabz_polstat_1211(e(3),e(4), ln(3),ln(4))
+        w1(indx(2)) = w1(indx(3))
+        w1(indx(1)) = w1(indx(3))
         !
         IF(ANY(w1(1:4) < 0d0)) THEN
            WRITE(*,'(100e15.5)') e(1:4)
-           WRITE(*,'(100e15.5)') w1(sind(1:4))
+           WRITE(*,'(100e15.5)') w1(indx(1:4))
            STOP "weighting 3=2=1"
         END IF
         !
@@ -426,14 +453,14 @@ SUBROUTINE libtetrabz_polstat3(ei1,ej1,w1)
         !
         ! e(3) = e(2)
         !
-        w1(sind(4)) = libtetrabz_polstat_1233(e(4),e(1),e(3),ln(4),ln(1),ln(3))
-        w1(sind(3)) = libtetrabz_polstat_1231(e(3),e(1),e(4),ln(3),ln(1),ln(4))
-        w1(sind(2)) = w1(sind(3))
-        w1(sind(1)) = libtetrabz_polstat_1233(e(1),e(4),e(3),ln(1),ln(4),ln(3))
+        w1(indx(4)) = libtetrabz_polstat_1233(e(4),e(1),e(3),ln(4),ln(1),ln(3))
+        w1(indx(3)) = libtetrabz_polstat_1231(e(3),e(1),e(4),ln(3),ln(1),ln(4))
+        w1(indx(2)) = w1(indx(3))
+        w1(indx(1)) = libtetrabz_polstat_1233(e(1),e(4),e(3),ln(1),ln(4),ln(3))
         !
         IF(ANY(w1(1:4) < 0d0)) THEN
            WRITE(*,'(100e15.5)') e(1:4)
-           WRITE(*,'(100e15.5)') w1(sind(1:4))
+           WRITE(*,'(100e15.5)') w1(indx(1:4))
            STOP "weighting 3=2"
         END IF
         !
@@ -442,14 +469,14 @@ SUBROUTINE libtetrabz_polstat3(ei1,ej1,w1)
      !
      ! e(2) = e(1)
      !
-     w1(sind(4)) = libtetrabz_polstat_1233(e(4),e(3),e(2),ln(4),ln(3),ln(2))
-     w1(sind(3)) = libtetrabz_polstat_1233(e(3),e(4),e(2),ln(3),ln(4),ln(2))
-     w1(sind(2)) = libtetrabz_polstat_1231(e(2),e(3),e(4),ln(2),ln(3),ln(4))
-     w1(sind(1)) = w1(sind(2))
+     w1(indx(4)) = libtetrabz_polstat_1233(e(4),e(3),e(2),ln(4),ln(3),ln(2))
+     w1(indx(3)) = libtetrabz_polstat_1233(e(3),e(4),e(2),ln(3),ln(4),ln(2))
+     w1(indx(2)) = libtetrabz_polstat_1231(e(2),e(3),e(4),ln(2),ln(3),ln(4))
+     w1(indx(1)) = w1(indx(2))
      !
      IF(ANY(w1(1:4) < 0d0)) THEN
         WRITE(*,'(100e15.5)') e(1:4)
-        WRITE(*,'(100e15.5)') w1(sind(1:4))
+        WRITE(*,'(100e15.5)') w1(indx(1:4))
         STOP "weighting 2=1"
      END IF
      !
@@ -457,14 +484,14 @@ SUBROUTINE libtetrabz_polstat3(ei1,ej1,w1)
      !
      ! Different each other.
      !
-     w1(sind(4)) = libtetrabz_polstat_1234(e(4),e(1),e(2),e(3),ln(4),ln(1),ln(2),ln(3))
-     w1(sind(3)) = libtetrabz_polstat_1234(e(3),e(1),e(2),e(4),ln(3),ln(1),ln(2),ln(4))
-     w1(sind(2)) = libtetrabz_polstat_1234(e(2),e(1),e(3),e(4),ln(2),ln(1),ln(3),ln(4))
-     w1(sind(1)) = libtetrabz_polstat_1234(e(1),e(2),e(3),e(4),ln(1),ln(2),ln(3),ln(4))
+     w1(indx(4)) = libtetrabz_polstat_1234(e(4),e(1),e(2),e(3),ln(4),ln(1),ln(2),ln(3))
+     w1(indx(3)) = libtetrabz_polstat_1234(e(3),e(1),e(2),e(4),ln(3),ln(1),ln(2),ln(4))
+     w1(indx(2)) = libtetrabz_polstat_1234(e(2),e(1),e(3),e(4),ln(2),ln(1),ln(3),ln(4))
+     w1(indx(1)) = libtetrabz_polstat_1234(e(1),e(2),e(3),e(4),ln(1),ln(2),ln(3),ln(4))
      !
      IF(ANY(w1(1:4) < 0d0)) THEN
         WRITE(*,'(100e15.5)') e(1:4)
-        WRITE(*,'(100e15.5)') w1(sind(1:4))
+        WRITE(*,'(100e15.5)') w1(indx(1:4))
         STOP "weighting"
      END IF
      !
