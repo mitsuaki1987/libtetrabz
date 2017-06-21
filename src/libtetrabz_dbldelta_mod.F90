@@ -1,4 +1,4 @@
-MODULE libtetrabz_doubledelta_mod
+MODULE libtetrabz_dbldelta_mod
   !
   IMPLICIT NONE
   !
@@ -6,23 +6,22 @@ CONTAINS
 !
 ! Compute doubledelta
 !
-SUBROUTINE libtetrabz_doubledelta(ltetra,comm0,bvec,nb,nge,eig1,eig2,ngw,wght0) BIND(C)
+SUBROUTINE libtetrabz_dbldelta(ltetra,comm0,bvec,nb,nge,eig1,eig2,ngw,wght0) BIND(C)
   !
 #if defined(__MPI)
-  USE mpi, ONLY : MPI_IN_PLACE, MPI_DOUBLE_PRECISION, MPI_SUM
+  USE mpi, ONLY : MPI_DOUBLE_PRECISION, MPI_IN_PLACE, MPI_SUM
 #endif
   USE ISO_C_BINDING
-  USE libtetrabz_val,   ONLY : nk_local, ik_global, ik_local, kvec, lmpi, linterpol, comm
+  USE libtetrabz_val,    ONLY : comm, ik_global, ik_local, kvec, linterpol, lmpi, nk_local
   USE libtetrabz_common, ONLY : libtetrabz_initialize, libtetrabz_interpol_indx
   IMPLICIT NONE
   !
-  INTEGER(C_INT),INTENT(IN) :: ltetra, nge(3), ngw(3), nb
-  REAL(C_DOUBLE),INTENT(IN) :: bvec(3,3)
-  REAL(C_DOUBLE),INTENT(IN) :: eig1(nb,PRODUCT(nge(1:3))), eig2(nb,PRODUCT(nge(1:3)))
+  INTEGER(C_INT),INTENT(IN) :: ltetra, nb, nge(3), ngw(3)
+  REAL(C_DOUBLE),INTENT(IN) :: bvec(3,3), eig1(nb,PRODUCT(nge(1:3))), eig2(nb,PRODUCT(nge(1:3)))
   REAL(C_DOUBLE),INTENT(OUT) :: wght0(nb,nb,PRODUCT(ngw(1:3)))
   INTEGER(C_INT),INTENT(IN),OPTIONAL :: comm0
   !
-  INTEGER :: ii, ik, kintp(4)
+  INTEGER :: ik, ii, kintp(4)
   REAL(8) :: wintp(4)
   REAL(8),ALLOCATABLE :: wght1(:,:,:)
 #if defined(__MPI)
@@ -39,10 +38,10 @@ SUBROUTINE libtetrabz_doubledelta(ltetra,comm0,bvec,nb,nge,eig1,eig2,ngw,wght0) 
   !
   CALL libtetrabz_initialize(ltetra,bvec,nge,ngw,nb)
   !
-  IF(lmpi .OR. linterpol) THEN
+  IF(linterpol .OR. lmpi) THEN
      !
      ALLOCATE(wght1(nb,nb,nk_local))
-     CALL libtetrabz_doubledelta_main(eig1,eig2,wght1)
+     CALL libtetrabz_dbldelta_main(eig1,eig2,wght1)
      !
      ! Interpolation
      !
@@ -63,32 +62,32 @@ SUBROUTINE libtetrabz_doubledelta(ltetra,comm0,bvec,nb,nge,eig1,eig2,ngw,wght0) 
 #endif
      !
   ELSE
-     CALL libtetrabz_doubledelta_main(eig1,eig2,wght0)
+     CALL libtetrabz_dbldelta_main(eig1,eig2,wght0)
   END IF
   !
   DEALLOCATE(ik_global, ik_local)
   !
-END SUBROUTINE libtetrabz_doubledelta
+END SUBROUTINE libtetrabz_dbldelta
 !
 ! Main SUBROUTINE for Delta(E1) * Delta(E2)
 !
-SUBROUTINE libtetrabz_doubledelta_main(eig1,eig2,dbldelta)
+SUBROUTINE libtetrabz_dbldelta_main(eig1,eig2,dbldelta)
   !
-  USE libtetrabz_val, ONLY : nb, nk_local, nt_local, wlsm, ik_global, ik_local, nkBZ
+  USE libtetrabz_val, ONLY : ik_global, ik_local, nb, nkBZ, nk_local, nt_local, wlsm
   IMPLICIT NONE
   !
   REAL(8),INTENT(IN) :: eig1(nb,nkBZ), eig2(nb,nkBZ)
   REAL(8),INTENT(OUT) :: dbldelta(nb,nb,nk_local)
   !
-  INTEGER :: it, ib, indx(4)
-  REAL(8) :: e(4), V, thr = 1d-10, ei1(4,nb), ei2(3), ej1(4,nb), ej2(3,nb), &
-  &          w1(nb,4), w2(nb,3), tsmall(3,4)
+  INTEGER :: ib, indx(4), it
+  REAL(8) :: e(4), ei1(4,nb), ej1(4,nb), ej2(3,nb), V, thr = 1d-10, &
+  &          tsmall(3,4), w1(nb,4), w2(nb,3)
   !
   dbldelta(1:nb,1:nb,1:nk_local) = 0d0
   !
   !$OMP PARALLEL DEFAULT(NONE) &
-  !$OMP & SHARED(nt_local,nb,ik_global,ik_local,wlsm,eig1,eig2,dbldelta) &
-  !$OMP & PRIVATE(ib,it,e,w1,w2,ei1,ej1,ei2,ej2,V,indx)
+  !$OMP & SHARED(dbldelta,eig1,eig2,ik_global,ik_local,nb,nt_local,thr,wlsm) &
+  !$OMP & PRIVATE(e,ei1,ej1,ej2,ib,indx,it,tsmall,V,w1,w2)
   !
   DO it = 1, nt_local
      !
@@ -111,7 +110,7 @@ SUBROUTINE libtetrabz_doubledelta_main(eig1,eig2,dbldelta)
            IF(V > thr) THEN
               !
               ej2(1:3,1:nb) = MATMUL(tsmall(1:3,1:4), ej1(indx(1:4),1:nb))
-              CALL libtetrabz_doubledelta2(ej2,w2)
+              CALL libtetrabz_dbldelta2(ej2,w2)
               w1(1:nb,indx(1:4)) = w1(1:nb,            indx(1:4)) &
               &       + V * MATMUL(w2(1:nb,1:3), tsmall(1:3,1:4))
               !
@@ -124,7 +123,7 @@ SUBROUTINE libtetrabz_doubledelta_main(eig1,eig2,dbldelta)
            IF(V > thr) THEN
               !
               ej2(1:3,1:nb) = MATMUL(tsmall(1:3,1:4), ej1(indx(1:4),1:nb))
-              CALL libtetrabz_doubledelta2(ej2,w2)
+              CALL libtetrabz_dbldelta2(ej2,w2)
               w1(1:nb,indx(1:4)) = w1(1:nb,            indx(1:4)) &
               &       + V * MATMUL(w2(1:nb,1:3), tsmall(1:3,1:4))
               !
@@ -135,7 +134,7 @@ SUBROUTINE libtetrabz_doubledelta_main(eig1,eig2,dbldelta)
            IF(V > thr) THEN
               !
               ej2(1:3,1:nb) = MATMUL(tsmall(1:3,1:4), ej1(indx(1:4),1:nb))
-              CALL libtetrabz_doubledelta2(ej2,w2)
+              CALL libtetrabz_dbldelta2(ej2,w2)
               w1(1:nb,indx(1:4)) = w1(1:nb,            indx(1:4)) &
               &       + V * MATMUL(w2(1:nb,1:3), tsmall(1:3,1:4))
               !
@@ -148,7 +147,7 @@ SUBROUTINE libtetrabz_doubledelta_main(eig1,eig2,dbldelta)
            IF(V > thr) THEN
               !
               ej2(1:3,1:nb) = MATMUL(tsmall(1:3,1:4), ej1(indx(1:4),1:nb))
-              CALL libtetrabz_doubledelta2(ej2,w2)
+              CALL libtetrabz_dbldelta2(ej2,w2)
               w1(1:nb,indx(1:4)) = w1(1:nb,            indx(1:4)) &
               &       + V * MATMUL(w2(1:nb,1:3), tsmall(1:3,1:4))
               !
@@ -168,11 +167,11 @@ SUBROUTINE libtetrabz_doubledelta_main(eig1,eig2,dbldelta)
   !
   dbldelta(1:nb,1:nb,1:nk_local) = dbldelta(1:nb,1:nb,1:nk_local) / DBLE(6 * nkBZ)
   !
-END SUBROUTINE libtetrabz_doubledelta_main
+END SUBROUTINE libtetrabz_dbldelta_main
 !
 ! 2nd step of tetrahedra method.
 !
-SUBROUTINE libtetrabz_doubledelta2(ej,w)
+SUBROUTINE libtetrabz_dbldelta2(ej,w)
   !
   USE libtetrabz_val, ONLY : nb
   IMPLICIT NONE
@@ -181,7 +180,7 @@ SUBROUTINE libtetrabz_doubledelta2(ej,w)
   REAL(8),INTENT(INOUT) :: w(nb,3)
   !
   INTEGER :: ib, ii, indx(3)
-  REAL(8) :: e(3), V, a(3,3)
+  REAL(8) :: a(3,3), e(3), V
   !
   DO ib = 1, nb
      !
@@ -207,7 +206,7 @@ SUBROUTINE libtetrabz_doubledelta2(ej,w)
      ELSE IF((e(2) <= 0d0 .AND. 0d0 < e(3)) .OR. (e(2) < 0d0 .AND. 0d0 <= e(3))) THEN
         !
         !V = a(1,3) * a(2,3) / (e(3) - 0d0) 
-        V = a(1,3)           / (e(3) - e(2)) 
+        V = a(2,3)           / (e(3) - e(1)) 
         !
         w(ib,indx(1)) = V * a(1,3)
         w(ib,indx(2)) = V * a(2,3)
@@ -217,6 +216,6 @@ SUBROUTINE libtetrabz_doubledelta2(ej,w)
      !
   END DO ! ib
   !
-END SUBROUTINE libtetrabz_doubledelta2
+END SUBROUTINE libtetrabz_dbldelta2
 !
-END MODULE libtetrabz_doubledelta_mod
+END MODULE libtetrabz_dbldelta_mod

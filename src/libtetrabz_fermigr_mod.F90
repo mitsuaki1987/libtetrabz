@@ -12,17 +12,16 @@ SUBROUTINE libtetrabz_fermigr(ltetra,comm0,bvec,nb,nge,eig1,eig2,ngw,wght0,ne,e0
   USE mpi, ONLY : MPI_IN_PLACE, MPI_DOUBLE_PRECISION, MPI_SUM
 #endif
   USE ISO_C_BINDING
-  USE libtetrabz_val,   ONLY : nk_local, ik_global, ik_local, kvec, lmpi, linterpol, comm
+  USE libtetrabz_val,    ONLY : comm, ik_global, ik_local, kvec, linterpol, lmpi, nk_local
   USE libtetrabz_common, ONLY : libtetrabz_initialize, libtetrabz_interpol_indx
   IMPLICIT NONE
   !
-  INTEGER(C_INT),INTENT(IN) :: ltetra, nge(3), ngw(3), nb, ne
-  REAL(C_DOUBLE),INTENT(IN) :: bvec(3,3), e0(ne)
-  REAL(C_DOUBLE),INTENT(IN) :: eig1(nb,PRODUCT(nge(1:3))), eig2(nb,PRODUCT(nge(1:3)))
+  INTEGER(C_INT),INTENT(IN) :: ltetra, nb, nge(3), ngw(3), ne
+  REAL(C_DOUBLE),INTENT(IN) :: bvec(3,3), e0(ne), eig1(nb,PRODUCT(nge(1:3))), eig2(nb,PRODUCT(nge(1:3)))
   REAL(C_DOUBLE),INTENT(OUT) :: wght0(ne,nb,nb,PRODUCT(ngw(1:3)))
   INTEGER(C_INT),INTENT(IN),OPTIONAL :: comm0
   !
-  INTEGER :: ii, ik, kintp(4)
+  INTEGER :: ik, ii, kintp(4)
   REAL(8) :: wintp(4)
   REAL(8),ALLOCATABLE :: wght1(:,:,:,:)
 #if defined(__MPI)
@@ -39,7 +38,7 @@ SUBROUTINE libtetrabz_fermigr(ltetra,comm0,bvec,nb,nge,eig1,eig2,ngw,wght0,ne,e0
   !
   CALL libtetrabz_initialize(ltetra,bvec,nge,ngw,nb,ne)
   !
-  IF(lmpi .OR. linterpol) THEN
+  IF(linterpol .OR. lmpi) THEN
      !
      ALLOCATE(wght1(ne,nb,nb,nk_local))
      CALL libtetrabz_fermigr_main(eig1,eig2,e0,wght1)
@@ -72,24 +71,22 @@ END SUBROUTINE libtetrabz_fermigr
 !
 ! Main SUBROUTINE for Fermi's Gorlden rule : Theta(- E1) * Theta(E2) * Delta(E2 - E1 - w)
 !
-SUBROUTINE libtetrabz_fermigr_main(eig1,eig2,e0,fgr)
+SUBROUTINE libtetrabz_fermigr_main(eig1,eig2,e0,fermigr)
   !
-  USE libtetrabz_val, ONLY : nb, nk_local, nt_local, wlsm, ik_global, ik_local, nkBZ, ne
+  USE libtetrabz_val, ONLY : ik_global, ik_local, nb, ne, nkBZ, nk_local, nt_local, wlsm
   IMPLICIT NONE
   !
   REAL(8),INTENT(IN) :: eig1(nb,nkBZ), eig2(nb,nkBZ), e0(ne)
-  REAL(8),INTENT(OUT) :: fgr(ne*nb,nb,nk_local)
+  REAL(8),INTENT(OUT) :: fermigr(ne*nb,nb,nk_local)
   !
   INTEGER :: it, ib, indx(4)
-  REAL(8) :: e(4), V, thr = 1d-10, tsmall(4,4), &
-  &          ei1(4,nb), ei2(4), ej1(4,nb), ej2(4,nb), &
-  &          w1(ne*nb,4), w2(ne*nb,4)
+  REAL(8) :: e(4), ei1(4,nb), ei2(4), ej1(4,nb), ej2(4,nb), thr = 1d-10, tsmall(4,4), V, w1(ne*nb,4), w2(ne*nb,4)
   !
-  fgr(1:ne*nb,1:nb,1:nk_local) = 0d0
+  fermigr(1:ne*nb,1:nb,1:nk_local) = 0d0
   !
   !$OMP PARALLEL DEFAULT(NONE) &
-  !$OMP & SHARED(nt_local,nb,ne,ik_global,ik_local,wlsm,eig1,eig2,fgr,thr,e0) &
-  !$OMP & PRIVATE(ib,it,e,w1,w2,ei1,ej1,ei2,ej2,V,indx)
+  !$OMP & SHARED(eig1,eig2,e0,fermigr,ik_global,ik_local,nb,ne,nt_local,thr,wlsm) &
+  !$OMP & PRIVATE(e,ei1,ei2,ej1,ej2,ib,indx,it,tsmall,V,w1,w2)
   !
   DO it = 1, nt_local
      !
@@ -205,8 +202,8 @@ SUBROUTINE libtetrabz_fermigr_main(eig1,eig2,e0,fgr)
            !
         END IF
         !
-        fgr(1:ne*nb,ib,ik_local(1:20,it)) = fgr(1:ne*nb,ib,   ik_local(1:20,it)) &
-        &                           + MATMUL(w1(1:ne*nb,1:4), wlsm(1:4,1:20))
+        fermigr(1:ne*nb,ib,ik_local(1:20,it)) = fermigr(1:ne*nb,ib,   ik_local(1:20,it)) &
+        &                                   + MATMUL(w1(1:ne*nb,1:4), wlsm(1:4,1:20))
         !
      END DO ! ib = 1, nb
      !$OMP END DO NOWAIT
@@ -215,7 +212,7 @@ SUBROUTINE libtetrabz_fermigr_main(eig1,eig2,e0,fgr)
   !
   !$OMP END PARALLEL
   !
-  fgr(1:ne*nb,1:nb,1:nk_local) = fgr(1:ne*nb,1:nb,1:nk_local) / DBLE(6 * nkBZ)
+  fermigr(1:ne*nb,1:nb,1:nk_local) = fermigr(1:ne*nb,1:nb,1:nk_local) / DBLE(6 * nkBZ)
   !
 END SUBROUTINE libtetrabz_fermigr_main
 !
@@ -230,7 +227,7 @@ SUBROUTINE libtetrabz_fermigr2(e0,ei1,ej1,w1)
   REAL(8),INTENT(OUT) :: w1(ne,nb,4)
   !
   INTEGER :: ib, indx(4)
-  REAL(8) :: V, ei2(4), ej2(4), w2(ne,4), thr = 1d-8, e(4), tsmall(4,4)
+  REAL(8) :: de(4), e(4), thr = 1d-8, tsmall(4,4), V, w2(ne,4)
   !
   DO ib = 1, nb
      !
@@ -244,9 +241,8 @@ SUBROUTINE libtetrabz_fermigr2(e0,ei1,ej1,w1)
         !
         IF(V > thr) THEN
            !
-           ei2(1:4) = MATMUL(tsmall(1:4,1:4), ei1(indx(1:4)   ))
-           ej2(1:4) = MATMUL(tsmall(1:4,1:4), ej1(indx(1:4),ib))
-           CALL libtetrabz_fermigr3(e0,ei2,ej2,w2)
+           de(1:4) = MATMUL(tsmall(1:4,1:4), ej1(indx(1:4),ib) - ei1(indx(1:4)))
+           CALL libtetrabz_fermigr3(e0,de,w2)
            w1(1:ne,ib,indx(1:4)) = w1(1:ne,ib,indx(1:4)) &
            &          + V * MATMUL(w2(1:ne,        1:4 ), tsmall(1:4,1:4))
            !
@@ -258,9 +254,8 @@ SUBROUTINE libtetrabz_fermigr2(e0,ei1,ej1,w1)
         !
         IF(V > thr) THEN
            !
-           ei2(1:4) = MATMUL(tsmall(1:4,1:4), ei1(indx(1:4)   ))
-           ej2(1:4) = MATMUL(tsmall(1:4,1:4), ej1(indx(1:4),ib))
-           CALL libtetrabz_fermigr3(e0,ei2,ej2,w2)
+           de(1:4) = MATMUL(tsmall(1:4,1:4), ej1(indx(1:4),ib) - ei1(indx(1:4)))
+           CALL libtetrabz_fermigr3(e0,de,w2)
            w1(1:ne,ib,indx(1:4)) = w1(1:ne,ib,indx(1:4)) &
            &          + V * MATMUL(w2(1:ne,        1:4 ), tsmall(1:4,1:4))
            !
@@ -270,9 +265,8 @@ SUBROUTINE libtetrabz_fermigr2(e0,ei1,ej1,w1)
         !
         IF(V > thr) THEN
            !
-           ei2(1:4) = MATMUL(tsmall(1:4,1:4), ei1(indx(1:4)   ))
-           ej2(1:4) = MATMUL(tsmall(1:4,1:4), ej1(indx(1:4),ib))
-           CALL libtetrabz_fermigr3(e0,ei2,ej2,w2)
+           de(1:4) = MATMUL(tsmall(1:4,1:4), ej1(indx(1:4),ib) - ei1(indx(1:4)))
+           CALL libtetrabz_fermigr3(e0,de,w2)
            w1(1:ne,ib,indx(1:4)) = w1(1:ne,ib,indx(1:4)) &
            &          + V * MATMUL(w2(1:ne,        1:4 ), tsmall(1:4,1:4))
            !
@@ -282,9 +276,8 @@ SUBROUTINE libtetrabz_fermigr2(e0,ei1,ej1,w1)
         !
         IF(V > thr) THEN
            !
-           ei2(1:4) = MATMUL(tsmall(1:4,1:4), ei1(indx(1:4)   ))
-           ej2(1:4) = MATMUL(tsmall(1:4,1:4), ej1(indx(1:4),ib))
-           CALL libtetrabz_fermigr3(e0,ei2,ej2,w2)
+           de(1:4) = MATMUL(tsmall(1:4,1:4), ej1(indx(1:4),ib) - ei1(indx(1:4)))
+           CALL libtetrabz_fermigr3(e0,de,w2)
            w1(1:ne,ib,indx(1:4)) = w1(1:ne,ib,indx(1:4)) &
            &          + V * MATMUL(w2(1:ne,        1:4 ), tsmall(1:4,1:4))
            !
@@ -296,9 +289,8 @@ SUBROUTINE libtetrabz_fermigr2(e0,ei1,ej1,w1)
         !
         IF(V > thr) THEN
            !
-           ei2(1:4) = MATMUL(tsmall(1:4,1:4), ei1(indx(1:4)   ))
-           ej2(1:4) = MATMUL(tsmall(1:4,1:4), ej1(indx(1:4),ib))
-           CALL libtetrabz_fermigr3(e0,ei2,ej2,w2)
+           de(1:4) = MATMUL(tsmall(1:4,1:4), ej1(indx(1:4),ib) - ei1(indx(1:4)))
+           CALL libtetrabz_fermigr3(e0,de,w2)
            w1(1:ne,ib,indx(1:4)) = w1(1:ne,ib,indx(1:4)) &
            &          + V * MATMUL(w2(1:ne,        1:4 ), tsmall(1:4,1:4))
            !
@@ -308,9 +300,8 @@ SUBROUTINE libtetrabz_fermigr2(e0,ei1,ej1,w1)
         !
         IF(V > thr) THEN
            !
-           ei2(1:4) = MATMUL(tsmall(1:4,1:4), ei1(indx(1:4)   ))
-           ej2(1:4) = MATMUL(tsmall(1:4,1:4), ej1(indx(1:4),ib))
-           CALL libtetrabz_fermigr3(e0,ei2,ej2,w2)
+           de(1:4) = MATMUL(tsmall(1:4,1:4), ej1(indx(1:4),ib) - ei1(indx(1:4)))
+           CALL libtetrabz_fermigr3(e0,de,w2)
            w1(1:ne,ib,indx(1:4)) = w1(1:ne,ib,indx(1:4)) &
            &          + V * MATMUL(w2(1:ne,        1:4 ), tsmall(1:4,1:4))
            !
@@ -320,9 +311,8 @@ SUBROUTINE libtetrabz_fermigr2(e0,ei1,ej1,w1)
         !
         IF(V > thr) THEN
            !
-           ei2(1:4) = MATMUL(tsmall(1:4,1:4), ei1(indx(1:4)   ))
-           ej2(1:4) = MATMUL(tsmall(1:4,1:4), ej1(indx(1:4),ib))
-           CALL libtetrabz_fermigr3(e0,ei2,ej2,w2)
+           de(1:4) = MATMUL(tsmall(1:4,1:4), ej1(indx(1:4),ib) - ei1(indx(1:4)))
+           CALL libtetrabz_fermigr3(e0,de,w2)
            w1(1:ne,ib,indx(1:4)) = w1(1:ne,ib,indx(1:4)) &
            &          + V * MATMUL(w2(1:ne,        1:4 ), tsmall(1:4,1:4))
            !
@@ -330,9 +320,8 @@ SUBROUTINE libtetrabz_fermigr2(e0,ei1,ej1,w1)
         !
      ELSE IF(e(4) <= 0d0) THEN
         !
-        ei2(1:4) = ei1(indx(1:4)   )
-        ej2(1:4) = ej1(indx(1:4),ib)
-        CALL libtetrabz_fermigr3(e0,ei2,ej2,w2)
+        de(1:4) = ej1(1:4,ib) - ei1(1:4)
+        CALL libtetrabz_fermigr3(e0,de,w2)
         w1(1:ne,ib,1:4) = w1(1:ne,ib,1:4) + w2(1:ne,1:4)
         !
      END IF
@@ -343,21 +332,21 @@ END SUBROUTINE libtetrabz_fermigr2
 !
 !
 !
-SUBROUTINE libtetrabz_fermigr3(e0,ei1,ej1,w1)
+SUBROUTINE libtetrabz_fermigr3(e0,de,w1)
   !
   USE libtetrabz_val, ONLY : ne
   IMPLICIT NONE
   !
-  REAL(8),INTENT(IN) :: e0(ne), ei1(4), ej1(4)
+  REAL(8),INTENT(IN) :: e0(ne), de(4)
   REAL(8),INTENT(OUT) :: w1(ne,4)
   !
   INTEGER :: ie, indx(4)
-  REAL(8) :: e(4), V, tsmall(3,4), w2(3)
+  REAL(8) :: e(4), tsmall(3,4), V, w2(3)
   !
   w2(1:3) = 1d0 / 3d0
   !
   w1(1:ne,1:4) = 0d0
-  e(1:4) = ej1(1:4) - ei1(1:4)
+  e(1:4) = de(1:4)
   CALL libtetrabz_sort(4,e,indx)
   !
   DO ie = 1, ne
@@ -365,25 +354,21 @@ SUBROUTINE libtetrabz_fermigr3(e0,ei1,ej1,w1)
      IF(e(1) < e0(ie) .AND. e0(ie) <= e(2)) THEN
         !
         CALL libtetrabz_triangle_a1(e(1:4) - e0(ie),V,tsmall)
-        w1(ie,indx(1:4)) = w1(ie,indx(1:4)) &
-        &  + V * MATMUL(w2(1:3), tsmall(1:3,1:4))
+        w1(ie,indx(1:4)) = w1(ie,indx(1:4)) + V * SUM(tsmall(1:3,1:4), 1) / 3d0
         !
      ELSE IF(e(2) < e0(ie) .AND. e0(ie) <= e(3)) THEN
         !
         CALL libtetrabz_triangle_b1(e(1:4) - e0(ie),V,tsmall)
-        w1(ie,indx(1:4)) = w1(ie,indx(1:4)) &
-        &  + V * MATMUL(w2(1:3), tsmall(1:3,1:4))
+        w1(ie,indx(1:4)) = w1(ie,indx(1:4)) + V * SUM(tsmall(1:3,1:4), 1) / 3d0
         !
         CALL libtetrabz_triangle_b2(e(1:4) - e0(ie),V,tsmall)
-        w1(ie,indx(1:4)) = w1(ie,indx(1:4)) &
-        &  + V * MATMUL(w2(1:3), tsmall(1:3,1:4))
+        w1(ie,indx(1:4)) = w1(ie,indx(1:4)) + V * SUM(tsmall(1:3,1:4), 1) / 3d0
         !
      ELSE IF(e(3) < e0(ie) .AND. e0(ie) < e(4)) THEN
         !
         !
         CALL libtetrabz_triangle_c1(e(1:4) - e0(ie),V,tsmall)
-        w1(ie,indx(1:4)) = w1(ie,indx(1:4)) &
-        &  + V * MATMUL(w2(1:3), tsmall(1:3,1:4))
+        w1(ie,indx(1:4)) = w1(ie,indx(1:4)) + V * SUM(tsmall(1:3,1:4), 1) / 3d0
         !
      END IF
      !

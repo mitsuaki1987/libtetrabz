@@ -18,7 +18,7 @@ libtetrabz_val.o
 all:libtetrabz.a
 
 .F90.o:
-	$(F90) $(FFLAG) -c $<
+	$(F90) $(FFLAGS) -c $<
 
 clean:
 	rm -f *.a *.o *.mod

@@ -6,23 +6,22 @@ CONTAINS
 !
 ! Compute Occ * Step
 !
-SUBROUTINE libtetrabz_doublestep(ltetra,comm0,bvec,nb,nge,eig1,eig2,ngw,wght0) BIND(C)
+SUBROUTINE libtetrabz_dblstep(ltetra,comm0,bvec,nb,nge,eig1,eig2,ngw,wght0) BIND(C)
   !
 #if defined(__MPI)
-  USE mpi, ONLY : MPI_IN_PLACE, MPI_DOUBLE_PRECISION, MPI_SUM
+  USE mpi, ONLY : MPI_DOUBLE_PRECISION, MPI_IN_PLACE, MPI_SUM
 #endif
   USE ISO_C_BINDING
-  USE libtetrabz_val,   ONLY : nk_local, ik_global, ik_local, kvec, lmpi, linterpol, comm
+  USE libtetrabz_val,    ONLY : comm, ik_global, ik_local, kvec, linterpol, lmpi, nk_local
   USE libtetrabz_common, ONLY : libtetrabz_initialize, libtetrabz_interpol_indx
   IMPLICIT NONE
   !
-  INTEGER(C_INT),INTENT(IN) :: ltetra, nge(3), ngw(3), nb
-  REAL(C_DOUBLE),INTENT(IN) :: bvec(3,3)
-  REAL(C_DOUBLE),INTENT(IN) :: eig1(nb,PRODUCT(nge(1:3))), eig2(nb,PRODUCT(nge(1:3)))
+  INTEGER(C_INT),INTENT(IN) :: ltetra, nb, nge(3), ngw(3)
+  REAL(C_DOUBLE),INTENT(IN) :: bvec(3,3), eig1(nb,PRODUCT(nge(1:3))), eig2(nb,PRODUCT(nge(1:3)))
   REAL(C_DOUBLE),INTENT(OUT) :: wght0(nb,nb,PRODUCT(ngw(1:3)))
   INTEGER(C_INT),INTENT(IN),OPTIONAL :: comm0
   !
-  INTEGER :: ii, ik, kintp(4)
+  INTEGER :: ik, ii, kintp(4)
   REAL(8) :: wintp(4)
   REAL(8),ALLOCATABLE :: wght1(:,:,:)
 #if defined(__MPI)
@@ -39,10 +38,10 @@ SUBROUTINE libtetrabz_doublestep(ltetra,comm0,bvec,nb,nge,eig1,eig2,ngw,wght0) B
   !
   CALL libtetrabz_initialize(ltetra,bvec,nge,ngw,nb)
   !
-  IF(lmpi .OR. linterpol) THEN
+  IF(linterpol .OR. lmpi) THEN
      !
      ALLOCATE(wght1(nb,nb,nk_local))
-     CALL libtetrabz_doublestep_main(eig1,eig2,wght1)
+     CALL libtetrabz_dblstep_main(eig1,eig2,wght1)
      !
      ! Interpolation
      !
@@ -63,32 +62,32 @@ SUBROUTINE libtetrabz_doublestep(ltetra,comm0,bvec,nb,nge,eig1,eig2,ngw,wght0) B
 #endif
      !
   ELSE
-     CALL libtetrabz_doublestep_main(eig1,eig2,wght0)
+     CALL libtetrabz_dblstep_main(eig1,eig2,wght0)
   END IF
   !
   DEALLOCATE(ik_global, ik_local)
   !
-END SUBROUTINE libtetrabz_doublestep
+END SUBROUTINE libtetrabz_dblstep
 !
 ! Main SUBROUTINE for Theta(- E1) * Theta(E1 - E2)
 !
 SUBROUTINE libtetrabz_dblstep_main(eig1,eig2,dblstep)
   !
-  USE libtetrabz_val, ONLY : nb, nk_local, nt_local, wlsm, ik_global, ik_local, nkBZ
+  USE libtetrabz_val, ONLY : ik_global, ik_local, nb, nk_local, nkBZ, nt_local, wlsm
   IMPLICIT NONE
   !
   REAL(8),INTENT(IN) :: eig1(nb,nkBZ), eig2(nb,nkBZ)
   REAL(8),INTENT(OUT) :: dblstep(nb,nb,nk_local)
   !
-  INTEGER :: it, ib, indx(4)
-  REAL(8) :: e(4), V, thr = 1d-10, tsmall(4,4), &
-  &          ei1(4,nb), ej1(4,nb), ei2(4), ej2(4,nb), w1(nb,4), w2(nb,4)
+  INTEGER :: ib, indx(4), it
+  REAL(8) :: e(4), ei1(4,nb), ei2(4), ej1(4,nb), ej2(4,nb), thr = 1d-10, &
+  &          tsmall(4,4), V, w1(nb,4), w2(nb,4)
   !
   dblstep(1:nb,1:nb,1:nk_local) = 0d0
   !
   !$OMP PARALLEL DEFAULT(NONE) &
-  !$OMP & SHARED(nt_local,nb,ik_global,ik_local,wlsm,eig1,eig2,thr,dblstep) &
-  !$OMP & PRIVATE(ib,it,e,a,tmp,tmp2,w1,w2,ei1,ej1,de,V)
+  !$OMP & SHARED(dblstep,eig1,eig2,ik_global,ik_local,nb,nt_local,thr,wlsm) &
+  !$OMP & PRIVATE(e,ei1,ei2,ej1,ej2,ib,indx,it,tsmall,V,w1,w2)
   !
   DO it = 1, nt_local
      !
@@ -232,9 +231,7 @@ SUBROUTINE libtetrabz_dblstep2(ei1,ej1,w1)
   REAL(8),INTENT(OUT) :: w1(nb,4)
   !
   INTEGER :: ib, indx(4)
-  REAL(8) :: V, w2(4), thr = 1d-8, e(4), tsmall(4,4)
-  !
-  w2(1:4) = 0.25d0
+  REAL(8) :: e(4), thr = 1d-8, tsmall(4,4), V
   !
   DO ib = 1, nb
      !
@@ -247,38 +244,38 @@ SUBROUTINE libtetrabz_dblstep2(ei1,ej1,w1)
         ! Theta(0) = 0.5
         !
         V = 0.5d0
-        w1(ib,1:4) = w1(ib,1:4) + V * w2(1:4)
+        w1(ib,1:4) = w1(ib,1:4) + V * 0.25d0
         !
      ELSE IF((e(1) <= 0d0 .AND. 0d0 < e(2)) .OR. (e(1) < 0d0 .AND. 0d0 <= e(2))) THEN
         !
         CALL libtetrabz_tsmall_a1(e,V,tsmall)
-        w1(ib,indx(1:4)) = w1(ib,indx(1:4)) + V * MATMUL(w2(1:4), tsmall(1:4,1:4))
+        w1(ib,indx(1:4)) = w1(ib,indx(1:4)) + V * SUM(tsmall(1:4,1:4), 1) * 0.25d0
         !
      ELSE IF((e(2) <= 0d0 .AND. 0d0 < e(3)) .OR. (e(2) < 0d0 .AND. 0d0 <= e(3))) THEN
         !
         CALL libtetrabz_tsmall_b1(e,V,tsmall)
-        w1(ib,indx(1:4)) = w1(ib,indx(1:4)) + V * MATMUL(w2(1:4), tsmall(1:4,1:4))
+        w1(ib,indx(1:4)) = w1(ib,indx(1:4)) + V * SUM(tsmall(1:4,1:4), 1) * 0.25d0
         !
         CALL libtetrabz_tsmall_b2(e,V,tsmall)
-        w1(ib,indx(1:4)) = w1(ib,indx(1:4)) + V * MATMUL(w2(1:4), tsmall(1:4,1:4))
+        w1(ib,indx(1:4)) = w1(ib,indx(1:4)) + V * SUM(tsmall(1:4,1:4), 1) * 0.25d0
         !
         CALL libtetrabz_tsmall_b3(e,V,tsmall)
-        w1(ib,indx(1:4)) = w1(ib,indx(1:4)) + V * MATMUL(w2(1:4), tsmall(1:4,1:4))
+        w1(ib,indx(1:4)) = w1(ib,indx(1:4)) + V * SUM(tsmall(1:4,1:4), 1) * 0.25d0
         !
      ELSE IF((e(3) <= 0d0 .AND. 0d0 < e(4)) .OR. (e(3) < 0d0 .AND. 0d0 <= e(4))) THEN
         !
         CALL libtetrabz_tsmall_c1(e,V,tsmall)
-        w1(ib,indx(1:4)) = w1(ib,indx(1:4)) + V * MATMUL(w2(1:4), tsmall(1:4,1:4))
+        w1(ib,indx(1:4)) = w1(ib,indx(1:4)) + V * SUM(tsmall(1:4,1:4), 1) * 0.25d0
         !
         CALL libtetrabz_tsmall_c2(e,V,tsmall)
-        w1(ib,indx(1:4)) = w1(ib,indx(1:4)) + V * MATMUL(w2(1:4), tsmall(1:4,1:4))
+        w1(ib,indx(1:4)) = w1(ib,indx(1:4)) + V * SUM(tsmall(1:4,1:4), 1) * 0.25d0
         !
         CALL libtetrabz_tsmall_c3(e,V,tsmall)
-        w1(ib,indx(1:4)) = w1(ib,indx(1:4)) + V * MATMUL(w2(1:4), tsmall(1:4,1:4))
+        w1(ib,indx(1:4)) = w1(ib,indx(1:4)) + V * SUM(tsmall(1:4,1:4), 1) * 0.25d0
         !
      ELSE IF(e(4) <= 0d0) THEN
         !
-        w1(ib,1:4) = w1(ib,1:4) + w2(1:4)
+        w1(ib,1:4) = w1(ib,1:4) + 0.25d0
         !
      END IF
      !

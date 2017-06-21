@@ -15,7 +15,7 @@ SUBROUTINE libtetrabz_initialize(ltetra,bvec,nge,ngw,nb0,ne0)
   REAL(8),INTENT(IN) :: bvec(3,3)
   INTEGER,INTENT(IN),OPTIONAL :: ne0
   !
-  INTEGER :: itype, i1, i2, i3, it, ii, divvec(4,4), ivvec0(4), ivvec(3,20,6)
+  INTEGER :: itype, i1, i2, i3, it, divvec(4,4), ivvec0(4), ivvec(3,20,6)
   REAL(8) :: l(4), bvec2(3,3), bvec3(3,4)
   !
   nb = nb0
@@ -218,7 +218,7 @@ SUBROUTINE libtetrabz_kgrid(ivvec)
      i1 = MOD(loc2glob(ik) - 1, ng(1))
      i2 = MOD((loc2glob(ik) - 1) / ng(1), ng(2))
      i3 = (loc2glob(ik) - 1) / (ng(1) * ng(2))
-     kvec(1:3,ik) = DBLE((/i1, i2, i3/) - 1) / DBLE(ng(1:3))
+     kvec(1:3,ik) = DBLE((/i1, i2, i3/)) / DBLE(ng(1:3))
   END DO
   !
 END SUBROUTINE libtetrabz_kgrid
@@ -229,8 +229,8 @@ SUBROUTINE libtetrabz_fst_and_lst(nt,nt_front,nt_local)
   !
 #if defined(__MPI)
   USE mpi, ONLY : mpi_comm_size, mpi_comm_rank
-#endif
   USE libtetrabz_val, ONLY : comm, lmpi
+#endif
   IMPLICIT NONE
   !
   INTEGER,INTENT(IN) :: nt
