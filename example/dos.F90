@@ -1,11 +1,11 @@
 program dos
   !
-  use libtetrabz, only : libtetrabz_fermieng, libtetrabz_dos
+  use libtetrabz, only : libtetrabz_fermieng, libtetrabz_dos, libtetrabz_intdos
   implicit none
   !
   integer :: ltetra, nb, ng, nge(3), ngw(3), i1, i2, i3, ik, ne, ie, nke, nkw
   real(8) :: bvec(3,3), ef, nelec, kvec(3), pi
-  real(8),allocatable :: eig(:,:), wght(:,:), e0(:), wght_dos(:,:,:)
+  real(8),allocatable :: eig(:,:), wght(:,:), e0(:), doss(:,:), wght_dos(:,:,:)
   !
   write(*,'(a)', advance = "no") "Which tetrahedron method ?(1 = Linear, 2 = Optimized): "
   read(*,*) ltetra
@@ -44,17 +44,24 @@ program dos
   write(*,*) "  E_F = ", ef
   !
   ne = 100
-  allocate(wght_dos(ne,nb,nkw), e0(ne))
+  allocate(wght_dos(ne,nb,nkw), e0(ne), doss(2,ne))
   !
   do ie = 1, ne
      e0(ie) = 6d0 / dble(ne - 1) * dble(ie - 1) - 3d0
   end do
   !
   call libtetrabz_dos(ltetra,bvec,nb,nge,eig,ngw,wght_dos,ne,e0)
+  do ie = 1, ne
+     doss(1,ie) = sum(wght_dos(ie,1:nb,1:nkw))
+  end do
+  call libtetrabz_intdos(ltetra,bvec,nb,nge,eig,ngw,wght_dos,ne,e0)
+  do ie = 1, ne
+     doss(2,ie) = sum(wght_dos(ie,1:nb,1:nkw))
+  end do
   !
   open(10, file = "dos.dat")
   do ie = 1, ne
-     write(10,*) e0(ie), sum(wght_dos(ie,1:nb,1:nkw))
+     write(10,*) e0(ie), doss(1,ie), doss(2,ie)
   end do
   !
   close(10)
