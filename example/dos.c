@@ -5,7 +5,7 @@
 /**/
 /*use libtetrabz, only : libtetrabz_fermieng, libtetrabz_dos*/
 /**/
-int main(int argc, char *argv[])
+int main()
 {
 /**/
   int ltetra, nb, ng, nge[3], ngw[3], ii, i0, i1, i2, ik, ne, ie, nke, nkw;
@@ -14,9 +14,10 @@ int main(int argc, char *argv[])
   FILE *fp;
   /**/
   printf("Which tetrahedron method ?(1 = Linear, 2 = Optimized): ");
-  scanf("%d", &ltetra);
+  ie = scanf("%d", &ltetra);
   printf("\n k-point mesh ?: ");
-  scanf("%d", &ng);
+  ie = scanf("%d", &ng);
+  if(ie != 0) printf("error %d\n",ie);
   /**/
   pi = acos(-1.0);
   nb = 1;
@@ -48,7 +49,7 @@ int main(int argc, char *argv[])
     }
   }
   /**/
-  libtetrabz_mp_libtetrabz_fermieng_(&ltetra,bvec,&nb,nge,eig,ngw,wght,&ef,&nelec);
+  libtetrabz_fermieng(&ltetra,bvec,&nb,nge,eig,ngw,wght,&ef,&nelec,NULL);
   /**/
   printf("  E_F = %25.15e\n", ef);
   /**/
@@ -60,7 +61,7 @@ int main(int argc, char *argv[])
     e0[ie] = 6.0 / (double)(ne - 1) * (double)ie - 3.0;
   }
   /**/
-  libtetrabz_mp_libtetrabz_dos_(&ltetra,bvec,&nb,nge,eig,ngw,wght_dos,&ne,e0);
+  libtetrabz_dos(&ltetra,bvec,&nb,nge,eig,ngw,wght_dos,&ne,e0,NULL);
   /**/
   fp = fopen("dos.dat", "w");
   for(ie = 0; ie < ne; ie++){
@@ -73,4 +74,5 @@ int main(int argc, char *argv[])
   /**/
   fclose(fp);
   /**/
+  return 0;
 }

@@ -2,7 +2,6 @@ include ../make.sys
 
 OBJS = \
 libtetrabz.o \
-libtetrabz_common.o \
 libtetrabz_dbldelta_mod.o \
 libtetrabz_dblstep_mod.o \
 libtetrabz_dos_mod.o \
@@ -10,6 +9,7 @@ libtetrabz_fermigr_mod.o \
 libtetrabz_occ_mod.o \
 libtetrabz_polcmplx_mod.o \
 libtetrabz_polstat_mod.o \
+libtetrabz_common.o \
 libtetrabz_val.o
 
 .SUFFIXES :

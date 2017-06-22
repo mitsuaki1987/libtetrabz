@@ -2,11 +2,14 @@ MODULE libtetrabz_dbldelta_mod
   !
   IMPLICIT NONE
   !
+  PRIVATE
+  PUBLIC libtetrabz_dbldelta
+  !
 CONTAINS
 !
 ! Compute doubledelta
 !
-SUBROUTINE libtetrabz_dbldelta(ltetra,comm0,bvec,nb,nge,eig1,eig2,ngw,wght0) BIND(C)
+SUBROUTINE libtetrabz_dbldelta(ltetra,bvec,nb,nge,eig1,eig2,ngw,wght0,comm0) BIND(C)
   !
 #if defined(__MPI)
   USE mpi, ONLY : MPI_DOUBLE_PRECISION, MPI_IN_PLACE, MPI_SUM
@@ -74,6 +77,9 @@ END SUBROUTINE libtetrabz_dbldelta
 SUBROUTINE libtetrabz_dbldelta_main(eig1,eig2,dbldelta)
   !
   USE libtetrabz_val, ONLY : ik_global, ik_local, nb, nkBZ, nk_local, nt_local, wlsm
+  USE libtetrabz_common, ONLY : libtetrabz_sort, &
+  &                             libtetrabz_triangle_a1, libtetrabz_triangle_b1, &
+  &                             libtetrabz_triangle_b2, libtetrabz_triangle_c1
   IMPLICIT NONE
   !
   REAL(8),INTENT(IN) :: eig1(nb,nkBZ), eig2(nb,nkBZ)
@@ -105,7 +111,7 @@ SUBROUTINE libtetrabz_dbldelta_main(eig1,eig2,dbldelta)
         !
         IF(e(1) < 0d0 .AND. 0d0 <= e(2)) THEN
            !
-           CALL libtetrabz_tsmall_a1(e,V,tsmall)
+           CALL libtetrabz_triangle_a1(e,V,tsmall)
            !
            IF(V > thr) THEN
               !
@@ -118,7 +124,7 @@ SUBROUTINE libtetrabz_dbldelta_main(eig1,eig2,dbldelta)
            !
         ELSE IF( e(2) < 0d0 .AND. 0d0 <= e(3)) THEN
            !
-           CALL libtetrabz_tsmall_b1(e,V,tsmall)
+           CALL libtetrabz_triangle_b1(e,V,tsmall)
            !
            IF(V > thr) THEN
               !
@@ -129,7 +135,7 @@ SUBROUTINE libtetrabz_dbldelta_main(eig1,eig2,dbldelta)
               !
            END IF
            !
-           CALL libtetrabz_tsmall_b2(e,V,tsmall)
+           CALL libtetrabz_triangle_b2(e,V,tsmall)
            !
            IF(V > thr) THEN
               !
@@ -142,7 +148,7 @@ SUBROUTINE libtetrabz_dbldelta_main(eig1,eig2,dbldelta)
            !
         ELSE IF(e(3) < 0d0 .AND. 0d0 < e(4)) THEN
            !
-           CALL libtetrabz_tsmall_c1(e,V,tsmall)
+           CALL libtetrabz_triangle_c1(e,V,tsmall)
            !
            IF(V > thr) THEN
               !

@@ -6,7 +6,7 @@ program dos
   integer :: ltetra, nb, ng, nge(3), ngw(3), i1, i2, i3, ik, iq, nq, &
   &          nke, nkw, ikvec(3), ne = 1
   real(8) :: bvec(3,3), ef, kvec(3), qvec(3), qmax, e0(1), VBZ, pi
-  real(8),allocatable :: eig(:,:), eig1(:,:), eig2(:,:), wght(:,:,:), wght_dos(:,:,:)
+  real(8),allocatable :: eig1(:,:), eig2(:,:), wght(:,:,:), wght_dos(:,:,:)
   !
   write(*,'(a)', advance = "no") "Which tetrahedron method ?(1 = Linear, 2 = Optimized): "
   read(*,*) ltetra

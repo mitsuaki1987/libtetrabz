@@ -3,6 +3,7 @@ MODULE libtetrabz
   USE libtetrabz_occ_mod,      ONLY : libtetrabz_occ
   USE libtetrabz_occ_mod,      ONLY : libtetrabz_fermieng
   USE libtetrabz_dos_mod,      ONLY : libtetrabz_dos
+  USE libtetrabz_dos_mod,      ONLY : libtetrabz_intdos
   USE libtetrabz_dblstep_mod,  ONLY : libtetrabz_dblstep
   USE libtetrabz_dbldelta_mod, ONLY : libtetrabz_dbldelta
   USE libtetrabz_polstat_mod,  ONLY : libtetrabz_polstat

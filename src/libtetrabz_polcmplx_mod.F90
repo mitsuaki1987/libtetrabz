@@ -2,11 +2,14 @@ MODULE libtetrabz_polcmplx_mod
   !
   IMPLICIT NONE
   !
+  PRIVATE
+  PUBLIC libtetrabz_polcmplx
+  !
 CONTAINS
 !
 ! Compute Polarization of imaginary frequency
 !
-SUBROUTINE libtetrabz_polcmplx(ltetra,comm0,bvec,nb,nge,eig1,eig2,ngw,wght0,ne,e0) BIND(C)
+SUBROUTINE libtetrabz_polcmplx(ltetra,bvec,nb,nge,eig1,eig2,ngw,wght0,ne,e0,comm0) BIND(C)
   !
 #if defined(__MPI)
   USE mpi, ONLY : MPI_DOUBLE_COMPLEX, MPI_IN_PLACE, MPI_SUM
@@ -75,6 +78,11 @@ END SUBROUTINE libtetrabz_polcmplx
 SUBROUTINE libtetrabz_polcmplx_main(eig1,eig2,e0,polcmplx)
   !
   USE libtetrabz_val, ONLY : ik_global, ik_local, nb, ne, nkBZ, nk_local, nt_local, wlsm
+  USE libtetrabz_common, ONLY : libtetrabz_sort, &
+  &                             libtetrabz_tsmall_a1, libtetrabz_tsmall_b1, &
+  &                             libtetrabz_tsmall_b2, libtetrabz_tsmall_b3, &
+  &                             libtetrabz_tsmall_c1, libtetrabz_tsmall_c2, &
+  &                             libtetrabz_tsmall_c3
   IMPLICIT NONE
   !
   REAL(8),INTENT(IN) :: eig1(nb,nkBZ), eig2(nb,nkBZ)
@@ -159,7 +167,7 @@ SUBROUTINE libtetrabz_polcmplx_main(eig1,eig2,e0,polcmplx)
            !
         ELSE IF(e(3) <= 0d0 .AND. 0d0 < e(4)) THEN
            !
-           CALL libtetrabz_tsmall_b1(e,V,tsmall)
+           CALL libtetrabz_tsmall_c1(e,V,tsmall)
            !
            IF(V > thr) THEN
               !
@@ -171,7 +179,7 @@ SUBROUTINE libtetrabz_polcmplx_main(eig1,eig2,e0,polcmplx)
               !
            END IF
            !
-           CALL libtetrabz_tsmall_b2(e,V,tsmall)
+           CALL libtetrabz_tsmall_c2(e,V,tsmall)
            !
            IF(V > thr) THEN
               !
@@ -183,7 +191,7 @@ SUBROUTINE libtetrabz_polcmplx_main(eig1,eig2,e0,polcmplx)
               !
            END IF
            !
-           CALL libtetrabz_tsmall_b3(e,V,tsmall)
+           CALL libtetrabz_tsmall_c3(e,V,tsmall)
            !
            IF(V > thr) THEN
               !
@@ -227,6 +235,11 @@ END SUBROUTINE libtetrabz_polcmplx_main
 SUBROUTINE libtetrabz_polcmplx2(e0,ei1,ej1,w1)
   !
   USE libtetrabz_val, ONLY : nb, ne
+  USE libtetrabz_common, ONLY : libtetrabz_sort, &
+  &                             libtetrabz_tsmall_a1, libtetrabz_tsmall_b1, &
+  &                             libtetrabz_tsmall_b2, libtetrabz_tsmall_b3, &
+  &                             libtetrabz_tsmall_c1, libtetrabz_tsmall_c2, &
+  &                             libtetrabz_tsmall_c3
   IMPLICIT NONE
   !
   COMPLEX(8),INTENT(IN) :: e0(ne)
@@ -343,6 +356,7 @@ END SUBROUTINE libtetrabz_polcmplx2
 SUBROUTINE libtetrabz_polcmplx3(e0,de,w1)
   !
   USE libtetrabz_val, ONLY : ne
+  USE libtetrabz_common, ONLY : libtetrabz_sort
   IMPLICIT NONE
   !
   COMPLEX(8),INTENT(IN) :: e0(ne)

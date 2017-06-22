@@ -2,6 +2,9 @@ MODULE libtetrabz_occ_mod
   !
   IMPLICIT NONE
   !
+  PRIVATE
+  PUBLIC libtetrabz_occ, libtetrabz_fermieng
+  !
 CONTAINS
 !
 ! Compute occupation
@@ -147,7 +150,7 @@ SUBROUTINE libtetrabz_fermieng(ltetra,bvec,nb,nge,eig,ngw,wght0,ef,nelec,comm0) 
      !
   END DO  ! iter
   !
-  IF(iter >= maxiter) STOP "libtetrabz_omp_fermieng"
+  IF(iter >= maxiter) STOP "libtetrabz_fermieng"
   !
   IF(linterpol .OR. lmpi) THEN
      !
@@ -180,6 +183,11 @@ END SUBROUTINE libtetrabz_fermieng
 SUBROUTINE libtetrabz_occ_main(ef,eig,occ)
   !
   USE libtetrabz_val, ONLY : ik_global, ik_local, nb, nkBZ, nk_local, nt_local, wlsm
+  USE libtetrabz_common, ONLY : libtetrabz_sort, &
+  &                             libtetrabz_tsmall_a1, libtetrabz_tsmall_b1, &
+  &                             libtetrabz_tsmall_b2, libtetrabz_tsmall_b3, &
+  &                             libtetrabz_tsmall_c1, libtetrabz_tsmall_c2, &
+  &                             libtetrabz_tsmall_c3
   IMPLICIT NONE
   !
   REAL(8),INTENT(IN) :: ef, eig(nb,nkBZ)
@@ -214,7 +222,7 @@ SUBROUTINE libtetrabz_occ_main(ef,eig,occ)
            !
         ELSE IF(e(2) <= 0d0 .AND. 0d0 < e(3)) THEN
            !
-           CALL libtetrabz_tsmall_a1(e,V,tsmall)
+           CALL libtetrabz_tsmall_b1(e,V,tsmall)
            w1(indx(1:4)) = w1(indx(1:4)) + V * SUM(tsmall(1:4,1:4), 1) * 0.25d0
            !
            CALL libtetrabz_tsmall_b2(e,V,tsmall)

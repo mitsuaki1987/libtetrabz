@@ -2,6 +2,13 @@ MODULE libtetrabz_common
   !
   IMPLICIT NONE
   !
+  PRIVATE
+  PUBLIC libtetrabz_initialize, libtetrabz_sort, libtetrabz_interpol_indx, &
+  &      libtetrabz_tsmall_a1, libtetrabz_tsmall_b1, libtetrabz_tsmall_b2, libtetrabz_tsmall_b3, &
+  &      libtetrabz_tsmall_c1, libtetrabz_tsmall_c2, libtetrabz_tsmall_c3, &
+  &      libtetrabz_triangle_a1, libtetrabz_triangle_b1, &
+  &      libtetrabz_triangle_b2, libtetrabz_triangle_c1
+  !
 CONTAINS
 !
 ! define shortest diagonal line & define type of tetragonal
@@ -325,7 +332,7 @@ SUBROUTINE libtetrabz_interpol_indx(ng,kvec,kintp,wintp)
   wintp(4) = 1d0 - SUM(x(1:3))
   kintp(4) = 1 + ikv0(1) + ng(1) * ikv0(2) + ng(1) * ng(2) * ikv0(3)
   !
-end subroutine libtetrabz_interpol_indx
+END SUBROUTINE libtetrabz_interpol_indx
 !
 ! Cut small tetrahedron A1
 !
@@ -344,7 +351,7 @@ SUBROUTINE libtetrabz_tsmall_a1(e,V,tsmall)
      a(1:4,ii) = (0d0 - e(ii)) / (e(1:4) - e(ii))
   END DO
   !
-  V = 0.25d0 * a(2,1) * a(3,1) * a(4,1)
+  V = a(2,1) * a(3,1) * a(4,1)
   !
   tsmall(1, 1:4) = (/   1d0,    0d0,    0d0,    0d0/)
   tsmall(2, 1:4) = (/a(1,2), a(2,1),    0d0,    0d0/)

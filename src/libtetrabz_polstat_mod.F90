@@ -2,11 +2,14 @@ MODULE libtetrabz_polstat_mod
   !
   IMPLICIT NONE
   !
+  PRIVATE
+  PUBLIC libtetrabz_polstat
+  !
 CONTAINS
 !
 ! Compute Static polalization function
 !
-SUBROUTINE libtetrabz_polstat(ltetra,comm0,bvec,nb,nge,eig1,eig2,ngw,wght0) BIND(C)
+SUBROUTINE libtetrabz_polstat(ltetra,bvec,nb,nge,eig1,eig2,ngw,wght0,comm0) BIND(C)
   !
 #if defined(__MPI)
   USE mpi, ONLY : MPI_DOUBLE_PRECISION, MPI_IN_PLACE, MPI_SUM
@@ -74,6 +77,11 @@ END SUBROUTINE libtetrabz_polstat
 SUBROUTINE libtetrabz_polstat_main(eig1,eig2,polstat)
   !
   USE libtetrabz_val, ONLY : ik_global, ik_local, nb, nkBZ, nk_local, nt_local, wlsm
+  USE libtetrabz_common, ONLY : libtetrabz_sort, &
+  &                             libtetrabz_tsmall_a1, libtetrabz_tsmall_b1, &
+  &                             libtetrabz_tsmall_b2, libtetrabz_tsmall_b3, &
+  &                             libtetrabz_tsmall_c1, libtetrabz_tsmall_c2, &
+  &                             libtetrabz_tsmall_c3
   IMPLICIT NONE
   !
   REAL(8),INTENT(IN) :: eig1(nb,nkBZ), eig2(nb,nkBZ)
@@ -224,6 +232,11 @@ END SUBROUTINE libtetrabz_polstat_main
 SUBROUTINE libtetrabz_polstat2(ei1,ej1,w1)
   !
   USE libtetrabz_val, ONLY : nb
+  USE libtetrabz_common, ONLY : libtetrabz_sort, &
+  &                             libtetrabz_tsmall_a1, libtetrabz_tsmall_b1, &
+  &                             libtetrabz_tsmall_b2, libtetrabz_tsmall_b3, &
+  &                             libtetrabz_tsmall_c1, libtetrabz_tsmall_c2, &
+  &                             libtetrabz_tsmall_c3
   IMPLICIT NONE
   !
   REAL(8),INTENT(IN) :: ei1(4), ej1(4,nb)
@@ -325,7 +338,7 @@ SUBROUTINE libtetrabz_polstat2(ei1,ej1,w1)
         !
         de(1:4) = ej1(1:4,ib) - ei1(1:4)
         CALL libtetrabz_polstat3(de,w2)
-        w1(ib,1:4) = w1(ib,1:4) + V * w2(1:4)
+        w1(ib,1:4) = w1(ib,1:4) + w2(1:4)
         !
      END IF
      !
@@ -337,6 +350,7 @@ END SUBROUTINE libtetrabz_polstat2
 !
 SUBROUTINE libtetrabz_polstat3(de,w1)
   !
+  USE libtetrabz_common, ONLY : libtetrabz_sort
   IMPLICIT NONE
   !
   REAL(8),INTENT(IN) :: de(4)

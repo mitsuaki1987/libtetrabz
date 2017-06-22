@@ -2,11 +2,14 @@ MODULE libtetrabz_dblstep_mod
   !
   IMPLICIT NONE
   !
+  PRIVATE
+  PUBLIC libtetrabz_dblstep
+  !
 CONTAINS
 !
 ! Compute Occ * Step
 !
-SUBROUTINE libtetrabz_dblstep(ltetra,comm0,bvec,nb,nge,eig1,eig2,ngw,wght0) BIND(C)
+SUBROUTINE libtetrabz_dblstep(ltetra,bvec,nb,nge,eig1,eig2,ngw,wght0,comm0) BIND(C)
   !
 #if defined(__MPI)
   USE mpi, ONLY : MPI_DOUBLE_PRECISION, MPI_IN_PLACE, MPI_SUM
@@ -74,6 +77,11 @@ END SUBROUTINE libtetrabz_dblstep
 SUBROUTINE libtetrabz_dblstep_main(eig1,eig2,dblstep)
   !
   USE libtetrabz_val, ONLY : ik_global, ik_local, nb, nk_local, nkBZ, nt_local, wlsm
+  USE libtetrabz_common, ONLY : libtetrabz_sort, &
+  &                             libtetrabz_tsmall_a1, libtetrabz_tsmall_b1, &
+  &                             libtetrabz_tsmall_b2, libtetrabz_tsmall_b3, &
+  &                             libtetrabz_tsmall_c1, libtetrabz_tsmall_c2, &
+  &                             libtetrabz_tsmall_c3
   IMPLICIT NONE
   !
   REAL(8),INTENT(IN) :: eig1(nb,nkBZ), eig2(nb,nkBZ)
@@ -225,6 +233,11 @@ END SUBROUTINE libtetrabz_dblstep_main
 SUBROUTINE libtetrabz_dblstep2(ei1,ej1,w1)
   !
   USE libtetrabz_val, ONLY : nb
+  USE libtetrabz_common, ONLY : libtetrabz_sort, &
+  &                             libtetrabz_tsmall_a1, libtetrabz_tsmall_b1, &
+  &                             libtetrabz_tsmall_b2, libtetrabz_tsmall_b3, &
+  &                             libtetrabz_tsmall_c1, libtetrabz_tsmall_c2, &
+  &                             libtetrabz_tsmall_c3
   IMPLICIT NONE
   !
   REAL(8),INTENT(IN) :: ei1(4), ej1(4,nb)

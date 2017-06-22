@@ -2,11 +2,14 @@ MODULE libtetrabz_fermigr_mod
   !
   IMPLICIT NONE
   !
+  PRIVATE
+  PUBLIC libtetrabz_fermigr
+  !
 CONTAINS
 !
 ! Compute Fermi's golden rule
 !
-SUBROUTINE libtetrabz_fermigr(ltetra,comm0,bvec,nb,nge,eig1,eig2,ngw,wght0,ne,e0) BIND(C)
+SUBROUTINE libtetrabz_fermigr(ltetra,bvec,nb,nge,eig1,eig2,ngw,wght0,ne,e0,comm0) BIND(C)
   !
 #if defined(__MPI)
   USE mpi, ONLY : MPI_IN_PLACE, MPI_DOUBLE_PRECISION, MPI_SUM
@@ -74,6 +77,11 @@ END SUBROUTINE libtetrabz_fermigr
 SUBROUTINE libtetrabz_fermigr_main(eig1,eig2,e0,fermigr)
   !
   USE libtetrabz_val, ONLY : ik_global, ik_local, nb, ne, nkBZ, nk_local, nt_local, wlsm
+  USE libtetrabz_common, ONLY : libtetrabz_sort, &
+  &                             libtetrabz_tsmall_a1, libtetrabz_tsmall_b1, &
+  &                             libtetrabz_tsmall_b2, libtetrabz_tsmall_b3, &
+  &                             libtetrabz_tsmall_c1, libtetrabz_tsmall_c2, &
+  &                             libtetrabz_tsmall_c3
   IMPLICIT NONE
   !
   REAL(8),INTENT(IN) :: eig1(nb,nkBZ), eig2(nb,nkBZ), e0(ne)
@@ -194,11 +202,10 @@ SUBROUTINE libtetrabz_fermigr_main(eig1,eig2,e0,fermigr)
            !
         ELSE IF(e(4) <= 0d0) THEN
            !
-           ei2(1:4     ) = MATMUL(tsmall(1:4,1:4), ei1(1:4,  ib))
-           ej2(1:4,1:nb) = MATMUL(tsmall(1:4,1:4), ej1(1:4,1:nb))
+           ei2(1:4     ) = ei1(1:4,  ib)
+           ej2(1:4,1:nb) = ej1(1:4,1:nb)
            CALL libtetrabz_fermigr2(e0,ei2,ej2,w2)
-           w1(1:ne*nb,1:4) = w1(1:ne*nb,1:4) &
-           &    + V * MATMUL(w2(1:ne*nb,1:4), tsmall(1:4,1:4))
+           w1(1:ne*nb,1:4) = w1(1:ne*nb,1:4) + w2(1:ne*nb,1:4)
            !
         END IF
         !
@@ -221,6 +228,11 @@ END SUBROUTINE libtetrabz_fermigr_main
 SUBROUTINE libtetrabz_fermigr2(e0,ei1,ej1,w1)
   !
   USE libtetrabz_val, ONLY : nb, ne
+  USE libtetrabz_common, ONLY : libtetrabz_sort, &
+  &                             libtetrabz_tsmall_a1, libtetrabz_tsmall_b1, &
+  &                             libtetrabz_tsmall_b2, libtetrabz_tsmall_b3, &
+  &                             libtetrabz_tsmall_c1, libtetrabz_tsmall_c2, &
+  &                             libtetrabz_tsmall_c3
   IMPLICIT NONE
   !
   REAL(8),INTENT(IN) :: e0(ne), ei1(4), ej1(4,nb)
@@ -335,6 +347,9 @@ END SUBROUTINE libtetrabz_fermigr2
 SUBROUTINE libtetrabz_fermigr3(e0,de,w1)
   !
   USE libtetrabz_val, ONLY : ne
+  USE libtetrabz_common, ONLY : libtetrabz_sort, &
+  &                             libtetrabz_triangle_a1, libtetrabz_triangle_b1, &
+  &                             libtetrabz_triangle_b2, libtetrabz_triangle_c1
   IMPLICIT NONE
   !
   REAL(8),INTENT(IN) :: e0(ne), de(4)
@@ -365,7 +380,6 @@ SUBROUTINE libtetrabz_fermigr3(e0,de,w1)
         w1(ie,indx(1:4)) = w1(ie,indx(1:4)) + V * SUM(tsmall(1:3,1:4), 1) / 3d0
         !
      ELSE IF(e(3) < e0(ie) .AND. e0(ie) < e(4)) THEN
-        !
         !
         CALL libtetrabz_triangle_c1(e(1:4) - e0(ie),V,tsmall)
         w1(ie,indx(1:4)) = w1(ie,indx(1:4)) + V * SUM(tsmall(1:3,1:4), 1) / 3d0
