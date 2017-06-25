@@ -7,32 +7,37 @@ MODULE libtetrabz_common
   &      libtetrabz_tsmall_a1, libtetrabz_tsmall_b1, libtetrabz_tsmall_b2, libtetrabz_tsmall_b3, &
   &      libtetrabz_tsmall_c1, libtetrabz_tsmall_c2, libtetrabz_tsmall_c3, &
   &      libtetrabz_triangle_a1, libtetrabz_triangle_b1, &
-  &      libtetrabz_triangle_b2, libtetrabz_triangle_c1
+  &      libtetrabz_triangle_b2, libtetrabz_triangle_c1, &
+  &      libtetrabz_mpisum_d, libtetrabz_mpisum_dv, libtetrabz_mpisum_zv
   !
 CONTAINS
 !
 ! define shortest diagonal line & define type of tetragonal
 !
-SUBROUTINE libtetrabz_initialize(ltetra,bvec,nge,ngw,nb0,ne0)
+SUBROUTINE libtetrabz_initialize(ltetra,nge,ngw,bvec,linterpol,wlsm,nk_local,nt_local,nkBZ,ik_global,ik_local,kvec,comm)
   !
-  USE libtetrabz_val, ONLY : wlsm, nb, ne, ng, linterpol, nkBZ
   IMPLICIT NONE
   !
-  INTEGER,INTENT(IN) :: ltetra, nb0, nge(3), ngw(3)
+  INTEGER,INTENT(IN) :: ltetra, nge(3), ngw(3)
   REAL(8),INTENT(IN) :: bvec(3,3)
-  INTEGER,INTENT(IN),OPTIONAL :: ne0
+  LOGICAL,INTENT(OUT) :: linterpol
+  REAL(8),INTENT(OUT) :: wlsm(4,20)
+  INTEGER,INTENT(OUT) :: nk_local, nt_local, nkBZ
+  INTEGER,INTENT(OUT),ALLOCATABLE :: ik_global(:,:), ik_local(:,:)
+  REAL(8),INTENT(OUT),ALLOCATABLE :: kvec(:,:)
+  INTEGER,INTENT(IN),OPTIONAL :: comm
   !
   INTEGER :: itype, i1, i2, i3, it, divvec(4,4), ivvec0(4), ivvec(3,20,6)
   REAL(8) :: l(4), bvec2(3,3), bvec3(3,4)
   !
-  nb = nb0
-  ng(1:3) = nge(1:3)
-  nkBZ = PRODUCT(ng(1:3))
+  nkBZ = PRODUCT(nge(1:3))
   linterpol = .NOT. ALL(nge(1:3) == ngw(1:3))
-  IF(PRESENT(ne0)) ne = ne0
+#if defined(__MPI)
+  linterpol = linterpol .OR. PRESENT(comm)
+#endif
   !
   DO i1 = 1, 3
-     bvec2(1:3,i1) = bvec(1:3,i1) / DBLE(ng(i1))
+     bvec2(1:3,i1) = bvec(1:3,i1) / DBLE(nge(i1))
   END DO
   !
   bvec3(1:3,1) = -bvec2(1:3,1) + bvec2(1:3,2) + bvec2(1:3,3)
@@ -150,22 +155,34 @@ SUBROUTINE libtetrabz_initialize(ltetra,bvec,nge,ngw,nb0,ne0)
      !
   END IF
   !
-  CALL libtetrabz_kgrid(ivvec)
+  IF (PRESENT(comm)) THEN
+     CALL libtetrabz_kgrid(ivvec,nge,nkBZ,nk_local,nt_local,ik_global,ik_local,kvec,comm)
+  ELSE
+     CALL libtetrabz_kgrid(ivvec,nge,nkBZ,nk_local,nt_local,ik_global,ik_local,kvec)
+  END IF
   !
 END SUBROUTINE libtetrabz_initialize
 !
 ! Initialize grid
 !
-SUBROUTINE libtetrabz_kgrid(ivvec)
+SUBROUTINE libtetrabz_kgrid(ivvec,ng,nkBZ,nk_local,nt_local,ik_global,ik_local,kvec,comm)
   !
-  USE libtetrabz_val, ONLY : nk_local, ik_global, ik_local, kvec, ng, nt_local, lmpi, linterpol, nkBZ
   IMPLICIT NONE
   !
-  INTEGER,INTENT(IN) :: ivvec(3,20,6)
+  INTEGER,INTENT(IN) :: ivvec(3,20,6), ng(3), nkBZ
+  INTEGER,INTENT(OUT) :: nk_local, nt_local
+  INTEGER,INTENT(OUT),ALLOCATABLE :: ik_global(:,:), ik_local(:,:)
+  REAL(8),INTENT(OUT),ALLOCATABLE :: kvec(:,:)
+  INTEGER,INTENT(IN),OPTIONAL :: comm
   !
   INTEGER :: it, i1, i2, i3, ii, ikv(3), nt, ik, nt_front, loc2glob(nkBZ)
   !
-  CALL libtetrabz_fst_and_lst(6 * nkBZ, nt_front, nt_local)
+  IF(PRESENT(comm)) THEN
+     CALL libtetrabz_divideMPI(comm,6 * nkBZ,nt_front,nt_local)
+  ELSE
+     nt_front = 0
+     nt_local = 6 * nkBZ
+  END IF
   ALLOCATE(ik_global(20, nt_local), ik_local(20, nt_local))
   !
   ! k-index for energy (Global index)
@@ -197,17 +214,12 @@ SUBROUTINE libtetrabz_kgrid(ivvec)
   !
   ! k-index for weight (Local index)
   !
-  ik_local(1:20,1:nt_local) = ik_global(1:20,1:nt_local)
-  IF((.NOT. lmpi) .AND. (.NOT. linterpol)) THEN
-     nk_local = PRODUCT(ng(1:3))
-     RETURN
-  END IF
-  !
+  ik_local(1:20,1:nt_local) = - ik_global(1:20,1:nt_local)
   nk_local = 0
   DO nt = 1, nt_local
      DO ii = 1, 20
         !
-        IF(ik_local(ii,nt) <= nk_local) CYCLE
+        IF(ik_local(ii,nt) > 0) CYCLE
         !
         nk_local = nk_local + 1
         loc2glob(nk_local) = ik_local(ii,nt)
@@ -216,6 +228,7 @@ SUBROUTINE libtetrabz_kgrid(ivvec)
         !
      END DO
   END DO
+  loc2glob(1:nk_local) = - loc2glob(1:nk_local)
   !
   ! k-vector in the fractional coordinate
   !
@@ -232,29 +245,21 @@ END SUBROUTINE libtetrabz_kgrid
 !
 ! Compute cnt and dsp
 !
-SUBROUTINE libtetrabz_fst_and_lst(nt,nt_front,nt_local)
+SUBROUTINE libtetrabz_divideMPI(comm,nt,nt_front,nt_local)
   !
 #if defined(__MPI)
-  USE mpi, ONLY : mpi_comm_size, mpi_comm_rank
-  USE libtetrabz_val, ONLY : comm, lmpi
+  USE mpi, ONLY : MPI_COMM_SIZE, MPI_COMM_RANK
 #endif
   IMPLICIT NONE
   !
-  INTEGER,INTENT(IN) :: nt
+  INTEGER,INTENT(IN) :: comm, nt
   INTEGER,INTENT(OUT) :: nt_front, nt_local
   !
-  INTEGER :: petot, my_rank
+  INTEGER :: petot = 1, my_rank = 0
 #if defined(__MPI)
   INTEGER :: ierr
-#endif
-  !
-  petot = 1
-  my_rank = 0
-#if defined(__MPI)
-  IF(lmpi) THEN
-     CALL MPI_COMM_SIZE(comm, petot, ierr)
-     CALL MPI_COMM_RANK(comm, my_rank, ierr)
-  END if
+  CALL MPI_COMM_SIZE(comm, petot, ierr)
+  CALL MPI_COMM_RANK(comm, my_rank, ierr)
 #endif
   !
   IF(my_rank < MOD(nt, petot)) THEN
@@ -265,7 +270,7 @@ SUBROUTINE libtetrabz_fst_and_lst(nt,nt_front,nt_local)
      nt_front = my_rank * nt_local + MOD(nt, petot)
   END IF
   !
-END SUBROUTINE libtetrabz_fst_and_lst
+END SUBROUTINE libtetrabz_divideMPI
 !
 ! Simple sort
 !
@@ -327,9 +332,11 @@ SUBROUTINE libtetrabz_interpol_indx(ng,kvec,kintp,wintp)
      wintp(ii) = x(ii)
      ikv1(1:3) = ikv0(1:3)
      ikv1(ii) = ikv1(ii) + dikv(ii)
+     ikv1(1:3) = MODULO(ikv1(1:3), ng(1:3))
      kintp(ii) = 1 + ikv1(1) + ng(1) * ikv1(2) + ng(1) * ng(2) * ikv1(3)
   END DO
   wintp(4) = 1d0 - SUM(x(1:3))
+  ikv0(1:3) = MODULO(ikv0(1:3), ng(1:3))
   kintp(4) = 1 + ikv0(1) + ng(1) * ikv0(2) + ng(1) * ng(2) * ikv0(3)
   !
 END SUBROUTINE libtetrabz_interpol_indx
@@ -619,5 +626,68 @@ SUBROUTINE libtetrabz_triangle_c1(e,V,tsmall)
   tsmall(3,1:4) = (/   0d0,    0d0, a(3,4), a(4,3)/)
   !
 END SUBROUTINE libtetrabz_triangle_c1
+!
+! MPI_Allreduce for double scaler
+!
+SUBROUTINE libtetrabz_mpisum_d(comm,scaler)
+  !
+#if defined(__MPI)
+  USE mpi, ONLY : MPI_DOUBLE_PRECISION, MPI_IN_PLACE, MPI_SUM
+#endif
+  IMPLICIT NONE
+  !
+  INTEGER :: comm
+  REAL(8) :: scaler
+  !
+#if defined(__MPI)
+  INTEGER :: ierr
+  !
+  CALL MPI_allREDUCE(MPI_IN_PLACE, scaler, 1, &
+  &                  MPI_DOUBLE_PRECISION, MPI_SUM, comm, ierr)
+#endif
+  !
+END SUBROUTINE libtetrabz_mpisum_d
+!
+! MPI_Allreduce for double vector
+!
+SUBROUTINE libtetrabz_mpisum_dv(comm,ndim,vector)
+  !
+#if defined(__MPI)
+  USE mpi, ONLY : MPI_DOUBLE_PRECISION, MPI_IN_PLACE, MPI_SUM
+#endif
+  IMPLICIT NONE
+  !
+  INTEGER :: comm, ndim
+  REAL(8) :: vector(ndim)
+  !
+#if defined(__MPI)
+  INTEGER :: ierr
+  !
+  CALL MPI_allREDUCE(MPI_IN_PLACE, vector, ndim, &
+  &                  MPI_DOUBLE_PRECISION, MPI_SUM, comm, ierr)
+#endif
+  !
+END SUBROUTINE libtetrabz_mpisum_dv
+!
+! MPI_Allreduce for double complex vector
+!
+SUBROUTINE libtetrabz_mpisum_zv(comm,ndim,vector)
+  !
+#if defined(__MPI)
+  USE mpi, ONLY : MPI_DOUBLE_COMPLEX, MPI_IN_PLACE, MPI_SUM
+#endif
+  IMPLICIT NONE
+  !
+  INTEGER :: comm, ndim
+  COMPLEX(8) :: vector(ndim)
+  !
+#if defined(__MPI)
+  INTEGER :: ierr
+  !
+  CALL MPI_allREDUCE(MPI_IN_PLACE, vector, ndim, &
+  &                  MPI_DOUBLE_COMPLEX, MPI_SUM, comm, ierr)
+#endif
+  !
+END SUBROUTINE libtetrabz_mpisum_zv
 !
 END MODULE libtetrabz_common

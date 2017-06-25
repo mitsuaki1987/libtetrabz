@@ -9,80 +9,68 @@ CONTAINS
 !
 ! Compute doubledelta
 !
-SUBROUTINE libtetrabz_dbldelta(ltetra,bvec,nb,nge,eig1,eig2,ngw,wght0,comm0) BIND(C)
+SUBROUTINE libtetrabz_dbldelta(ltetra,bvec,nb,nge,eig1,eig2,ngw,wght,comm) BIND(C)
   !
-#if defined(__MPI)
-  USE mpi, ONLY : MPI_DOUBLE_PRECISION, MPI_IN_PLACE, MPI_SUM
-#endif
   USE ISO_C_BINDING
-  USE libtetrabz_val,    ONLY : comm, ik_global, ik_local, kvec, linterpol, lmpi, nk_local
-  USE libtetrabz_common, ONLY : libtetrabz_initialize, libtetrabz_interpol_indx
+  USE libtetrabz_common, ONLY : libtetrabz_initialize, libtetrabz_interpol_indx, libtetrabz_mpisum_dv
   IMPLICIT NONE
   !
   INTEGER(C_INT),INTENT(IN) :: ltetra, nb, nge(3), ngw(3)
-  REAL(C_DOUBLE),INTENT(IN) :: bvec(3,3), eig1(nb,PRODUCT(nge(1:3))), eig2(nb,PRODUCT(nge(1:3)))
-  REAL(C_DOUBLE),INTENT(OUT) :: wght0(nb,nb,PRODUCT(ngw(1:3)))
-  INTEGER(C_INT),INTENT(IN),OPTIONAL :: comm0
+  REAL(C_DOUBLE),INTENT(IN) :: bvec(9), eig1(nb,PRODUCT(nge(1:3))), eig2(nb,PRODUCT(nge(1:3)))
+  REAL(C_DOUBLE),INTENT(OUT) :: wght(nb*nb,PRODUCT(ngw(1:3)))
+  INTEGER(C_INT),INTENT(IN),OPTIONAL :: comm
   !
-  INTEGER :: ik, ii, kintp(4)
-  REAL(8) :: wintp(4)
-  REAL(8),ALLOCATABLE :: wght1(:,:,:)
-#if defined(__MPI)
-  INTEGER :: ierr
-#endif
+  LOGICAL :: linterpol
+  INTEGER :: nt_local, nk_local, nkBZ, ik, kintp(4)
+  INTEGER,ALLOCATABLE :: ik_global(:,:), ik_local(:,:)
+  REAL(8) :: wlsm(4,20), wintp(1,4)
+  REAL(8),ALLOCATABLE :: wghtd(:,:,:), kvec(:,:)
   !
-  lmpi = .FALSE.
-  IF(PRESENT(comm0)) THEN
-     comm = comm0
-#if defined(__MPI)
-     lmpi = .TRUE.
-#endif
+  IF(PRESENT(comm)) THEN
+     CALL libtetrabz_initialize(ltetra,nge,ngw,bvec,linterpol,wlsm,nk_local,&
+     &                          nt_local,nkBZ,ik_global,ik_local,kvec,comm)
+  ELSE
+     CALL libtetrabz_initialize(ltetra,nge,ngw,bvec,linterpol,wlsm,nk_local,&
+     &                          nt_local,nkBZ,ik_global,ik_local,kvec)
   END IF
   !
-  CALL libtetrabz_initialize(ltetra,bvec,nge,ngw,nb)
-  !
-  IF(linterpol .OR. lmpi) THEN
+  IF(linterpol) THEN
      !
-     ALLOCATE(wght1(nb,nb,nk_local))
-     CALL libtetrabz_dbldelta_main(eig1,eig2,wght1)
+     ALLOCATE(wghtd(nb*nb,1,nk_local))
+     CALL libtetrabz_dbldelta_main(wlsm,nt_local,ik_global,ik_local,nb,nkBZ,eig1,eig2,nk_local,wghtd)
      !
      ! Interpolation
      !
-     wght0(1:nb,1:nb,1:PRODUCT(ngw(1:3))) = 0d0
+     wght(1:nb*nb,1:PRODUCT(ngw(1:3))) = 0d0
      DO ik = 1, nk_local
         CALL libtetrabz_interpol_indx(ngw,kvec(1:3,ik),kintp,wintp)
-        DO ii = 1, 4
-           wght0(1:nb,1:nb,kintp(ii)) = wght0(1:nb,1:nb,       kintp(ii)) &
-           &                          + wght1(1:nb,1:nb, ik) * wintp(ii)
-        END DO
+        wght(1:nb*nb,kintp(1:4)) = wght(1:nb*nb,             kintp(1:4)) &
+        &                + MATMUL(wghtd(1:nb*nb,1:1,ik), wintp(1:1,1:4))
      END DO ! ik = 1, nk_local
-     DEALLOCATE(wght1, kvec)
+     DEALLOCATE(wghtd)
      !
-#if defined(__MPI)
-     IF(lmpi) &
-     &  CALL MPI_allREDUCE(MPI_IN_PLACE, wght0, nb * nb * PRODUCT(ngw(1:3)), &
-     &                     MPI_DOUBLE_PRECISION, MPI_SUM, comm, ierr)
-#endif
+     IF(PRESENT(comm)) CALL libtetrabz_mpisum_dv(comm, nb*nb*PRODUCT(ngw(1:3)), wght)
      !
   ELSE
-     CALL libtetrabz_dbldelta_main(eig1,eig2,wght0)
+     CALL libtetrabz_dbldelta_main(wlsm,nt_local,ik_global,ik_local,nb,nkBZ,eig1,eig2,nk_local,wght)
   END IF
   !
-  DEALLOCATE(ik_global, ik_local)
+  DEALLOCATE(ik_global, ik_local, kvec)
   !
 END SUBROUTINE libtetrabz_dbldelta
 !
 ! Main SUBROUTINE for Delta(E1) * Delta(E2)
 !
-SUBROUTINE libtetrabz_dbldelta_main(eig1,eig2,dbldelta)
+SUBROUTINE libtetrabz_dbldelta_main(wlsm,nt_local,ik_global,ik_local,nb,nkBZ,eig1,eig2,nk_local,dbldelta)
   !
-  USE libtetrabz_val, ONLY : ik_global, ik_local, nb, nkBZ, nk_local, nt_local, wlsm
   USE libtetrabz_common, ONLY : libtetrabz_sort, &
   &                             libtetrabz_triangle_a1, libtetrabz_triangle_b1, &
   &                             libtetrabz_triangle_b2, libtetrabz_triangle_c1
   IMPLICIT NONE
   !
-  REAL(8),INTENT(IN) :: eig1(nb,nkBZ), eig2(nb,nkBZ)
+  INTEGER,INTENT(IN) :: nt_local, nb, nkBZ, nk_local, &
+  &                     ik_global(20,nt_local), ik_local(20,nt_local)
+  REAL(8),INTENT(IN) :: wlsm(4,20), eig1(nb,nkBZ), eig2(nb,nkBZ)
   REAL(8),INTENT(OUT) :: dbldelta(nb,nb,nk_local)
   !
   INTEGER :: ib, indx(4), it
@@ -116,7 +104,7 @@ SUBROUTINE libtetrabz_dbldelta_main(eig1,eig2,dbldelta)
            IF(V > thr) THEN
               !
               ej2(1:3,1:nb) = MATMUL(tsmall(1:3,1:4), ej1(indx(1:4),1:nb))
-              CALL libtetrabz_dbldelta2(ej2,w2)
+              CALL libtetrabz_dbldelta2(nb,ej2,w2)
               w1(1:nb,indx(1:4)) = w1(1:nb,            indx(1:4)) &
               &       + V * MATMUL(w2(1:nb,1:3), tsmall(1:3,1:4))
               !
@@ -129,7 +117,7 @@ SUBROUTINE libtetrabz_dbldelta_main(eig1,eig2,dbldelta)
            IF(V > thr) THEN
               !
               ej2(1:3,1:nb) = MATMUL(tsmall(1:3,1:4), ej1(indx(1:4),1:nb))
-              CALL libtetrabz_dbldelta2(ej2,w2)
+              CALL libtetrabz_dbldelta2(nb,ej2,w2)
               w1(1:nb,indx(1:4)) = w1(1:nb,            indx(1:4)) &
               &       + V * MATMUL(w2(1:nb,1:3), tsmall(1:3,1:4))
               !
@@ -140,7 +128,7 @@ SUBROUTINE libtetrabz_dbldelta_main(eig1,eig2,dbldelta)
            IF(V > thr) THEN
               !
               ej2(1:3,1:nb) = MATMUL(tsmall(1:3,1:4), ej1(indx(1:4),1:nb))
-              CALL libtetrabz_dbldelta2(ej2,w2)
+              CALL libtetrabz_dbldelta2(nb,ej2,w2)
               w1(1:nb,indx(1:4)) = w1(1:nb,            indx(1:4)) &
               &       + V * MATMUL(w2(1:nb,1:3), tsmall(1:3,1:4))
               !
@@ -153,7 +141,7 @@ SUBROUTINE libtetrabz_dbldelta_main(eig1,eig2,dbldelta)
            IF(V > thr) THEN
               !
               ej2(1:3,1:nb) = MATMUL(tsmall(1:3,1:4), ej1(indx(1:4),1:nb))
-              CALL libtetrabz_dbldelta2(ej2,w2)
+              CALL libtetrabz_dbldelta2(nb,ej2,w2)
               w1(1:nb,indx(1:4)) = w1(1:nb,            indx(1:4)) &
               &       + V * MATMUL(w2(1:nb,1:3), tsmall(1:3,1:4))
               !
@@ -177,11 +165,11 @@ END SUBROUTINE libtetrabz_dbldelta_main
 !
 ! 2nd step of tetrahedra method.
 !
-SUBROUTINE libtetrabz_dbldelta2(ej,w)
+SUBROUTINE libtetrabz_dbldelta2(nb,ej,w)
   !
-  USE libtetrabz_val, ONLY : nb
   IMPLICIT NONE
   !
+  INTEGER,INTENT(IN) :: nb
   REAL(8),INTENT(IN) :: ej(3,nb)
   REAL(8),INTENT(INOUT) :: w(nb,3)
   !

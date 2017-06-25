@@ -9,108 +9,89 @@ CONTAINS
 !
 ! Compute occupation
 !
-SUBROUTINE libtetrabz_occ(ltetra,bvec,nb,nge,eig,ngw,wght0,comm0) BIND(C)
+SUBROUTINE libtetrabz_occ(ltetra,bvec,nb,nge,eig,ngw,wght,comm) BIND(C)
   !
-#if defined(__MPI)
-  USE mpi, ONLY : MPI_IN_PLACE, MPI_DOUBLE_PRECISION, MPI_SUM
-#endif
   USE ISO_C_BINDING
-  USE libtetrabz_val,    ONLY : nk_local, ik_global, ik_local, kvec, linterpol, lmpi, comm
-  USE libtetrabz_common, ONLY : libtetrabz_initialize, libtetrabz_interpol_indx
+  USE libtetrabz_common, ONLY : libtetrabz_initialize, libtetrabz_interpol_indx, libtetrabz_mpisum_dv
   IMPLICIT NONE
   !
   INTEGER(C_INT),INTENT(IN) :: ltetra, nb, nge(3), ngw(3)
-  REAL(C_DOUBLE),INTENT(IN) :: bvec(3,3), eig(nb,PRODUCT(nge(1:3)))
-  REAL(C_DOUBLE),INTENT(OUT) :: wght0(nb,PRODUCT(ngw(1:3)))
-  INTEGER(C_INT),INTENT(IN),OPTIONAL :: comm0
+  REAL(C_DOUBLE),INTENT(IN) :: bvec(9), eig(nb,PRODUCT(nge(1:3)))
+  REAL(C_DOUBLE),INTENT(OUT) :: wght(nb,PRODUCT(ngw(1:3)))
+  INTEGER(C_INT),INTENT(IN),OPTIONAL :: comm
   !
-  INTEGER :: ii, ik, kintp(4)
-  REAL(8) :: wintp(4)
-  REAL(8),ALLOCATABLE :: wght1(:,:)
-#if defined(__MPI)
-  INTEGER :: ierr
-#endif
+  LOGICAL :: linterpol
+  INTEGER :: nt_local, nk_local, nkBZ, ik, kintp(4)
+  INTEGER,ALLOCATABLE :: ik_global(:,:), ik_local(:,:)
+  REAL(8) :: wlsm(4,20), wintp(1,4)
+  REAL(8),ALLOCATABLE :: wghtd(:,:,:), kvec(:,:)
   !
-  lmpi = .FALSE.
-  IF(PRESENT(comm0)) THEN
-     comm = comm0
-#if defined(__MPI)
-     lmpi = .TRUE.
-#endif
+  IF(PRESENT(comm)) THEN
+     CALL libtetrabz_initialize(ltetra,nge,ngw,bvec,linterpol,wlsm,nk_local,&
+     &                          nt_local,nkBZ,ik_global,ik_local,kvec,comm)
+  ELSE
+     CALL libtetrabz_initialize(ltetra,nge,ngw,bvec,linterpol,wlsm,nk_local,&
+     &                          nt_local,nkBZ,ik_global,ik_local,kvec)
   END IF
   !
-  CALL libtetrabz_initialize(ltetra,bvec,nge,ngw,nb)
-  !
-  IF(linterpol .OR. lmpi) THEN
+  IF(linterpol) THEN
      !
-     ALLOCATE(wght1(nb,nk_local))
-     CALL libtetrabz_occ_main(0d0,eig,wght1)
+     ALLOCATE(wghtd(nb,1,nk_local))
+     CALL libtetrabz_occ_main(wlsm,nt_local,ik_global,ik_local,nb,nkBZ,eig,nk_local,wghtd,0d0)
      !
      ! Interpolation
      !
-     wght0(1:nb,1:PRODUCT(ngw(1:3))) = 0d0
+     wght(1:nb,1:PRODUCT(ngw(1:3))) = 0d0
      DO ik = 1, nk_local
         CALL libtetrabz_interpol_indx(ngw,kvec(1:3,ik),kintp,wintp)
-        DO ii = 1, 4
-           wght0(1:nb,kintp(ii)) = wght0(1:nb,       kintp(ii)) &
-           &                     + wght1(1:nb, ik) * wintp(ii)
-        END DO
+        wght(1:nb,kintp(1:4)) = wght(1:nb,             kintp(1:4)) &
+        &             + MATMUL(wghtd(1:nb,1:1,ik), wintp(1:1,1:4))
      END DO ! ik = 1, nk_local
-     DEALLOCATE(wght1, kvec)
+     DEALLOCATE(wghtd)
      !
-#if defined(__MPI)
-     IF(lmpi) &
-     &  CALL MPI_allREDUCE(MPI_IN_PLACE, wght0, nb * PRODUCT(ngw(1:3)), &
-     &                     MPI_DOUBLE_PRECISION, MPI_SUM, comm, ierr)
-#endif
+     IF(PRESENT(comm)) CALL libtetrabz_mpisum_dv(comm, nb * PRODUCT(ngw(1:3)), wght)
      !
   ELSE
-     CALL libtetrabz_occ_main(0d0,eig,wght0)
+     CALL libtetrabz_occ_main(wlsm,nt_local,ik_global,ik_local,nb,nkBZ,eig,nk_local,wght,0d0)
   END IF
   !
-  DEALLOCATE(ik_global, ik_local)
+  DEALLOCATE(ik_global, ik_local, kvec)
   !
 END SUBROUTINE libtetrabz_occ
 !
 ! Calculate Fermi energy
 !
-SUBROUTINE libtetrabz_fermieng(ltetra,bvec,nb,nge,eig,ngw,wght0,ef,nelec,comm0) BIND(C)
+SUBROUTINE libtetrabz_fermieng(ltetra,bvec,nb,nge,eig,ngw,wght,ef,nelec,comm) BIND(C)
   !
-#if defined(__MPI)
-  USE mpi, ONLY : MPI_DOUBLE_PRECISION, MPI_IN_PLACE, MPI_SUM
-#endif
   USE ISO_C_BINDING
-  USE libtetrabz_val,    ONLY : comm, ik_global, ik_local, kvec, linterpol, lmpi, nk_local
-  USE libtetrabz_common, ONLY : libtetrabz_initialize, libtetrabz_interpol_indx
+  USE libtetrabz_common, ONLY : libtetrabz_initialize, libtetrabz_interpol_indx, &
+  &                             libtetrabz_mpisum_d, libtetrabz_mpisum_dv
   IMPLICIT NONE
   !
   INTEGER(C_INT),INTENT(IN) :: ltetra, nb, nge(3), ngw(3)
-  REAL(C_DOUBLE),INTENT(IN) :: bvec(3,3), nelec, eig(nb,PRODUCT(nge(1:3)))
+  REAL(C_DOUBLE),INTENT(IN) :: bvec(9), nelec, eig(nb,PRODUCT(nge(1:3)))
   REAL(C_DOUBLE),INTENT(OUT) :: ef
-  REAL(C_DOUBLE),INTENT(OUT) :: wght0(nb,PRODUCT(ngw(1:3)))
-  INTEGER(C_INT),INTENT(IN),OPTIONAL :: comm0
+  REAL(C_DOUBLE),INTENT(OUT) :: wght(nb,PRODUCT(ngw(1:3)))
+  INTEGER(C_INT),INTENT(IN),OPTIONAL :: comm
   !
-  INTEGER :: ik, ii, kintp(4)
-  REAL(8) :: wintp(4)
-  REAL(8),ALLOCATABLE :: wght1(:,:)
-#if defined(__MPI)
-  INTEGER :: ierr
-#endif
+  LOGICAL :: linterpol
+  INTEGER :: nt_local, nk_local, nkBZ, ik, kintp(4)
+  INTEGER,ALLOCATABLE :: ik_global(:,:), ik_local(:,:)
+  REAL(8) :: wlsm(4,20), wintp(1,4)
+  REAL(8),ALLOCATABLE :: wghtd(:,:,:), kvec(:,:)
   !
   INTEGER :: iter, maxiter = 300
   REAL(8) :: elw, eup, eps= 1d-10, sumkmid
   !
-  lmpi = .FALSE.
-  IF(PRESENT(comm0)) THEN
-     comm = comm0
-#if defined(__MPI)
-     lmpi = .TRUE.
-#endif
+  IF(PRESENT(comm)) THEN
+     CALL libtetrabz_initialize(ltetra,nge,ngw,bvec,linterpol,wlsm,nk_local,&
+     &                          nt_local,nkBZ,ik_global,ik_local,kvec,comm)
+  ELSE
+     CALL libtetrabz_initialize(ltetra,nge,ngw,bvec,linterpol,wlsm,nk_local,&
+     &                          nt_local,nkBZ,ik_global,ik_local,kvec)
   END IF
   !
-  CALL libtetrabz_initialize(ltetra,bvec,nge,ngw,nb)
-  !
-  IF(linterpol .OR. lmpi) ALLOCATE(wght1(nb, nk_local))
+  IF(linterpol) ALLOCATE(wghtd(nb,1,nk_local))
   !
   elw = MINVAL(eig(1:nb,1:PRODUCT(nge(1:3))))
   eup = MAXVAL(eig(1:nb,1:PRODUCT(nge(1:3))))
@@ -123,19 +104,15 @@ SUBROUTINE libtetrabz_fermieng(ltetra,bvec,nb,nge,eig,ngw,wght0,ef,nelec,comm0) 
      !
      ! Calc. # of electrons 
      !
-     IF(linterpol .OR. lmpi) THEN
-        CALL libtetrabz_occ_main(ef, eig, wght1)
-        sumkmid = SUM(wght1(1:nb,1:nk_local))
+     IF(linterpol) THEN
+        CALL libtetrabz_occ_main(wlsm,nt_local,ik_global,ik_local,nb,nkBZ,eig,nk_local,wghtd,ef)
+        sumkmid = SUM(wghtd(1:nb,1,1:nk_local))
         !
-#if defined(__MPI)
-        IF(lmpi) &
-        &  CALL MPI_allREDUCE(MPI_IN_PLACE, sumkmid, 1, &
-        &                     MPI_DOUBLE_PRECISION, MPI_SUM, comm, ierr)
-#endif
+        IF(PRESENT(comm)) CALL libtetrabz_mpisum_d(comm,sumkmid)
         !
      ELSE
-        CALL libtetrabz_occ_main(ef, eig,wght0)
-        sumkmid = SUM(wght0(1:nb,1:nk_local))
+        CALL libtetrabz_occ_main(wlsm,nt_local,ik_global,ik_local,nb,nkBZ,eig,nk_local,wght,ef)
+        sumkmid = SUM(wght(1:nb,1:nk_local))
      END IF
      !
      ! convergence check
@@ -152,37 +129,30 @@ SUBROUTINE libtetrabz_fermieng(ltetra,bvec,nb,nge,eig,ngw,wght0,ef,nelec,comm0) 
   !
   IF(iter >= maxiter) STOP "libtetrabz_fermieng"
   !
-  IF(linterpol .OR. lmpi) THEN
+  IF(linterpol) THEN
      !
      ! Interpolation
      !
-     wght0(1:nb,1:PRODUCT(ngw(1:3))) = 0d0
+     wght(1:nb,1:PRODUCT(ngw(1:3))) = 0d0
      DO ik = 1, nk_local
         CALL libtetrabz_interpol_indx(ngw,kvec(1:3,ik),kintp,wintp)
-        DO ii = 1, 4
-           wght0(1:nb,kintp(ii)) = wght0(1:nb,       kintp(ii)) &
-           &                     + wght1(1:nb, ik) * wintp(ii)
-        END DO
+        wght(1:nb,kintp(1:4)) = wght(1:nb,             kintp(1:4)) &
+        &             + MATMUL(wghtd(1:nb,1:1,ik), wintp(1:1,1:4))
      END DO ! ik = 1, nk_local
-     DEALLOCATE(wght1, kvec)
+     DEALLOCATE(wghtd)
      !
-#if defined(__MPI)
-     IF(lmpi) &
-     &  CALL MPI_allREDUCE(MPI_IN_PLACE, wght0, nb * PRODUCT(ngw(1:3)), &
-     &                     MPI_DOUBLE_PRECISION, MPI_SUM, comm, ierr)
-#endif
+     IF(PRESENT(comm)) CALL libtetrabz_mpisum_dv(comm, nb * PRODUCT(ngw(1:3)), wght)
      !
-  END IF ! (linterpol .OR. lmpi)
+  END IF ! (linterpol)
   !
-  DEALLOCATE(ik_global, ik_local)
+  DEALLOCATE(ik_global, ik_local, kvec)
   !
 END SUBROUTINE libtetrabz_fermieng
 !
 ! Main SUBROUTINE for occupation : Theta(EF - E1)
 !
-SUBROUTINE libtetrabz_occ_main(ef,eig,occ)
+SUBROUTINE libtetrabz_occ_main(wlsm,nt_local,ik_global,ik_local,nb,nkBZ,eig,nk_local,occ,ef)
   !
-  USE libtetrabz_val, ONLY : ik_global, ik_local, nb, nkBZ, nk_local, nt_local, wlsm
   USE libtetrabz_common, ONLY : libtetrabz_sort, &
   &                             libtetrabz_tsmall_a1, libtetrabz_tsmall_b1, &
   &                             libtetrabz_tsmall_b2, libtetrabz_tsmall_b3, &
@@ -190,7 +160,9 @@ SUBROUTINE libtetrabz_occ_main(ef,eig,occ)
   &                             libtetrabz_tsmall_c3
   IMPLICIT NONE
   !
-  REAL(8),INTENT(IN) :: ef, eig(nb,nkBZ)
+  INTEGER,INTENT(IN) :: nt_local, nb, nkBZ, nk_local, &
+  &                     ik_global(20,nt_local), ik_local(20,nt_local)
+  REAL(8),INTENT(IN) :: wlsm(4,20), ef, eig(nb,nkBZ)
   REAL(8),INTENT(OUT) :: occ(nb,nk_local)
   !
   INTEGER :: ib, indx(4), it

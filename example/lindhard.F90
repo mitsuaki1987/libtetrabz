@@ -1,4 +1,4 @@
-program dos
+program lindhard
   !
   use libtetrabz, only : libtetrabz_polstat, libtetrabz_dos
   implicit none
@@ -76,4 +76,4 @@ program dos
   write(*,*) 'plot "lindhard.dat" u 1:2 w p, 0.5+0.5/x*(1-0.25*x**2)*log(abs((x+2)/(x-2)))'
   write(*,*) ""
   !
-end program dos
+end program lindhard
