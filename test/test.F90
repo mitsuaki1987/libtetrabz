@@ -20,6 +20,7 @@ MODULE test_val
   !
   REAL(8),ALLOCATABLE,SAVE :: &
   & eig1(:,:), &
+  & eig2(:,:), &
   & mat(:,:)
   !
 END MODULE test_val
@@ -29,6 +30,8 @@ MODULE tests
   IMPLICIT NONE
   !
 CONTAINS
+!
+!
 !
 SUBROUTINE test_occ
   !
@@ -62,6 +65,8 @@ SUBROUTINE test_occ
   !
 END SUBROUTINE test_occ
 !
+!
+!
 SUBROUTINE test_fermieng
   !
 #if defined(__MPI)
@@ -92,6 +97,8 @@ SUBROUTINE test_fermieng
   END IF
   !
 END SUBROUTINE test_fermieng
+!
+!
 !
 SUBROUTINE test_dos
   !
@@ -131,6 +138,8 @@ SUBROUTINE test_dos
   !
 END SUBROUTINE test_dos
 !
+!
+!
 SUBROUTINE test_intdos
   !
 #if defined(__MPI)
@@ -169,6 +178,206 @@ SUBROUTINE test_intdos
   !
 END SUBROUTINE test_intdos
 !
+!
+!
+SUBROUTINE test_dblstep
+  !
+#if defined(__MPI)
+  USE mpi, ONLY : MPI_COMM_WORLD
+#endif
+  USE libtetrabz, ONLY : libtetrabz_dblstep
+  USE test_val, ONLY : ltetra, nb, nge, ngw, nke, nkw, my_proc, &
+  &                    bvec, VBZ, pi, eig1, eig2, mat
+  IMPLICIT NONE
+  !
+  REAL(8) :: val, wght(nb,nb,nkw)
+  !
+  IF(my_proc==0) WRITE(*,'(a)') " libtetrabz_dblstep"
+  !
+  eig1(1:nb,1:nke) = eig1(1:nb,1:nke) - 0.5d0
+  eig2(1:nb,1:nke) = eig2(1:nb,1:nke) - 0.5d0
+  !
+#if defined(__MPI)
+  CALL libtetrabz_dblstep(ltetra,bvec,nb,nge,eig1,eig2,ngw,wght,MPI_COMM_WORLD)
+#else
+  CALL libtetrabz_dblstep(ltetra,bvec,nb,nge,eig1,eig2,ngw,wght)
+#endif
+  !
+  val = SUM(wght(1,1,1:nkw) * mat(1,1:nkw))  
+  IF(my_proc==0) THEN
+     WRITE(*,'(a,e15.5)') "     Ideal : ", 49d0 * pi / 320d0
+     WRITE(*,'(a,e15.5)') "    Result : ", val * VBZ
+  END IF
+  !
+  eig1(1:nb,1:nke) = eig1(1:nb,1:nke) + 0.5d0
+  eig2(1:nb,1:nke) = eig2(1:nb,1:nke) + 0.5d0
+  !
+END SUBROUTINE test_dblstep
+!
+!
+!
+SUBROUTINE test_dbldelta
+  !
+#if defined(__MPI)
+  USE mpi, ONLY : MPI_COMM_WORLD
+#endif
+  USE libtetrabz, ONLY : libtetrabz_dbldelta
+  USE test_val, ONLY : ltetra, nb, nge, ngw, nke, nkw, my_proc, &
+  &                    bvec, VBZ, pi, eig1, eig2, mat
+  IMPLICIT NONE
+  !
+  REAL(8) :: val, wght(nb,nb,nkw)
+  !
+  IF(my_proc==0) WRITE(*,'(a)') " libtetrabz_dbldelta"
+  !
+  eig1(1:nb,1:nke) = eig1(1:nb,1:nke) - 0.5d0
+  eig2(1:nb,1:nke) = eig2(1:nb,1:nke) - 0.5d0
+  !
+#if defined(__MPI)
+  CALL libtetrabz_dbldelta(ltetra,bvec,nb,nge,eig1,eig2,ngw,wght,MPI_COMM_WORLD)
+#else
+  CALL libtetrabz_dbldelta(ltetra,bvec,nb,nge,eig1,eig2,ngw,wght)
+#endif
+  !
+  val = SUM(wght(1,1,1:nkw) * mat(1,1:nkw))  
+  IF(my_proc==0) THEN
+     WRITE(*,'(a,e15.5)') "     Ideal : ", 2d0 * pi
+     WRITE(*,'(a,e15.5)') "    Result : ", val * VBZ
+  END IF
+  !
+  eig1(1:nb,1:nke) = eig1(1:nb,1:nke) + 0.5d0
+  eig2(1:nb,1:nke) = eig2(1:nb,1:nke) + 0.5d0
+  !
+END SUBROUTINE test_dbldelta
+!
+!
+!
+SUBROUTINE test_polstat
+  !
+#if defined(__MPI)
+  USE mpi, ONLY : MPI_COMM_WORLD
+#endif
+  USE libtetrabz, ONLY : libtetrabz_polstat
+  USE test_val, ONLY : ltetra, nb, nge, ngw, nke, nkw, my_proc, &
+  &                    bvec, VBZ, pi, eig1, eig2, mat
+  IMPLICIT NONE
+  !
+  REAL(8) :: val, wght(nb,nb,nkw)
+  !
+  IF(my_proc==0) WRITE(*,'(a)') " libtetrabz_polstat"
+  !
+  eig1(1:nb,1:nke) = eig1(1:nb,1:nke) - 0.5d0
+  eig2(1:nb,1:nke) = eig2(1:nb,1:nke) - 0.5d0
+  !
+#if defined(__MPI)
+  CALL libtetrabz_polstat(ltetra,bvec,nb,nge,eig1,eig2,ngw,wght,MPI_COMM_WORLD)
+#else
+  CALL libtetrabz_polstat(ltetra,bvec,nb,nge,eig1,eig2,ngw,wght)
+#endif
+  !
+  val = SUM(wght(1,1,1:nkw) * mat(1,1:nkw))  
+  IF(my_proc==0) THEN
+     WRITE(*,'(a,e15.5)') "     Ideal : ", pi * (68d0 + 45d0 * LOG(3d0)) / 96d0
+     WRITE(*,'(a,e15.5)') "    Result : ", val * VBZ
+  END IF
+  !
+  eig1(1:nb,1:nke) = eig1(1:nb,1:nke) + 0.5d0
+  eig2(1:nb,1:nke) = eig2(1:nb,1:nke) + 0.5d0
+  !
+END SUBROUTINE test_polstat
+!
+!
+!
+SUBROUTINE test_fermigr
+  !
+#if defined(__MPI)
+  USE mpi, ONLY : MPI_COMM_WORLD
+#endif
+  USE libtetrabz, ONLY : libtetrabz_fermigr
+  USE test_val, ONLY : ltetra, nb, nge, ngw, nke, nkw, my_proc, &
+  &                    bvec, VBZ, pi, eig1, eig2, mat
+  IMPLICIT NONE
+  !
+  INTEGER :: ne = 3, ie
+  REAL(8) :: val(3), wght(3,nb,nb,nkw), val0(3), e0(3)
+  !
+  IF(my_proc==0) WRITE(*,'(a)') " libtetrabz_fermigr"
+  !
+  eig1(1:nb,1:nke) = eig1(1:nb,1:nke) - 0.5d0
+  eig2(1:nb,1:nke) = eig2(1:nb,1:nke) - 0.5d0
+  !
+  e0(1) = 1d0 / 3d0
+  e0(2) = 2d0 / 3d0
+  e0(3) = 1d0
+  val0(1) = 4d0 * pi / 9d0
+  val0(2) = 1295d0 * pi / 2592d0
+  val0(3) = 15d0 * pi / 32d0
+  !
+#if defined(__MPI)
+  CALL libtetrabz_fermigr(ltetra,bvec,nb,nge,eig1,eig2,ngw,wght,ne,e0,MPI_COMM_WORLD)
+#else
+  CALL libtetrabz_fermigr(ltetra,bvec,nb,nge,eig1,eig2,ngw,wght,ne,e0)
+#endif
+  !
+  DO ie = 1, ne
+     val(ie) = SUM(wght(ie,1,1,1:nkw) * mat(1,1:nkw))
+  END DO
+  IF(my_proc==0) THEN
+     WRITE(*,'(a,3e15.5)') "     Ideal : ", val0(1:ne)
+     WRITE(*,'(a,3e15.5)') "    Result : ", val(1:ne) * VBZ
+  END IF
+  !
+  eig1(1:nb,1:nke) = eig1(1:nb,1:nke) + 0.5d0
+  eig2(1:nb,1:nke) = eig2(1:nb,1:nke) + 0.5d0
+  !
+END SUBROUTINE test_fermigr
+!
+!
+!
+SUBROUTINE test_polcmplx
+  !
+#if defined(__MPI)
+  USE mpi, ONLY : MPI_COMM_WORLD
+#endif
+  USE libtetrabz, ONLY : libtetrabz_polcmplx
+  USE test_val, ONLY : ltetra, nb, nge, ngw, nke, nkw, my_proc, &
+  &                    bvec, VBZ, eig1, eig2, mat
+  IMPLICIT NONE
+  !
+  INTEGER :: ne = 3, ie
+  COMPLEX(8) :: val(3), wght(3,nb,nb,nkw), val0(3), e0(3)
+  !
+  IF(my_proc==0) WRITE(*,'(a)') " libtetrabz_polcmplx"
+  !
+  eig1(1:nb,1:nke) = eig1(1:nb,1:nke) - 0.5d0
+  eig2(1:nb,1:nke) = eig2(1:nb,1:nke) - 0.5d0
+  !
+  e0(1) = CMPLX(-2d0,    1d0, KIND(0d0))
+  e0(2) = CMPLX( 0d0,    2d0, KIND(0d0))
+  e0(3) = CMPLX( 1d0, -0.5d0, KIND(0d0))
+  val0(1) = CMPLX(-0.838243341280338, - 0.734201894333234, KIND(0d0))
+  val0(2) = CMPLX( 0.270393588876530, - 0.771908416949610, KIND(0d0))
+  val0(3) = CMPLX( 0.970996830573510,   0.302792326476720, KIND(0d0))
+  !
+#if defined(__MPI)
+  CALL libtetrabz_polcmplx(ltetra,bvec,nb,nge,eig1,eig2,ngw,wght,ne,e0,MPI_COMM_WORLD)
+#else
+  CALL libtetrabz_polcmplx(ltetra,bvec,nb,nge,eig1,eig2,ngw,wght,ne,e0)
+#endif
+  !
+  DO ie = 1, ne
+     val(ie) = SUM(wght(ie,1,1,1:nkw) * mat(1,1:nkw))
+  END DO
+  IF(my_proc==0) THEN
+     WRITE(*,'(a,6e15.5)') "     Ideal : ", val0(1:ne)
+     WRITE(*,'(a,6e15.5)') "    Result : ", val(1:ne) * VBZ
+  END IF
+  !
+  eig1(1:nb,1:nke) = eig1(1:nb,1:nke) + 0.5d0
+  eig2(1:nb,1:nke) = eig2(1:nb,1:nke) + 0.5d0
+  !
+END SUBROUTINE test_polcmplx
+!
 END MODULE tests
 !
 PROGRAM test
@@ -176,9 +385,11 @@ PROGRAM test
 #if defined(__MPI)
   USE mpi, ONLY : MPI_COMM_WORLD
 #endif
-  USE tests, ONLY : test_occ, test_fermieng, test_dos, test_intdos
+  USE tests, ONLY : test_occ, test_fermieng, test_dos, test_intdos, &
+  &                 test_dblstep, test_dbldelta, test_polstat, &
+  &                 test_fermigr, test_polcmplx
   USE test_val, ONLY : ltetra, nb, nge, ngw, nke, nkw, my_proc, &
-  &                    bvec, VBZ, eig1, mat
+  &                    bvec, VBZ, eig1, eig2, mat
   IMPLICIT NONE
   !
   INTEGER :: i1, i2, i3, ik
@@ -193,8 +404,8 @@ PROGRAM test
 #endif
   !
   ltetra = 2
-  nge(1:3) = 8
-  ngw(1:3) = 8
+  nge(1:3) = 16
+  ngw(1:3) = 16
   nke = PRODUCT(nge(1:3))
   nkw = PRODUCT(ngw(1:3))
   nb = 1
@@ -205,7 +416,7 @@ PROGRAM test
   &   + bvec(1,3) * bvec(2,1) * bvec(3,2) - bvec(1,3) * bvec(2,2) * bvec(3,1) &
   &   + bvec(1,2) * bvec(2,1) * bvec(3,3) - bvec(1,1) * bvec(2,3) * bvec(3,2)
   !
-  ALLOCATE(eig1(nb,nke), mat(nb,nkw))
+  ALLOCATE(eig1(nb,nke), eig2(nb,nke), mat(nb,nkw))
   !
   ik = 0
   DO i3 = 0, nge(3) - 1
@@ -218,6 +429,10 @@ PROGRAM test
            kvec(1:3) = MATMUL(bvec(1:3,1:3), kvec(1:3))
            !
            eig1(1,ik) = 0.5d0 * DOT_PRODUCT(kvec(1:3), kvec(1:3))
+           !
+           kvec(1) = kvec(1) + 1d0
+           eig2(1,ik) = 0.5d0 * DOT_PRODUCT(kvec(1:3), kvec(1:3))
+           !           
         END DO
      END DO
   END DO
@@ -244,6 +459,16 @@ PROGRAM test
   CALL test_dos()
   !
   CALL test_intdos()
+  !
+  CALL test_dblstep()
+  !
+  CALL test_dbldelta()
+  !
+  CALL test_polstat()
+  !
+  CALL test_fermigr()
+  !
+  CALL test_polcmplx()
   !
 #if defined(__MPI)
   call MPI_FINALIZE(ierr)

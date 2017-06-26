@@ -167,6 +167,7 @@ END SUBROUTINE libtetrabz_dbldelta_main
 !
 SUBROUTINE libtetrabz_dbldelta2(nb,ej,w)
   !
+  USE libtetrabz_common, ONLY : libtetrabz_sort
   IMPLICIT NONE
   !
   INTEGER,INTENT(IN) :: nb
@@ -178,7 +179,7 @@ SUBROUTINE libtetrabz_dbldelta2(nb,ej,w)
   !
   DO ib = 1, nb
      !
-     IF(maxval(ABS(ej(ib,1:3))) < 1d-10) STOP "Nesting !!"
+     IF(maxval(ABS(ej(1:3,ib))) < 1d-10) STOP "Nesting !!"
      !
      w(ib,1:3) = 0d0
      e(1:3) = ej(1:3, ib)

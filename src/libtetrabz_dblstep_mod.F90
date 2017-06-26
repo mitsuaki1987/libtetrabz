@@ -237,7 +237,7 @@ SUBROUTINE libtetrabz_dblstep2(nb,ei1,ej1,w1)
   DO ib = 1, nb
      !
      w1(ib,1:4) = 0d0
-     e(1:4) = ei1(1:4) - ej1(1:4,ib)
+     e(1:4) = - ei1(1:4) + ej1(1:4,ib)
      CALL libtetrabz_sort(4,e,indx)
      !
      IF(ABS(e(1)) < thr .AND. ABS(e(4)) < thr) THEN

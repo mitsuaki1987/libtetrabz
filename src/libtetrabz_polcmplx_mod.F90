@@ -98,7 +98,7 @@ SUBROUTINE libtetrabz_polcmplx_main(wlsm,nt_local,ik_global,ik_local,nb,nkBZ,eig
      !$OMP DO
      DO ib = 1, nb
         !
-        w1(1:nb,1:4) = 0d0
+        w1(1:ne*nb,1:4) = 0d0
         e(1:4) = ei1(1:4, ib)
         CALL libtetrabz_sort(4,e,indx)
         !
@@ -360,7 +360,7 @@ SUBROUTINE libtetrabz_polcmplx3(ne,e0,de,w1)
   !
   DO ie = 1, ne
      !
-     x(1:4) = (e(1:4) - DBLE(e0(ie))) / AIMAG(e0(ie))
+     x(1:4) = (e(1:4) + DBLE(e0(ie))) / AIMAG(e0(ie))
      !thr = maxval(de(1:4)) * 1d-3
      thr = max(1d-3,  MAXVAL(x(1:4)) * 1d-2)
      !
@@ -385,12 +385,12 @@ SUBROUTINE libtetrabz_polcmplx3(ne,e0,de,w1)
               w2(1:2,2) = w2(1:2,4)
               w2(1:2,1) = libtetrabz_polcmplx_1222(x(1),x(4))
               !
-              IF(ANY(w2(1:2,1:4) < 0d0)) THEN
-                 WRITE(*,*) ie
-                 WRITE(*,'(100e15.5)') x(1:4)
-                 WRITE(*,'(2e15.5)') w2(1:2,1:4)
-                 STOP "weighting 4=3=2"
-              END IF
+              !IF(ANY(w2(1:2,1:4) < 0d0)) THEN
+              !   WRITE(*,*) ie
+              !   WRITE(*,'(100e15.5)') x(1:4)
+              !   WRITE(*,'(2e15.5)') w2(1:2,1:4)
+              !   STOP "weighting 4=3=2"
+              !END IF
               !
            END IF
         ELSE IF(ABS(x(2) - x(1)) < thr ) THEN
@@ -402,12 +402,12 @@ SUBROUTINE libtetrabz_polcmplx3(ne,e0,de,w1)
            w2(1:2,2) = libtetrabz_polcmplx_1221(x(2),x(4))
            w2(1:2,1) = w2(1:2,2)
            !
-           IF(ANY(w2(1:2,1:4) < 0d0)) THEN
-              WRITE(*,*) ie
-              WRITE(*,'(100e15.5)') x(1:4)
-              WRITE(*,'(2e15.5)') w2(1:2,1:4)
-              STOP "weighting 4=3 2=1"
-           END IF
+           !IF(ANY(w2(1:2,1:4) < 0d0)) THEN
+           !   WRITE(*,*) ie
+           !   WRITE(*,'(100e15.5)') x(1:4)
+           !   WRITE(*,'(2e15.5)') w2(1:2,1:4)
+           !   STOP "weighting 4=3 2=1"
+           !END IF
            !
         ELSE
            !
@@ -418,12 +418,12 @@ SUBROUTINE libtetrabz_polcmplx3(ne,e0,de,w1)
            w2(1:2,2) = libtetrabz_polcmplx_1233(x(2),x(1),x(4))
            w2(1:2,1) = libtetrabz_polcmplx_1233(x(1),x(2),x(4))
            !
-           IF(ANY(w2(1:2,1:4) < 0d0)) THEN
-              WRITE(*,*) ie
-              WRITE(*,'(100e15.5)') x(1:4)
-              WRITE(*,'(2e15.5)') w2(1:2,1:4)
-              STOP "weighting 4=3"
-           END IF
+           !IF(ANY(w2(1:2,1:4) < 0d0)) THEN
+           !   WRITE(*,*) ie
+           !   WRITE(*,'(100e15.5)') x(1:4)
+           !   WRITE(*,'(2e15.5)') w2(1:2,1:4)
+           !   STOP "weighting 4=3"
+           !END IF
            !
         END IF
      ELSE IF(ABS(x(3) - x(2)) < thr) THEN
@@ -436,12 +436,12 @@ SUBROUTINE libtetrabz_polcmplx3(ne,e0,de,w1)
            w2(1:2,2) = w2(1:2,3)
            w2(1:2,1) = w2(1:2,3)
            !
-           IF(ANY(w2(1:2,1:4) < 0d0)) THEN
-              WRITE(*,*) ie
-              WRITE(*,'(100e15.5)') x(1:4)
-              WRITE(*,'(2e15.5)') w2(1:2,1:4)
-              STOP "weighting 3=2=1"
-           END IF
+           !IF(ANY(w2(1:2,1:4) < 0d0)) THEN
+           !   WRITE(*,*) ie
+           !   WRITE(*,'(100e15.5)') x(1:4)
+           !   WRITE(*,'(2e15.5)') w2(1:2,1:4)
+           !   STOP "weighting 3=2=1"
+           !END IF
            !
         ELSE
            !
@@ -452,12 +452,12 @@ SUBROUTINE libtetrabz_polcmplx3(ne,e0,de,w1)
            w2(1:2,2) = w2(1:2,3)
            w2(1:2,1) = libtetrabz_polcmplx_1233(x(1),x(4),x(3))
            !
-           IF(ANY(w2(1:2,1:4) < 0d0)) THEN
-              WRITE(*,*) ie
-              WRITE(*,'(100e15.5)') x(1:4)
-              WRITE(*,'(2e15.5)') w2(1:2,1:4)
-              STOP "weighting 3=2"
-           END IF
+           !IF(ANY(w2(1:2,1:4) < 0d0)) THEN
+           !   WRITE(*,*) ie
+           !   WRITE(*,'(100e15.5)') x(1:4)
+           !   WRITE(*,'(2e15.5)') w2(1:2,1:4)
+           !   STOP "weighting 3=2"
+           !END IF
            !
         END IF
      ELSE IF(ABS(x(2) - x(1)) < thr) THEN
@@ -469,12 +469,12 @@ SUBROUTINE libtetrabz_polcmplx3(ne,e0,de,w1)
         w2(1:2,2) = libtetrabz_polcmplx_1231(x(2),x(3),x(4))
         w2(1:2,1) = w2(1:2,2)
         !
-        IF(ANY(w2(1:2,1:4) < 0d0)) THEN
-           WRITE(*,*) ie
-           WRITE(*,'(100e15.5)') x(1:4)
-           WRITE(*,'(2e15.5)') w2(1:2,1:4)
-           STOP "weighting 2=1"
-        END IF
+        !IF(ANY(w2(1:2,1:4) < 0d0)) THEN
+        !   WRITE(*,*) ie
+        !   WRITE(*,'(100e15.5)') x(1:4)
+        !   WRITE(*,'(2e15.5)') w2(1:2,1:4)
+        !   STOP "weighting 2=1"
+        !END IF
         !
      ELSE
         !
@@ -485,12 +485,12 @@ SUBROUTINE libtetrabz_polcmplx3(ne,e0,de,w1)
         w2(1:2,2) = libtetrabz_polcmplx_1234(x(2),x(1),x(3),x(4))
         w2(1:2,1) = libtetrabz_polcmplx_1234(x(1),x(2),x(3),x(4))
         !
-        IF(ANY(w2(1:2,1:4) < 0d0)) THEN
-           WRITE(*,*) ie
-           WRITE(*,'(100e15.5)') x(1:4)
-           WRITE(*,'(2e15.5)') w2(1:2,1:4)
-           STOP "weighting"
-        END IF
+        !IF(ANY(w2(1:2,1:4) < 0d0)) THEN
+        !   WRITE(*,*) ie
+        !   WRITE(*,'(100e15.5)') x(1:4)
+        !   WRITE(*,'(2e15.5)') w2(1:2,1:4)
+        !   STOP "weighting"
+        !END IF
         !
      END IF
      !
