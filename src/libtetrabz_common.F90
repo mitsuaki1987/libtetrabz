@@ -156,19 +156,20 @@ SUBROUTINE libtetrabz_initialize(ltetra,nge,ngw,bvec,linterpol,wlsm,nk_local,nt_
   END IF
   !
   IF (PRESENT(comm)) THEN
-     CALL libtetrabz_kgrid(ivvec,nge,nkBZ,nk_local,nt_local,ik_global,ik_local,kvec,comm)
+     CALL libtetrabz_kgrid(linterpol,ivvec,nge,nkBZ,nk_local,nt_local,ik_global,ik_local,kvec,comm)
   ELSE
-     CALL libtetrabz_kgrid(ivvec,nge,nkBZ,nk_local,nt_local,ik_global,ik_local,kvec)
+     CALL libtetrabz_kgrid(linterpol,ivvec,nge,nkBZ,nk_local,nt_local,ik_global,ik_local,kvec)
   END IF
   !
 END SUBROUTINE libtetrabz_initialize
 !
 ! Initialize grid
 !
-SUBROUTINE libtetrabz_kgrid(ivvec,ng,nkBZ,nk_local,nt_local,ik_global,ik_local,kvec,comm)
+SUBROUTINE libtetrabz_kgrid(linterpol,ivvec,ng,nkBZ,nk_local,nt_local,ik_global,ik_local,kvec,comm)
   !
   IMPLICIT NONE
   !
+  LOGICAL,INTENT(IN) :: linterpol
   INTEGER,INTENT(IN) :: ivvec(3,20,6), ng(3), nkBZ
   INTEGER,INTENT(OUT) :: nk_local, nt_local
   INTEGER,INTENT(OUT),ALLOCATABLE :: ik_global(:,:), ik_local(:,:)
@@ -214,6 +215,11 @@ SUBROUTINE libtetrabz_kgrid(ivvec,ng,nkBZ,nk_local,nt_local,ik_global,ik_local,k
   !
   ! k-index for weight (Local index)
   !
+  IF(.NOT. linterpol) THEN
+     nk_local = nkBZ
+     ik_local(1:20,1:nt_local) = ik_global(1:20,1:nt_local)     
+     RETURN
+  END IF
   ik_local(1:20,1:nt_local) = - ik_global(1:20,1:nt_local)
   nk_local = 0
   DO nt = 1, nt_local

@@ -47,7 +47,7 @@ SUBROUTINE libtetrabz_dblstep(ltetra,bvec,nb,nge,eig1,eig2,ngw,wght,comm) BIND(C
         wght(1:nb*nb,kintp(1:4)) = wght(1:nb*nb,             kintp(1:4)) &
         &                + MATMUL(wghtd(1:nb*nb,1:1,ik), wintp(1:1,1:4))
      END DO ! ik = 1, nk_local
-     DEALLOCATE(wghtd)
+     DEALLOCATE(wghtd, kvec)
      !
      IF(PRESENT(comm)) CALL libtetrabz_mpisum_dv(comm, nb*nb*PRODUCT(ngw(1:3)), wght)
      !
@@ -55,7 +55,7 @@ SUBROUTINE libtetrabz_dblstep(ltetra,bvec,nb,nge,eig1,eig2,ngw,wght,comm) BIND(C
      CALL libtetrabz_dblstep_main(wlsm,nt_local,ik_global,ik_local,nb,nkBZ,eig1,eig2,nk_local,wght)
   END IF
   !
-  DEALLOCATE(ik_global, ik_local, kvec)
+  DEALLOCATE(ik_global, ik_local)
   !
 END SUBROUTINE libtetrabz_dblstep
 !

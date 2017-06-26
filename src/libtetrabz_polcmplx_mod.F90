@@ -49,7 +49,7 @@ SUBROUTINE libtetrabz_polcmplx(ltetra,bvec,nb,nge,eig1,eig2,ngw,wght,ne,e0,comm)
         wght(1:ne*nb*nb,kintp(1:4)) = wght(1:ne*nb*nb,             kintp(1:4)) &
         &                   + MATMUL(wghtd(1:ne*nb*nb,1:1,ik), wintp(1:1,1:4))
      END DO ! ik = 1, nk_local
-     DEALLOCATE(wghtd)
+     DEALLOCATE(wghtd, kvec)
      !
      IF(PRESENT(comm)) CALL libtetrabz_mpisum_zv(comm, ne*nb*nb*PRODUCT(ngw(1:3)), wght)
      !
@@ -57,7 +57,7 @@ SUBROUTINE libtetrabz_polcmplx(ltetra,bvec,nb,nge,eig1,eig2,ngw,wght,ne,e0,comm)
      CALL libtetrabz_polcmplx_main(wlsm,nt_local,ik_global,ik_local,nb,nkBZ,eig1,eig2,ne,e0,nk_local,wght)
   END IF
   !
-  DEALLOCATE(ik_global, ik_local, kvec)
+  DEALLOCATE(ik_global, ik_local)
   !
 END SUBROUTINE libtetrabz_polcmplx
 !

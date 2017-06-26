@@ -47,7 +47,7 @@ SUBROUTINE libtetrabz_occ(ltetra,bvec,nb,nge,eig,ngw,wght,comm) BIND(C)
         wght(1:nb,kintp(1:4)) = wght(1:nb,             kintp(1:4)) &
         &             + MATMUL(wghtd(1:nb,1:1,ik), wintp(1:1,1:4))
      END DO ! ik = 1, nk_local
-     DEALLOCATE(wghtd)
+     DEALLOCATE(wghtd, kvec)
      !
      IF(PRESENT(comm)) CALL libtetrabz_mpisum_dv(comm, nb * PRODUCT(ngw(1:3)), wght)
      !
@@ -55,7 +55,7 @@ SUBROUTINE libtetrabz_occ(ltetra,bvec,nb,nge,eig,ngw,wght,comm) BIND(C)
      CALL libtetrabz_occ_main(wlsm,nt_local,ik_global,ik_local,nb,nkBZ,eig,nk_local,wght,0d0)
   END IF
   !
-  DEALLOCATE(ik_global, ik_local, kvec)
+  DEALLOCATE(ik_global, ik_local)
   !
 END SUBROUTINE libtetrabz_occ
 !
@@ -139,13 +139,13 @@ SUBROUTINE libtetrabz_fermieng(ltetra,bvec,nb,nge,eig,ngw,wght,ef,nelec,comm) BI
         wght(1:nb,kintp(1:4)) = wght(1:nb,             kintp(1:4)) &
         &             + MATMUL(wghtd(1:nb,1:1,ik), wintp(1:1,1:4))
      END DO ! ik = 1, nk_local
-     DEALLOCATE(wghtd)
+     DEALLOCATE(wghtd, kvec)
      !
      IF(PRESENT(comm)) CALL libtetrabz_mpisum_dv(comm, nb * PRODUCT(ngw(1:3)), wght)
      !
   END IF ! (linterpol)
   !
-  DEALLOCATE(ik_global, ik_local, kvec)
+  DEALLOCATE(ik_global, ik_local)
   !
 END SUBROUTINE libtetrabz_fermieng
 !

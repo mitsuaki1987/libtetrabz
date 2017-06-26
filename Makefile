@@ -1,13 +1,11 @@
 
-all:libs examples
-
-libs:
+all:
 	cd src; make
-
-examples:
 	cd example; make
+	cd test; make
 
 clean:
-	cd src; make clean
+	cd test; make clean
 	cd example; make clean
+	cd src; make clean
 
