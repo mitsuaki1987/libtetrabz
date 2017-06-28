@@ -32,9 +32,6 @@ SUBROUTINE libtetrabz_initialize(ltetra,nge,ngw,bvec,linterpol,wlsm,nk_local,nt_
   !
   nkBZ = PRODUCT(nge(1:3))
   linterpol = .NOT. ALL(nge(1:3) == ngw(1:3))
-#if defined(__MPI)
-  linterpol = linterpol .OR. PRESENT(comm)
-#endif
   !
   DO i1 = 1, 3
      bvec2(1:3,i1) = bvec(1:3,i1) / DBLE(nge(i1))
@@ -169,17 +166,18 @@ SUBROUTINE libtetrabz_kgrid(linterpol,ivvec,ng,nkBZ,nk_local,nt_local,ik_global,
   !
   IMPLICIT NONE
   !
-  LOGICAL,INTENT(IN) :: linterpol
+  LOGICAL,INTENT(INOUT) :: linterpol
   INTEGER,INTENT(IN) :: ivvec(3,20,6), ng(3), nkBZ
   INTEGER,INTENT(OUT) :: nk_local, nt_local
   INTEGER,INTENT(OUT),ALLOCATABLE :: ik_global(:,:), ik_local(:,:)
   REAL(8),INTENT(OUT),ALLOCATABLE :: kvec(:,:)
   INTEGER,INTENT(IN),OPTIONAL :: comm
   !
-  INTEGER :: it, i1, i2, i3, ii, ikv(3), nt, ik, nt_front, loc2glob(nkBZ)
+  INTEGER :: it, i1, i2, i3, ii, ikv(3), nt, ik, nt_front, loc2glob(nkBZ), glob2loc(nkBZ)
   !
   IF(PRESENT(comm)) THEN
      CALL libtetrabz_divideMPI(comm,6 * nkBZ,nt_front,nt_local)
+     linterpol = linterpol .OR. (6*nkBZ /= nt_local)
   ELSE
      nt_front = 0
      nt_local = 6 * nkBZ
@@ -220,21 +218,25 @@ SUBROUTINE libtetrabz_kgrid(linterpol,ivvec,ng,nkBZ,nk_local,nt_local,ik_global,
      ik_local(1:20,1:nt_local) = ik_global(1:20,1:nt_local)     
      RETURN
   END IF
-  ik_local(1:20,1:nt_local) = - ik_global(1:20,1:nt_local)
+  !
+  glob2loc(1:nkBZ) = 0
   nk_local = 0
   DO nt = 1, nt_local
      DO ii = 1, 20
         !
-        IF(ik_local(ii,nt) > 0) CYCLE
-        !
-        nk_local = nk_local + 1
-        loc2glob(nk_local) = ik_local(ii,nt)
-        WHERE(ik_local(1:20,1:nt_local) == loc2glob(nk_local)) &
-        &  ik_local(1:20,1:nt_local) = nk_local
+        IF(glob2loc(ik_global(ii,nt)) /= 0) THEN
+           ik_local(ii,nt) = glob2loc(ik_global(ii,nt))
+        ELSE
+           !
+           nk_local = nk_local + 1
+           loc2glob(nk_local) = ik_global(ii,nt)
+           glob2loc(ik_global(ii,nt)) = nk_local
+           ik_local(ii,nt) = nk_local
+           !
+        END IF
         !
      END DO
   END DO
-  loc2glob(1:nk_local) = - loc2glob(1:nk_local)
   !
   ! k-vector in the fractional coordinate
   !

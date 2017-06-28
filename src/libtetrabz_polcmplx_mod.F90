@@ -360,6 +360,14 @@ SUBROUTINE libtetrabz_polcmplx3(ne,e0,de,w1)
   !
   DO ie = 1, ne
      !
+     ! I don't know which one is better.
+     ! The former is more stable.
+     ! The latter is more accurate ?
+     !
+     w1(ie,1:4) = 0.25d0 / (de(1:4) + e0(ie))
+     !
+     CYCLE
+     !
      x(1:4) = (e(1:4) + DBLE(e0(ie))) / AIMAG(e0(ie))
      !thr = maxval(de(1:4)) * 1d-3
      thr = max(1d-3,  MAXVAL(x(1:4)) * 1d-2)
