@@ -235,9 +235,9 @@ SUBROUTINE test_dblstep
   IF(my_proc==0) THEN
      WRITE(*,'(a)') "# libtetrabz_dblstep"
      WRITE(*,'(5x,2e15.5)') 49d0 * pi / 320d0, val(1,1) * VBZ
-     WRITE(*,'(5x,2e15.5)') 49d0 * pi / 320d0, val(2,1) * VBZ
+     WRITE(*,'(5x,2e15.5)') 0d0, val(2,1) * VBZ
      WRITE(*,'(5x,2e15.5)') pi * (512d0 * SQRT(2d0) - 319d0) / 10240d0, val(1,2) * VBZ
-     WRITE(*,'(5x,2e15.5)') pi * (512d0 * SQRT(2d0) - 319d0) / 10240d0, val(2,2) * VBZ
+     WRITE(*,'(5x,2e15.5)') 0d0, val(2,2) * VBZ
      WRITE(*,*)
   END IF
   !
@@ -278,9 +278,9 @@ SUBROUTINE test_dbldelta
   IF(my_proc==0) THEN
      WRITE(*,'(a)') "# libtetrabz_dbldelta"
      WRITE(*,'(5x,2e15.5)') 2d0 * pi, val(1,1) * VBZ
-     WRITE(*,'(5x,2e15.5)') 2d0 * pi, val(2,1) * VBZ
+     WRITE(*,'(5x,2e15.5)') 0d0, val(2,1) * VBZ
      WRITE(*,'(5x,2e15.5)')       pi, val(1,2) * VBZ
-     WRITE(*,'(5x,2e15.5)')       pi, val(2,2) * VBZ
+     WRITE(*,'(5x,2e15.5)') 0d0, val(2,2) * VBZ
      WRITE(*,*)
   END IF
   !
@@ -321,15 +321,12 @@ SUBROUTINE test_polstat
   IF(my_proc==0) THEN
      WRITE(*,'(a)') "# libtetrabz_polstat"
      WRITE(*,'(5x,2e15.5)') pi * (68d0 + 45d0 * LOG(3d0)) / 96d0, val(1,1) * VBZ
-     WRITE(*,'(5x,2e15.5)') pi * (68d0 + 45d0 * LOG(3d0)) / 96d0, val(2,1) * VBZ
+     WRITE(*,'(5x,2e15.5)') pi * 8d0 / 5d0, val(2,1) * VBZ
      WRITE(*,'(5x,2e15.5)') pi * ( 228d0 + 22d0 * SQRT(2d0) - 96d0 * LOG(2d0) &
      &                           + 192d0 * LOG(4d0 + SQRT(2d0)) &
      &                           - 3d0 * LOG(1d0 + 2d0 * SQRT(2d0)) &
      &                           ) / 1536d0, val(1,2) * VBZ
-     WRITE(*,'(5x,2e15.5)') pi * ( 228d0 + 22d0 * SQRT(2d0) - 96d0 * LOG(2d0) &
-     &                           + 192d0 * LOG(4d0 + SQRT(2d0)) &
-     &                           - 3d0 * LOG(1d0 + 2d0 * SQRT(2d0)) &
-     &                           ) / 1536d0, val(2,2) * VBZ
+     WRITE(*,'(5x,2e15.5)') pi * SQRT(8d0) / 5d0, val(2,2) * VBZ
      WRITE(*,*)
   END IF
   !
@@ -359,12 +356,13 @@ SUBROUTINE test_fermigr
   e0(1) = 1d0 / 3d0
   e0(2) = 2d0 / 3d0
   e0(3) = 1d0
-  val0(1,1:nb,1) = 4d0 * pi / 9d0
-  val0(2,1:nb,1) = 1295d0 * pi / 2592d0
-  val0(3,1:nb,1) = 15d0 * pi / 32d0
-  val0(1,1:nb,2) = 5183d0 * pi / 41472d0
-  val0(2,1:nb,2) = 4559d0 * pi / 41472d0
-  val0(3,1:nb,2) = 0d0
+  val0(1,1,1) = 4d0 * pi / 9d0
+  val0(2,1,1) = 1295d0 * pi / 2592d0
+  val0(3,1,1) = 15d0 * pi / 32d0
+  val0(1,1,2) = 5183d0 * pi / 41472d0
+  val0(2,1,2) = 4559d0 * pi / 41472d0
+  val0(3,1,2) = 0d0
+  val0(1:3,2,1:2) = 0d0
   !
 #if defined(__MPI)
   CALL libtetrabz_fermigr(ltetra,bvec,nb,nge,eig1,eig2,ngw,wght,ne,e0,MPI_COMM_WORLD)
@@ -405,7 +403,7 @@ SUBROUTINE test_polcmplx
 #endif
   USE libtetrabz, ONLY : libtetrabz_polcmplx
   USE test_val, ONLY : ltetra, nb, nge, ngw, nke, nkw, my_proc, &
-  &                    bvec, VBZ, eig1, eig2, mat
+  &                    bvec, VBZ, pi, eig1, eig2, mat
   IMPLICIT NONE
   !
   INTEGER :: ne = 3, ie, ib, jb
@@ -417,12 +415,14 @@ SUBROUTINE test_polcmplx
   e0(1) = CMPLX(-2d0,    1d0, KIND(0d0))
   e0(2) = CMPLX( 0d0,    2d0, KIND(0d0))
   e0(3) = CMPLX( 1d0, -0.5d0, KIND(0d0))
-  val0(1,1:nb,1) = CMPLX(-0.838243341280338d0, - 0.734201894333234d0, KIND(0d0))
-  val0(2,1:nb,1) = CMPLX( 0.270393588876530d0, - 0.771908416949610d0, KIND(0d0))
-  val0(3,1:nb,1) = CMPLX( 0.970996830573510d0,   0.302792326476720d0, KIND(0d0))
-  val0(1,1:nb,2) = CMPLX(-0.130765724778920d0, - 0.087431218706638d0, KIND(0d0))
-  val0(2,1:nb,2) = CMPLX( 0.030121954547245d0, - 0.135354254293510d0, KIND(0d0))
-  val0(3,1:nb,2) = CMPLX( 0.178882244951203d0,   0.064232167683425d0, KIND(0d0))
+  val0(1,1,1) = CMPLX(-0.838243341280338d0, - 0.734201894333234d0, KIND(0d0))
+  val0(2,1,1) = CMPLX( 0.270393588876530d0, - 0.771908416949610d0, KIND(0d0))
+  val0(3,1,1) = CMPLX( 0.970996830573510d0,   0.302792326476720d0, KIND(0d0))
+  val0(1,1,2) = CMPLX(-0.130765724778920d0, - 0.087431218706638d0, KIND(0d0))
+  val0(2,1,2) = CMPLX( 0.030121954547245d0, - 0.135354254293510d0, KIND(0d0))
+  val0(3,1,2) = CMPLX( 0.178882244951203d0,   0.064232167683425d0, KIND(0d0))
+  val0(1:3,2,1) = (     8d0  * pi) / (5d0 * (1d0 + 2d0 * e0(1:3)))
+  val0(1:3,2,2) = (SQRT(8d0) * pi) / (5d0 * (1d0 + 4d0 * e0(1:3)))
   !
 #if defined(__MPI)
   CALL libtetrabz_polcmplx(ltetra,bvec,nb,nge,eig1,eig2,ngw,wght,ne,e0,MPI_COMM_WORLD)
@@ -481,8 +481,8 @@ PROGRAM test
 #endif
   !
   ltetra = 2
-  nge(1:3) = 8
-  ngw(1:3) = 8
+  nge(1:3) = 16
+  ngw(1:3) = 16
   nke = PRODUCT(nge(1:3))
   nkw = PRODUCT(ngw(1:3))
   nb = 2
@@ -509,7 +509,8 @@ PROGRAM test
            eig1(2,ik) = eig1(1,ik) + 0.25d0
            !
            kvec(1) = kvec(1) + 1d0
-           eig2(1:nb,ik) = 0.5d0 * DOT_PRODUCT(kvec(1:3), kvec(1:3))
+           eig2(1,ik) = 0.5d0 * DOT_PRODUCT(kvec(1:3), kvec(1:3))
+           eig2(2,ik) = eig1(1,ik) + 0.5d0
            !           
         END DO
      END DO
