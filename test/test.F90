@@ -481,8 +481,8 @@ PROGRAM test
 #endif
   !
   ltetra = 2
-  nge(1:3) = 16
-  ngw(1:3) = 16
+  nge(1:3) = 8
+  ngw(1:3) = 8
   nke = PRODUCT(nge(1:3))
   nkw = PRODUCT(ngw(1:3))
   nb = 2

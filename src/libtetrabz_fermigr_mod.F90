@@ -21,10 +21,12 @@ SUBROUTINE libtetrabz_fermigr(ltetra,bvec,nb,nge,eig1,eig2,ngw,wght,ne,e0,comm) 
   INTEGER(C_INT),INTENT(IN),OPTIONAL :: comm
   !
   LOGICAL :: linterpol
-  INTEGER :: nt_local, nk_local, nkBZ, ik, kintp(4)
+  INTEGER :: nt_local, nk_local, nkBZ, ik, kintp(20), nintp
   INTEGER,ALLOCATABLE :: ik_global(:,:), ik_local(:,:)
-  REAL(8) :: wlsm(4,20), wintp(1,4)
+  REAL(8) :: wlsm(4,20), wintp(1,20)
   REAL(8),ALLOCATABLE :: wghtd(:,:,:), kvec(:,:)
+  !
+  nintp = 16 * ltetra - 12
   !
   IF(PRESENT(comm)) THEN
      CALL libtetrabz_initialize(ltetra,nge,ngw,bvec,linterpol,wlsm,nk_local,&
@@ -43,9 +45,9 @@ SUBROUTINE libtetrabz_fermigr(ltetra,bvec,nb,nge,eig1,eig2,ngw,wght,ne,e0,comm) 
      !
      wght(1:ne*nb*nb,1:PRODUCT(ngw(1:3))) = 0d0
      DO ik = 1, nk_local
-        CALL libtetrabz_interpol_indx(ngw,kvec(1:3,ik),kintp,wintp)
-        wght(1:ne*nb*nb,kintp(1:4)) = wght(1:ne*nb*nb,             kintp(1:4)) &
-        &                   + MATMUL(wghtd(1:ne*nb*nb,1:1,ik), wintp(1:1,1:4))
+        CALL libtetrabz_interpol_indx(nintp,ngw,kvec(1:3,ik),kintp,wintp)
+        wght(1:ne*nb*nb,kintp(1:nintp)) = wght(1:ne*nb*nb,             kintp(1:nintp)) &
+        &                       + MATMUL(wghtd(1:ne*nb*nb,1:1,ik), wintp(1:1,1:nintp))
      END DO ! ik = 1, nk_local
      DEALLOCATE(wghtd, kvec)
      !
