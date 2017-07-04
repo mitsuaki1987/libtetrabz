@@ -1,19 +1,15 @@
 インストール方法
 ================
 
-このパッケージに含まれているファイル
-------------------------------------
+主なファイルとディレクトリ
+--------------------------
 
-``doc/manual_en.html`` : マニュアル(英語)
-
-``doc/manual_jp.html`` : マニュアル(日本語)(今開いて見ているファイル)
-
-``examples/`` : ライブラリ使用例
-
-``src/`` : ソースファイルディレクトリ
-
-``Makefile``, ``make.sys`` :
-Makeファイルおよびコンパイル環境設定ファイル
+- ``doc/`` : マニュアルのディレクトリ
+   - ``doc/index.html`` : 目録ページ 
+- ``src/`` : ライブラリのソースコードのディレクトリ
+- ``example/`` : ライブラリ使用例のディレクトリ
+- ``test/`` : ライブラリのビルドのテスト用ディレクトリ
+- ``configure`` : ビルド環境設定用スクリプト
 
 要件
 ----
@@ -21,7 +17,6 @@ Makeファイルおよびコンパイル環境設定ファイル
 以下のものが必要となる.
 
 -  fortran コンパイラ
-
 -  MPI ライブラリ (MPI/ハイブリッド並列版を利用する場合)
 
 インストール手順
@@ -36,44 +31,46 @@ Makeファイルおよびコンパイル環境設定ファイル
 
    .. code-block:: bash
 
-      $ tar xzvf libtetrabz_1.0.1.tar.gz
-      $ cd libtetrabz
+      $ tar xzvf libtetrabz-version.tar.gz
+      $ cd libtetrabz-version
                
+最もシンプルには次のとおりである.
 
-#. 自分の環境に合わせて ``make.sys`` の以下の変数を書き換える.
+.. code-block:: bash
 
-   ``TOPDIR`` : 展開してできたディレクトリの絶対パス
+   $ ./configure --prefix=install_dir
 
-   ``F90`` : シリアル用fortran コンパイルコマンド (gfortran, ifort, frt等)
+これにより, ビルドに必要なコンパイラやライブラリ等の環境のチェックが行われ,
+Makefile等が作成される.
+ただし ``install_dir`` はインストール先のディレクトリの絶対パスとする (以後各自のディレクトリ名で読み替えること).
+なにも指定しないと ``/use/local/`` が設定され, 後述の ``make install`` で
+``/usr/local/lib`` 内にライブラリが置かれる (したがって, 管理者権限がない場合には ``install_dir`` を
+別の場所に指定しなければならない).
+``configure`` にはこの他にも様々なオプションがあり, 必要に応じて用途や環境に合わせてそれらを使用する.
+詳しくは :ref:`configoption` を参照.
 
-   ``MPIF90`` : MPI用fortran コンパイルコマンド (mpif90, mpiifort, mpifrt 等)
+``configure`` の実行が正常に行われ, ``Makefile`` が生成された後は
 
-   ``FFLAGS`` : fortranコンパイルオプション
+.. code-block:: bash
 
-#. 次のコマンドを実行しコンパイルする.
+   $ make
 
-   .. code-block:: bash
+とタイプしてライブラリ等のビルドを行う.これが成功したのちに
 
-      $ make 
+.. code-block:: bash
 
-   コンパイルが成功すると ``src/`` に以下のファイルが生成される.
+   $ make install
 
-   ::
+とすると, ライブラリが ``install_dir/lib`` に置かれる.
+``make install`` をしなくても, ビルドをしたディレクトリ内にあるライブラリやミニアプリを使うことは可能であるが, 使い勝手がやや異なる.
 
-       src/libtetrabz.a
-       src/libtetrabz.mod
-       src/libtetrabz_mpi.a
-       src/libtetrabz_mpi.mod
-               
-   .. note::
-       
-      シリアル版のみ ``make`` したい場合は次の様にする.
+共有リンクを行ったプログラムの実行時にライブラリを探しにいけるよう,
+環境変数 ``LD_LIBRARY_PATH`` にlibtetrabzをインストールしたディレクトリを追加する.
 
-      .. code-block:: bash
+.. code-block:: bash
 
-         $ cd src 
-         $ make libtetrabz.a
-               
+   $ export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:install_dir/lib
+
 また,
 ``example/`` 以下のライブラリ使用例のプログラムもコンパイルされる.
 
@@ -104,3 +101,54 @@ Makeファイルおよびコンパイル環境設定ファイル
                :math:`8\times8\times8 k`
                グリッドでの線形テトラへドロン法および最適化テトラへドロン法の結果.
 
+.. _configoption:
+
+configureのオプション
+---------------------
+
+configureには多数のオプションと変数があり, それらを組み合わせて指定する.
+指定しない場合にはデフォルト値が使われる.
+
+.. code-block:: bash
+
+  $ ./configure --prefix=/home/libtetrabz/ --with-mpi=yes FC=mpif90
+
+おもなものを次に挙げる.
+
+``---prefix``
+
+   デフォルト: ``---prefix=/usr/local/``.
+   ライブラリ等のインストールを行うディレクトリツリーを指定する.
+
+``--with-mpi``
+
+   デフォルト: ``--with-mpi=no`` (MPIを用いない).
+   MPIを用いるか (``--with-mpi=yes``), 否かを指定する.
+
+``--with-openmp``
+
+   デフォルト: ``--with-openmp=yes`` (OpenMPを用いる).
+   OpenMPを用いるか否か (``--with-openmp=no``) を指定する.
+
+``--enable-shared``
+
+   デフォルト: ``--enable-shared``.
+   共有ライブラリを作成するか否か
+
+``--enable-static``
+
+   デフォルト: ``--enable-static``.
+   静的ライブラリを作成するか否か.
+
+``FC``
+
+   デフォルト: システムにインストールされているfortranコンパイラをスキャンして,
+   自動的に設定する. ``--with-mpi`` を指定した時にはそれに応じたコマンド
+   (``mpif90`` 等)を自動で探し出して設定する. 
+   ``configure`` の最後に出力される ``FC`` が望んだものでは無かった場合には
+   ``./configure FC=gfortran`` のように手で指定する.
+
+``--help``
+
+   このオプションを指定した時には, ビルドの環境設定は行われず,
+   上記を含めたすべてのオプションを表示する.
