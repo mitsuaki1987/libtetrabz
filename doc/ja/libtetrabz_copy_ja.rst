@@ -1,5 +1,70 @@
+プログラムの再配布
+==================
+
+自分のプログラムにlibtetrabzを含める
+-------------------------------------
+
+libtetrabzは下記の :ref:`mitlicense` に基づいて配布されている.
+これはかいつまんで言うと,
+個人的(研究室や共同研究者等のグループ)なプログラムであろうとも,
+公開したり売ったりするプログラムであろうとも
+自由にコピペしたり改変して良いし,
+どのようなライセンスで配布しても構わない, と言うことである.
+
+Autoconfを使わずにlibtetrabzをビルドする
+-----------------------------------------
+
+このパッケージではAutotools (Autoconf, Aitomake, Libtool)を使ってlibtetrabzをビルドしている.
+もし再配布するソースコードにlibtetrabzを含めるときに,
+Autoconfの使用に支障がある場合には, 以下の簡易版のMakefileを使うと良い (タブに注意).
+
+.. code-block:: make
+
+   F90 = gfortran
+   FFLAGS = -fopenmp -O2 -g
+   
+   OBJS = \
+   libtetrabz.o \
+   libtetrabz_dbldelta_mod.o \
+   libtetrabz_dblstep_mod.o \
+   libtetrabz_dos_mod.o \
+   libtetrabz_fermigr_mod.o \
+   libtetrabz_occ_mod.o \
+   libtetrabz_polcmplx_mod.o \
+   libtetrabz_polstat_mod.o \
+   libtetrabz_common.o
+
+   .SUFFIXES :
+   .SUFFIXES : .o .F90
+
+   libtetrabz.a:$(OBJS)
+        ar cr $@ $(OBJS)
+
+   .F90.o:
+         $(F90) $(FFLAGS) -c $<
+
+   clean:
+         rm -f *.a *.o *.mod
+
+   libtetrabz.o:libtetrabz_polcmplx_mod.o
+   libtetrabz.o:libtetrabz_fermigr_mod.o
+   libtetrabz.o:libtetrabz_polstat_mod.o
+   libtetrabz.o:libtetrabz_dbldelta_mod.o
+   libtetrabz.o:libtetrabz_dblstep_mod.o
+   libtetrabz.o:libtetrabz_dos_mod.o
+   libtetrabz.o:libtetrabz_occ_mod.o
+   libtetrabz_dbldelta_mod.o:libtetrabz_common.o
+   libtetrabz_dblstep_mod.o:libtetrabz_common.o
+   libtetrabz_dos_mod.o:libtetrabz_common.o
+   libtetrabz_fermigr_mod.o:libtetrabz_common.o
+   libtetrabz_occ_mod.o:libtetrabz_common.o
+   libtetrabz_polcmplx_mod.o:libtetrabz_common.o
+   libtetrabz_polstat_mod.o:libtetrabz_common.o
+
+.. _mitlicense:
+   
 MIT ライセンス
-==============
+--------------
 
 | Copyright (c) 2014 Mitsuaki Kawamura
 | 

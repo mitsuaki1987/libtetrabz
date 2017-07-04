@@ -10,11 +10,11 @@ Welcome to LibTetraBZ's documentation!
    :maxdepth: 3
 
    libtetrabz_overview_ja
-   libtetrabz_copy_ja
    libtetrabz_install_ja
    libtetrabz_link_ja
    libtetrabz_routine_ja
    libtetrabz_sample_ja
+   libtetrabz_copy_ja
    libtetrabz_contact_ja
    libtetrabz_app_ja
    libtetrabz_ref_ja

@@ -5,31 +5,29 @@
 
 .. code-block:: fortran
 
-   use libtetrabz, only : libtetrabz_occ
+   USE libtetrabz, ONLY : libtetrabz_occ
     
-   call libtetrabz_occ(ltetra,bvec,nb,nge,eig,ngw,wght)
+   CALL libtetrabz_occ(ltetra,bvec,nb,nge,eig,ngw,wght)
         
 のように呼び出して使用できる.
 サブルーチン名はすべて ``libtetrabz_`` からはじまる.
-MPI版については ``libtetrabz_mpi_`` からはじまる.
-またMPI版では ``libtetrabz_mpi`` モジュールをつかう.
-シリアル版と MPI版の引数の違いはコミニュケータを指定する整数 ``comm`` だけで,
-他は同じである.
 
 C言語で書かれたプログラムから呼び出す場合には次のようにする.
 
-.. code-block:: fortran
+.. code-block:: c
 
    #include "libtetrabz.h"
    
-   libtetrabz_mp_libtetrabz_occ_(&ltetra,bvec,&nb,nge,eig,ngw,wght)
+   libtetrabz_occ(&ltetra,bvec,&nb,nge,eig,ngw,wght)
         
-fortranサブルーチン名の前に ``libtetrabz_mp_`` を,
-うしろに ``_`` をつけたものが Cでの関数名となる.
-MPI版では ``libtetrabz_mpi.h`` をインクルードし,
-fortranサブルーチン名の前には ``libtetrabz_mpi_mp_`` をつける.
 変数はすべてポインタとして渡す.
 配列はすべて1次元配列として定義し一番左の添字が内側のループとなるようにする.
+またMPI/ハイブリッド並列のときにライブラリに渡すコミュニケーター変数を, 
+次のようにC/C++のものからfortranのものに変換する。
+
+.. code-block:: c
+
+   comm_f = MPI_Comm_c2f(comm_c);
 
 全エネルギー, 電荷密度等(占有率の計算)
 --------------------------------------
@@ -43,14 +41,13 @@ fortranサブルーチン名の前には ``libtetrabz_mpi_mp_`` をつける.
 
 .. code-block:: fortran
 
-    call libtetrabz_occ(ltetra,bvec,nb,nge,eig,ngw,wght)
-    call libtetrabz_mpi_occ(ltetra,comm,bvec,nb,nge,eig,ngw,wght)
+    CALL libtetrabz_occ(ltetra,bvec,nb,nge,eig,ngw,wght,comm)
 
 パラメーター
     
    .. code-block:: fortran
                    
-      integer,intent(in) :: ltetra
+      INTEGER,INTENT(IN) :: ltetra
    ..
    
       テトラへドロン法の種類を決める.
@@ -59,14 +56,7 @@ fortranサブルーチン名の前には ``libtetrabz_mpi_mp_`` をつける.
 
    .. code-block:: fortran
                    
-      integer,intent(in) :: comm
-   ..
-   
-      MPI 版のみ. コミニュケータ.
-
-   .. code-block:: fortran
-                   
-      real(8),intent(in) :: bvec(3,3)
+      REAL(8),INTENT(IN) :: bvec(3,3)
    ..
    
       逆格子ベクトル. 単位は任意で良い.
@@ -75,21 +65,21 @@ fortranサブルーチン名の前には ``libtetrabz_mpi_mp_`` をつける.
 
    .. code-block:: fortran
                    
-      integer,intent(in) :: nb
+      INTEGER,INTENT(IN) :: nb
    ..
    
       バンド本数
 
    .. code-block:: fortran
                    
-      integer,intent(in) :: nge(3)
+      INTEGER,INTENT(IN) :: nge(3)
    ..
    
       軌道エネルギーのメッシュ数.
 
    .. code-block:: fortran
                    
-      real(8),intent(in) :: eig(nb,nge(1),nge(2),nge(3))
+      REAL(8),INTENT(IN) :: eig(nb,nge(1),nge(2),nge(3))
    ..
    
       軌道エネルギー.
@@ -97,7 +87,7 @@ fortranサブルーチン名の前には ``libtetrabz_mpi_mp_`` をつける.
 
    .. code-block:: fortran
                    
-      integer,intent(in) :: ngw(3)
+      INTEGER,INTENT(IN) :: ngw(3)
    ..
    
       ``ngw(3)`` : (入力, 整数配列) 積分重みの :math:`k` メッシュ.
@@ -105,10 +95,20 @@ fortranサブルーチン名の前には ``libtetrabz_mpi_mp_`` をつける.
 
    .. code-block:: fortran
                    
-      real(8),intent(out) :: wght(nb,ngw(1),ngw(2),ngw(3))
+      REAL(8),INTENT(OUT) :: wght(nb,ngw(1),ngw(2),ngw(3))
    ..
    
       ``wght(nb,ngw(1),ngw(2),ngw(3))`` : (出力, 実数配列) 積分重み
+
+   .. code-block:: fortran
+                   
+      INTEGER,INTENT(IN),OPTIONAL :: comm
+   ..
+   
+      オプショナル引数. 
+      MPIのコミニュケーター( ``MPI_COMM_WORLD`` など)を入れる.
+      libtetrabz を内部でMPI/Hybrid並列するときのみ入力する.
+      C言語では使用しないときには ``NULL`` を入れる.
 
 Fermi エネルギー(占有率も同時に計算する)
 ----------------------------------------
@@ -122,14 +122,13 @@ Fermi エネルギー(占有率も同時に計算する)
 
 .. code-block:: fortran
 
-    call libtetrabz_fermieng(ltetra,bvec,nb,nge,eig,ngw,wght,ef,nelec)
-    call libtetrabz_mpi_fermieng(ltetra,comm,bvec,nb,nge,eig,ngw,wght,ef,nelec)
+    CALL libtetrabz_fermieng(ltetra,bvec,nb,nge,eig,ngw,wght,ef,nelec,comm)
         
 パラメーター
     
    .. code-block:: fortran
                    
-      integer,intent(in) :: ltetra
+      INTEGER,INTENT(IN) :: ltetra
    ..
    
       テトラへドロン法の種類を決める.
@@ -138,14 +137,7 @@ Fermi エネルギー(占有率も同時に計算する)
 
    .. code-block:: fortran
                          
-      integer,intent(in) :: comm
-   ..
-   
-      ``comm`` : (入力, 整数) MPI 版のみ. コミニュケータ.
-
-   .. code-block:: fortran
-                         
-      real(8),intent(in) :: bvec(3,3)
+      REAL(8),INTENT(IN) :: bvec(3,3)
    ..
    
       逆格子ベクトル. 単位は任意で良い.
@@ -154,35 +146,35 @@ Fermi エネルギー(占有率も同時に計算する)
 
    .. code-block:: fortran
                          
-      integer,intent(in) :: nb
+      INTEGER,INTENT(IN) :: nb
    ..
    
       バンド本数
 
    .. code-block:: fortran
                          
-      integer,intent(in) :: nge(3)
+      INTEGER,INTENT(IN) :: nge(3)
    ..
    
       軌道エネルギーのメッシュ数.
 
    .. code-block:: fortran
                          
-      real(8),intent(in) :: eig(nb,nge(1),nge(2),nge(3))
+      REAL(8),INTENT(IN) :: eig(nb,nge(1),nge(2),nge(3))
    ..
    
       軌道エネルギー.
 
    .. code-block:: fortran
                          
-      integer,intent(in) :: nge(3)
+      INTEGER,INTENT(IN) :: nge(3)
    ..
    
       軌道エネルギーのメッシュ数.
       
    .. code-block:: fortran
                          
-      integer,intent(in) :: ngw(3)
+      INTEGER,INTENT(IN) :: ngw(3)
    ..
    
       積分重みの :math:`k` メッシュ.
@@ -190,24 +182,34 @@ Fermi エネルギー(占有率も同時に計算する)
 
    .. code-block:: fortran
                          
-      real(8),intent(out) :: wght(nb,ngw(1),ngw(2),ngw(3))
+      REAL(8),INTENT(OUT) :: wght(nb,ngw(1),ngw(2),ngw(3))
    ..
    
       積分重み
 
    .. code-block:: fortran
                          
-      real(8),intent(out) :: ef
+      REAL(8),INTENT(OUT) :: ef
    ..
    
       Fermi エネルギー
 
    .. code-block:: fortran
                          
-      real(8),intent(in) :: nelec
+      REAL(8),INTENT(IN) :: nelec
    ..
    
       スピンあたりの(荷)電子数
+
+   .. code-block:: fortran
+                   
+      INTEGER,INTENT(IN),OPTIONAL :: comm
+   ..
+   
+      オプショナル引数. 
+      MPIのコミニュケーター( ``MPI_COMM_WORLD`` など)を入れる.
+      libtetrabz を内部でMPI/Hybrid並列するときのみ入力する.
+      C言語では使用しないときには ``NULL`` を入れる.
 
 (部分)状態密度
 --------------
@@ -221,14 +223,13 @@ Fermi エネルギー(占有率も同時に計算する)
 
 .. code-block:: fortran
 
-   call libtetrabz_dos(ltetra,bvec,nb,nge,eig,ngw,wght,ne,e0)
-   call libtetrabz_mpi_dos(ltetra,comm,bvec,nb,nge,eig,ngw,wght,ne,e0)
+   CALL libtetrabz_dos(ltetra,bvec,nb,nge,eig,ngw,wght,ne,e0,comm)
         
 パラメーター
 
    .. code-block:: fortran
                          
-      integer,intent(in) :: ltetra
+      INTEGER,INTENT(IN) :: ltetra
    ..
    
       テトラへドロン法の種類を決める.
@@ -237,14 +238,7 @@ Fermi エネルギー(占有率も同時に計算する)
 
    .. code-block:: fortran
                          
-      integer,intent(in) :: comm
-   ..
-   
-      MPI 版のみ. コミニュケーター.
-
-   .. code-block:: fortran
-                         
-      real(8),intent(in) :: bvec(3,3)
+      REAL(8),INTENT(IN) :: bvec(3,3)
    ..
    
       逆格子ベクトル. 単位は任意で良い.
@@ -253,28 +247,28 @@ Fermi エネルギー(占有率も同時に計算する)
 
    .. code-block:: fortran
                          
-      integer,intent(in) :: nb
+      INTEGER,INTENT(IN) :: nb
    ..
    
       バンド本数
 
    .. code-block:: fortran
                          
-      integer,intent(in) :: nge(3)
+      INTEGER,INTENT(IN) :: nge(3)
    ..
    
       軌道エネルギーの :math:`k` メッシュ数.
 
    .. code-block:: fortran
                          
-      real(8),intent(in) :: eig(nb,nge(1),nge(2),nge(3))
+      REAL(8),INTENT(IN) :: eig(nb,nge(1),nge(2),nge(3))
    ..
    
       軌道エネルギー.
 
    .. code-block:: fortran
                          
-      integer,intent(in) :: ngw(3)
+      INTEGER,INTENT(IN) :: ngw(3)
    ..
    
       積分重みの :math:`k` メッシュ.
@@ -282,24 +276,128 @@ Fermi エネルギー(占有率も同時に計算する)
 
    .. code-block:: fortran
                          
-      real(8),intent(out) :: wght(ne,nb,ngw(1),ngw(2),ngw(3))
+      REAL(8),INTENT(OUT) :: wght(ne,nb,ngw(1),ngw(2),ngw(3))
    ..
    
       積分重み
 
    .. code-block:: fortran
                          
-      integer,intent(in) :: ne
+      INTEGER,INTENT(IN) :: ne
    ..
    
       状態密度を計算するエネルギー点数
 
    .. code-block:: fortran
                          
-      real(8),intent(in) :: e0(ne)
+      REAL(8),INTENT(IN) :: e0(ne)
    ..
    
       状態密度を計算するエネルギー
+
+   .. code-block:: fortran
+                   
+      INTEGER,INTENT(IN),OPTIONAL :: comm
+   ..
+   
+      オプショナル引数. 
+      MPIのコミニュケーター( ``MPI_COMM_WORLD`` など)を入れる.
+      libtetrabz を内部でMPI/Hybrid並列するときのみ入力する.
+      C言語では使用しないときには ``NULL`` を入れる.
+
+積分状態密度
+------------
+
+.. math::
+
+   \begin{align}
+   \sum_{n k} \theta(\omega - \varepsilon_{n k})
+   X_{n k}(\omega) 
+   \end{align}
+
+.. code-block:: fortran
+
+   CALL libtetrabz_intdos(ltetra,bvec,nb,nge,eig,ngw,wght,ne,e0,comm)
+        
+パラメーター
+
+   .. code-block:: fortran
+                         
+      INTEGER,INTENT(IN) :: ltetra
+   ..
+   
+      テトラへドロン法の種類を決める.
+      1 :math:`\cdots` 線形テトラへドロン法,
+      2 :math:`\cdots` 最適化線形テトラへドロン法 :ref:`[1] <ref>`
+
+   .. code-block:: fortran
+                         
+      REAL(8),INTENT(IN) :: bvec(3,3)
+   ..
+   
+      逆格子ベクトル. 単位は任意で良い.
+      逆格子の形によって四面体の切り方を決めるため,
+      それらの長さの比のみが必要であるため.
+
+   .. code-block:: fortran
+                         
+      INTEGER,INTENT(IN) :: nb
+   ..
+   
+      バンド本数
+
+   .. code-block:: fortran
+                         
+      INTEGER,INTENT(IN) :: nge(3)
+   ..
+   
+      軌道エネルギーの :math:`k` メッシュ数.
+
+   .. code-block:: fortran
+                         
+      REAL(8),INTENT(IN) :: eig(nb,nge(1),nge(2),nge(3))
+   ..
+   
+      軌道エネルギー.
+
+   .. code-block:: fortran
+                         
+      INTEGER,INTENT(IN) :: ngw(3)
+   ..
+   
+      積分重みの :math:`k` メッシュ.
+      ``nge`` と違っていても構わない(:ref:`app` 参照).
+
+   .. code-block:: fortran
+                         
+      REAL(8),INTENT(OUT) :: wght(ne,nb,ngw(1),ngw(2),ngw(3))
+   ..
+   
+      積分重み
+
+   .. code-block:: fortran
+                         
+      INTEGER,INTENT(IN) :: ne
+   ..
+   
+      状態密度を計算するエネルギー点数
+
+   .. code-block:: fortran
+                         
+      REAL(8),INTENT(IN) :: e0(ne)
+   ..
+   
+      状態密度を計算するエネルギー
+
+   .. code-block:: fortran
+                   
+      INTEGER,INTENT(IN),OPTIONAL :: comm
+   ..
+   
+      オプショナル引数. 
+      MPIのコミニュケーター( ``MPI_COMM_WORLD`` など)を入れる.
+      libtetrabz を内部でMPI/Hybrid並列するときのみ入力する.
+      C言語では使用しないときには ``NULL`` を入れる.
 
 ネスティング関数, Fröhlich パラメーター
 ---------------------------------------
@@ -314,14 +412,13 @@ Fermi エネルギー(占有率も同時に計算する)
 
 .. code-block:: fortran
 
-    call libtetrabz_doubledelta(ltetra,bvec,nb,nge,eig1,eig2,ngw,wght)
-    call libtetrabz_mpi_doubledelta(ltetra,comm,bvec,nb,nge,eig1,eig2,ngw,wght)
+    CALL libtetrabz_dbldelta(ltetra,bvec,nb,nge,eig1,eig2,ngw,wght,comm)
         
 パラメーター
 
    .. code-block:: fortran
                          
-      integer,intent(in) :: ltetra
+      INTEGER,INTENT(IN) :: ltetra
    ..
    
       テトラへドロン法の種類を決める.
@@ -330,14 +427,7 @@ Fermi エネルギー(占有率も同時に計算する)
 
    .. code-block:: fortran
                          
-      integer,intent(in) :: comm
-   ..
-   
-      ``comm`` : (入力, 整数) MPI 版のみ. コミニュケータ.
-
-   .. code-block:: fortran
-                         
-      real(8),intent(in) :: bvec(3,3)
+      REAL(8),INTENT(IN) :: bvec(3,3)
    ..
    
       逆格子ベクトル. 単位は任意で良い.
@@ -346,21 +436,21 @@ Fermi エネルギー(占有率も同時に計算する)
 
    .. code-block:: fortran
                          
-      integer,intent(in) :: nb
+      INTEGER,INTENT(IN) :: nb
    ..
    
       バンド本数
 
    .. code-block:: fortran
                          
-      integer,intent(in) :: nge(3)
+      INTEGER,INTENT(IN) :: nge(3)
    ..
    
       軌道エネルギーの :math:`k` メッシュ数.
 
    .. code-block:: fortran
                          
-      real(8),intent(in) :: eig1(nb,nge(1),nge(2),nge(3))
+      REAL(8),INTENT(IN) :: eig1(nb,nge(1),nge(2),nge(3))
    ..
    
       軌道エネルギー.
@@ -369,7 +459,7 @@ Fermi エネルギー(占有率も同時に計算する)
 
    .. code-block:: fortran
                          
-      real(8),intent(in) :: eig2(nb,nge(1),nge(2),nge(3))
+      REAL(8),INTENT(IN) :: eig2(nb,nge(1),nge(2),nge(3))
    ..
    
       軌道エネルギー.
@@ -377,7 +467,7 @@ Fermi エネルギー(占有率も同時に計算する)
 
    .. code-block:: fortran
                          
-      integer,intent(in) :: ngw(3)
+      INTEGER,INTENT(IN) :: ngw(3)
    ..
    
       積分重みの :math:`k` メッシュ.
@@ -385,10 +475,20 @@ Fermi エネルギー(占有率も同時に計算する)
 
    .. code-block:: fortran
                          
-      real(8),intent(out) :: wght(nb,nb,ngw(1),ngw(2),ngw(3))
+      REAL(8),INTENT(OUT) :: wght(nb,nb,ngw(1),ngw(2),ngw(3))
    ..
    
       積分重み
+
+   .. code-block:: fortran
+                   
+      INTEGER,INTENT(IN),OPTIONAL :: comm
+   ..
+   
+      オプショナル引数. 
+      MPIのコミニュケーター( ``MPI_COMM_WORLD`` など)を入れる.
+      libtetrabz を内部でMPI/Hybrid並列するときのみ入力する.
+      C言語では使用しないときには ``NULL`` を入れる.
 
 DFPT 計算の一部
 ---------------
@@ -403,14 +503,13 @@ DFPT 計算の一部
 
 .. code-block:: fortran
 
-    call libtetrabz_occstep(ltetra,bvec,nb,nge,eig1,eig2,ngw,wght)
-    call libtetrabz_mpi_occstep(ltetra,comm,bvec,nb,nge,eig1,eig2,ngw,wght)
+    CALL libtetrabz_dblstep(ltetra,bvec,nb,nge,eig1,eig2,ngw,wght,comm)
         
 パラメーター
 
    .. code-block:: fortran
                          
-      integer,intent(in) :: ltetra
+      INTEGER,INTENT(IN) :: ltetra
    ..
    
       テトラへドロン法の種類を決める.
@@ -419,14 +518,7 @@ DFPT 計算の一部
 
    .. code-block:: fortran
                          
-      integer,intent(in) :: comm
-   ..
-   
-      MPI 版のみ. コミニュケータ.
-
-   .. code-block:: fortran
-                         
-      real(8),intent(in) :: bvec(3,3)
+      REAL(8),INTENT(IN) :: bvec(3,3)
    ..
    
       逆格子ベクトル. 単位は任意で良い.
@@ -435,21 +527,21 @@ DFPT 計算の一部
 
    .. code-block:: fortran
                          
-      integer,intent(in) :: nb
+      INTEGER,INTENT(IN) :: nb
    ..
    
       バンド本数
 
    .. code-block:: fortran
                          
-      integer,intent(in) :: nge(3)
+      INTEGER,INTENT(IN) :: nge(3)
    ..
    
       軌道エネルギーのメッシュ数.
 
    .. code-block:: fortran
                          
-      real(8),intent(in) :: eig1(nb,nge(1),nge(2),nge(3))
+      REAL(8),INTENT(IN) :: eig1(nb,nge(1),nge(2),nge(3))
    ..
    
       軌道エネルギー.
@@ -458,7 +550,7 @@ DFPT 計算の一部
 
    .. code-block:: fortran
                          
-      real(8),intent(in) :: eig2(nb,nge(1),nge(2),nge(3))
+      REAL(8),INTENT(IN) :: eig2(nb,nge(1),nge(2),nge(3))
    ..
    
       軌道エネルギー.
@@ -466,7 +558,7 @@ DFPT 計算の一部
 
    .. code-block:: fortran
                          
-      integer,intent(in) :: ngw(3)
+      INTEGER,INTENT(IN) :: ngw(3)
    ..
    
       積分重みの :math:`k` メッシュ. ``nge``
@@ -474,10 +566,20 @@ DFPT 計算の一部
 
    .. code-block:: fortran
                          
-      real(8),intent(out) :: wght(nb,nb,ngw(1),ngw(2),ngw(3))
+      REAL(8),INTENT(OUT) :: wght(nb,nb,ngw(1),ngw(2),ngw(3))
    ..
    
       積分重み
+
+   .. code-block:: fortran
+                   
+      INTEGER,INTENT(IN),OPTIONAL :: comm
+   ..
+   
+      オプショナル引数. 
+      MPIのコミニュケーター( ``MPI_COMM_WORLD`` など)を入れる.
+      libtetrabz を内部でMPI/Hybrid並列するときのみ入力する.
+      C言語では使用しないときには ``NULL`` を入れる.
 
 独立分極関数(静的)
 ------------------
@@ -493,14 +595,13 @@ DFPT 計算の一部
 
 .. code-block:: fortran
 
-    call libtetrabz_polstat(ltetra,bvec,nb,nge,eig1,eig2,ngw,wght)
-    call libtetrabz_mpi_occstep(ltetra,comm,bvec,nb,nge,eig1,eig2,ngw,wght)
+    CALL libtetrabz_polstat(ltetra,bvec,nb,nge,eig1,eig2,ngw,wght,comm)
         
 パラメーター
 
    .. code-block:: fortran
                          
-      integer,intent(in) :: ltetra
+      INTEGER,INTENT(IN) :: ltetra
    ..
    
       テトラへドロン法の種類を決める.
@@ -508,15 +609,8 @@ DFPT 計算の一部
       2 :math:`\cdots` 最適化線形テトラへドロン法 :ref:`[1] <ref>`
 
    .. code-block:: fortran
-                         
-      integer,intent(in) :: comm
-   ..
-   
-      MPI 版のみ. コミニュケータ.
-
-   .. code-block:: fortran
                    
-      real(8),intent(in) :: bvec(3,3)
+      REAL(8),INTENT(IN) :: bvec(3,3)
    ..
    
       逆格子ベクトル. 単位は任意で良い.
@@ -525,21 +619,21 @@ DFPT 計算の一部
 
    .. code-block:: fortran
                          
-      integer,intent(in) :: nb
+      INTEGER,INTENT(IN) :: nb
    ..
    
       バンド本数
 
    .. code-block:: fortran
                          
-      integer,intent(in) :: nge(3)
+      INTEGER,INTENT(IN) :: nge(3)
    ..
    
       軌道エネルギーのメッシュ数.
 
    .. code-block:: fortran
                          
-      real(8),intent(in) :: eig1(nb,nge(1),nge(2),nge(3))
+      REAL(8),INTENT(IN) :: eig1(nb,nge(1),nge(2),nge(3))
    ..
    
       軌道エネルギー.
@@ -548,7 +642,7 @@ DFPT 計算の一部
 
    .. code-block:: fortran
                          
-      real(8),intent(in) :: eig2(nb,nge(1),nge(2),nge(3))
+      REAL(8),INTENT(IN) :: eig2(nb,nge(1),nge(2),nge(3))
    ..
    
       軌道エネルギー.
@@ -556,7 +650,7 @@ DFPT 計算の一部
 
    .. code-block:: fortran
                          
-      integer,intent(in) :: ngw(3)
+      INTEGER,INTENT(IN) :: ngw(3)
    ..
    
       積分重みの :math:`k` メッシュ.
@@ -564,10 +658,20 @@ DFPT 計算の一部
 
    .. code-block:: fortran
                          
-      real(8),intent(out) :: wght(nb,nb,ngw(1),ngw(2),ngw(3))
+      REAL(8),INTENT(OUT) :: wght(nb,nb,ngw(1),ngw(2),ngw(3))
    ..
    
       積分重み
+
+   .. code-block:: fortran
+                   
+      INTEGER,INTENT(IN),OPTIONAL :: comm
+   ..
+   
+      オプショナル引数. 
+      MPIのコミニュケーター( ``MPI_COMM_WORLD`` など)を入れる.
+      libtetrabz を内部でMPI/Hybrid並列するときのみ入力する.
+      C言語では使用しないときには ``NULL`` を入れる.
 
 フォノン線幅等
 --------------
@@ -583,14 +687,13 @@ DFPT 計算の一部
 
 .. code-block:: fortran
 
-    call libtetrabz_fermigr(ltetra,bvec,nb,nge,eig1,eig2,ngw,wght,ne,e0)
-    call libtetrabz_mpi_fermigr(ltetra,comm,bvec,nb,nge,eig1,eig2,ngw,wght,ne,e0)
+    CALL libtetrabz_fermigr(ltetra,bvec,nb,nge,eig1,eig2,ngw,wght,ne,e0,comm)
         
 パラメーター
 
    .. code-block:: fortran
                          
-      integer,intent(in) :: ltetra
+      INTEGER,INTENT(IN) :: ltetra
    ..
    
       テトラへドロン法の種類を決める.
@@ -599,14 +702,7 @@ DFPT 計算の一部
 
    .. code-block:: fortran
                          
-      integer,intent(in) :: comm
-   ..
-   
-      MPI 版のみ. コミニュケータ.
-
-   .. code-block:: fortran
-                         
-      real(8),intent(in) :: bvec(3,3)
+      REAL(8),INTENT(IN) :: bvec(3,3)
    ..
    
       逆格子ベクトル. 単位は任意で良い.
@@ -615,21 +711,21 @@ DFPT 計算の一部
 
    .. code-block:: fortran
                    
-      integer,intent(in) :: nb
+      INTEGER,INTENT(IN) :: nb
    ..
    
       バンド本数
 
    .. code-block:: fortran
                          
-      integer,intent(in) :: nge(3)
+      INTEGER,INTENT(IN) :: nge(3)
    ..
    
       軌道エネルギーのメッシュ数.
 
    .. code-block:: fortran
                          
-      real(8),intent(in) :: eig1(nb,nge(1),nge(2),nge(3))
+      REAL(8),INTENT(IN) :: eig1(nb,nge(1),nge(2),nge(3))
    ..
    
       軌道エネルギー.
@@ -638,7 +734,7 @@ DFPT 計算の一部
 
    .. code-block:: fortran
                          
-      real(8),intent(in) :: eig2(nb,nge(1),nge(2),nge(3))
+      REAL(8),INTENT(IN) :: eig2(nb,nge(1),nge(2),nge(3))
    ..
    
       軌道エネルギー.
@@ -646,7 +742,7 @@ DFPT 計算の一部
 
    .. code-block:: fortran
                          
-      integer,intent(in) :: ngw(3)
+      INTEGER,INTENT(IN) :: ngw(3)
    ..
    
       積分重みの :math:`k` メッシュ.
@@ -654,27 +750,37 @@ DFPT 計算の一部
 
    .. code-block:: fortran
                          
-      real(8),intent(out) :: wght(ne,nb,nb,ngw(1),ngw(2),ngw(3))
+      REAL(8),INTENT(OUT) :: wght(ne,nb,nb,ngw(1),ngw(2),ngw(3))
    ..
    
       積分重み
 
    .. code-block:: fortran
                          
-      integer,intent(in) :: ne
+      INTEGER,INTENT(IN) :: ne
    ..
    
       フォノンモード数
 
    .. code-block:: fortran
                          
-      real(8),intent(in) :: e0(ne)
+      REAL(8),INTENT(IN) :: e0(ne)
    ..
    
       フォノン振動数
 
-分極関数(虚振動数)
-------------------
+   .. code-block:: fortran
+                   
+      INTEGER,INTENT(IN),OPTIONAL :: comm
+   ..
+   
+      オプショナル引数. 
+      MPIのコミニュケーター( ``MPI_COMM_WORLD`` など)を入れる.
+      libtetrabz を内部でMPI/Hybrid並列するときのみ入力する.
+      C言語では使用しないときには ``NULL`` を入れる.
+
+分極関数(複素振動数)
+--------------------
 
 .. math::
 
@@ -687,14 +793,13 @@ DFPT 計算の一部
 
 .. code-block:: fortran
 
-    call libtetrabz_polimg(ltetra,bvec,nb,nge,eig1,eig2,ngw,wght,ne,e0)
-    call libtetrabz_mpi_polimg(ltetra,comm,bvec,nb,nge,eig1,eig2,ngw,wght,ne,e0)
+    CALL libtetrabz_polcmplx(ltetra,bvec,nb,nge,eig1,eig2,ngw,wght,ne,e0,comm)
         
 パラメーター
 
    .. code-block:: fortran
                          
-      integer,intent(in) :: ltetra
+      INTEGER,INTENT(IN) :: ltetra
    ..
    
       テトラへドロン法の種類を決める.
@@ -703,14 +808,7 @@ DFPT 計算の一部
 
    .. code-block:: fortran
                          
-      integer,intent(in) :: comm
-   ..
-   
-      MPI 版のみ. コミニュケータ.
-
-   .. code-block:: fortran
-                         
-      real(8),intent(in) :: bvec(3,3)
+      REAL(8),INTENT(IN) :: bvec(3,3)
    ..
    
       逆格子ベクトル. 単位は任意で良い.
@@ -719,21 +817,21 @@ DFPT 計算の一部
 
    .. code-block:: fortran
                    
-      integer,intent(in) :: nb
+      INTEGER,INTENT(IN) :: nb
    ..
    
       バンド本数
 
    .. code-block:: fortran
                          
-      integer,intent(in) :: nge(3)
+      INTEGER,INTENT(IN) :: nge(3)
    ..
    
       軌道エネルギーのメッシュ数.
 
    .. code-block:: fortran
                          
-      real(8),intent(in) :: eig1(nb,nge(1),nge(2),nge(3))
+      REAL(8),INTENT(IN) :: eig1(nb,nge(1),nge(2),nge(3))
    ..
    
       軌道エネルギー.
@@ -742,7 +840,7 @@ DFPT 計算の一部
 
    .. code-block:: fortran
                          
-      real(8),intent(in) :: eig2(nb,nge(1),nge(2),nge(3))
+      REAL(8),INTENT(IN) :: eig2(nb,nge(1),nge(2),nge(3))
    ..
    
       軌道エネルギー.
@@ -750,7 +848,7 @@ DFPT 計算の一部
 
    .. code-block:: fortran
                          
-      integer,intent(in) :: ngw(3)
+      INTEGER,INTENT(IN) :: ngw(3)
    ..
    
       積分重みの :math:`k` メッシュ.
@@ -758,23 +856,32 @@ DFPT 計算の一部
 
    .. code-block:: fortran
                          
-      real(8),intent(out) :: wght(2,ne,nb,nb,ngw(1),ngw(2),ngw(3))
+      COMPLEX(8),INTENT(OUT) :: wght(ne,nb,nb,ngw(1),ngw(2),ngw(3))
    ..
    
       積分重み .
-      1番目の次元は実部と虚部を格納する.
 
    .. code-block:: fortran
                          
-      integer,intent(in) :: ne
+      INTEGER,INTENT(IN) :: ne
    ..
    
       計算を行う虚振動数の点数
 
    .. code-block:: fortran
                          
-      real(8),intent(in) :: e0(ne)
+      COMPLEX(8),INTENT(IN) :: e0(ne)
    ..
    
-      計算を行う虚振動数
+      計算を行う複素振動数
+
+   .. code-block:: fortran
+                   
+      INTEGER,INTENT(IN),OPTIONAL :: comm
+   ..
+   
+      オプショナル引数. 
+      MPIのコミニュケーター( ``MPI_COMM_WORLD`` など)を入れる.
+      libtetrabz を内部でMPI/Hybrid並列するときのみ入力する.
+      C言語では使用しないときには ``NULL`` を入れる.
 
