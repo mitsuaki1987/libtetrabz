@@ -326,6 +326,7 @@ top_srcdir = @top_srcdir@
 ACLOCAL_AMFLAGS = -I config/m4
 SUBDIRS = src test example
 MAINTAINERCLEANFILES = Makefile.in aclocal.m4 configure
+EXTRA_DIST = doc/
 all: config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-recursive
 
@@ -808,6 +809,18 @@ uninstall-am:
 	mostlyclean-libtool pdf pdf-am ps ps-am tags tags-am uninstall \
 	uninstall-am
 
+
+docs:
+	cd doc/ja/;make latexpdfja; make html
+	cd doc/en/;make latexpdfja; make html
+
+pngdocs:
+	cd doc/ja/;sed -i -e "s/mathjax/pngmath/g" conf.py; make latexpdfja; make html
+	cd doc/en/;sed -i -e "s/mathjax/pngmath/g" conf.py; make latexpdfja; make html
+
+docs-clean:
+	cd doc/ja/; make clean; sed -i -e "s/pngmath/mathjax/g" conf.py
+	cd doc/en/; make clean; sed -i -e "s/pngmath/mathjax/g" conf.py
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
