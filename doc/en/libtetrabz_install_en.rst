@@ -112,7 +112,7 @@ They can be specified at once. E.g.
 
 .. code-block:: bash
 
-  $ ./configure --prefix=/home/komega/ --with-mpi=yes FC=mpif90
+  $ ./configure --prefix=/home/libtetrabz/ --with-mpi=yes FC=mpif90
 
 All options and variables have default values.
 We show a part of them as follows:
