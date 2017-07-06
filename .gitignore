@@ -15,7 +15,6 @@ config.status
 libtool
 Makefile
 stamp-h1
-config/depcomp
 *.la
 *.lo
 *.so
