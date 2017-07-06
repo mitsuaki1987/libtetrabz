@@ -390,6 +390,8 @@ EXEEXT = @EXEEXT@
 F77 = @F77@
 FC = @FC@
 FCFLAGS = @FCFLAGS@
+FC_MODEXT = @FC_MODEXT@
+FC_MODINC = @FC_MODINC@
 FFLAGS = @FFLAGS@
 FGREP = @FGREP@
 GREP = @GREP@
@@ -455,6 +457,7 @@ datadir = @datadir@
 datarootdir = @datarootdir@
 docdir = @docdir@
 dvidir = @dvidir@
+empty = @empty@
 exec_prefix = @exec_prefix@
 host = @host@
 host_alias = @host_alias@
@@ -485,9 +488,10 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 MAINTAINERCLEANFILES = Makefile.in
+EXTRA_DIST = $(TESTS)
 TESTS = test2_8_8.sh test2_16_8.sh test2_16_16.sh
 test_x_SOURCES = test.F90
-AM_FCFLAGS = -I$(top_builddir) -I$(top_builddir)/src 
+AM_FCFLAGS = $(FC_MODINC)$(top_builddir) $(FC_MODINC)$(top_builddir)/src 
 test_x_LDADD = -L$(top_builddir)/src -ltetrabz
 all: all-am
 
@@ -859,7 +863,7 @@ maintainer-clean-generic:
 	-test -z "$(MAINTAINERCLEANFILES)" || rm -f $(MAINTAINERCLEANFILES)
 clean: clean-am
 
-clean-am: clean-checkPROGRAMS clean-generic clean-libtool \
+clean-am: clean-checkPROGRAMS clean-generic clean-libtool clean-local \
 	mostlyclean-am
 
 distclean: distclean-am
@@ -929,22 +933,28 @@ uninstall-am:
 .MAKE: check-am install-am install-strip
 
 .PHONY: CTAGS GTAGS TAGS all all-am check check-TESTS check-am clean \
-	clean-checkPROGRAMS clean-generic clean-libtool cscopelist-am \
-	ctags ctags-am distclean distclean-compile distclean-generic \
-	distclean-libtool distclean-local distclean-tags distdir dvi \
-	dvi-am html html-am info info-am install install-am \
-	install-data install-data-am install-dvi install-dvi-am \
-	install-exec install-exec-am install-html install-html-am \
-	install-info install-info-am install-man install-pdf \
-	install-pdf-am install-ps install-ps-am install-strip \
-	installcheck installcheck-am installdirs maintainer-clean \
-	maintainer-clean-generic mostlyclean mostlyclean-compile \
-	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
-	recheck tags tags-am uninstall uninstall-am
+	clean-checkPROGRAMS clean-generic clean-libtool clean-local \
+	cscopelist-am ctags ctags-am distclean distclean-compile \
+	distclean-generic distclean-libtool distclean-local \
+	distclean-tags distdir dvi dvi-am html html-am info info-am \
+	install install-am install-data install-data-am install-dvi \
+	install-dvi-am install-exec install-exec-am install-html \
+	install-html-am install-info install-info-am install-man \
+	install-pdf install-pdf-am install-ps install-ps-am \
+	install-strip installcheck installcheck-am installdirs \
+	maintainer-clean maintainer-clean-generic mostlyclean \
+	mostlyclean-compile mostlyclean-generic mostlyclean-libtool \
+	pdf pdf-am ps ps-am recheck tags tags-am uninstall \
+	uninstall-am
 
 
 distclean-local:
 	-rm -rf test.in test.out test.out.ref
+
+# Clean up modules.
+clean-local: clean-modules
+clean-modules:
+	test -z "$(FC_MODEXT)" || $(RM) *.$(FC_MODEXT)
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

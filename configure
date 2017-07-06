@@ -665,6 +665,9 @@ build
 LIBTOOL
 ac_ct_AR
 AR
+FC_MODEXT
+FC_MODINC
+empty
 FCFLAGS
 ac_ct_FC
 FC
@@ -4891,6 +4894,145 @@ else
 fi
 
 fi
+echo ""
+echo "  Check fortran module"
+echo ""
+# Find out how to add to the Fortran include path.
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking fortran 90 modules inclusion flag" >&5
+$as_echo_n "checking fortran 90 modules inclusion flag... " >&6; }
+if ${ax_cv_f90_modflag+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_ext=${ac_fc_srcext-f}
+ac_compile='$FC -c $FCFLAGS $ac_fcflags_srcext conftest.$ac_ext >&5'
+ac_link='$FC -o conftest$ac_exeext $FCFLAGS $LDFLAGS $ac_fcflags_srcext conftest.$ac_ext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_fc_compiler_gnu
+
+i=0
+while test \( -f tmpdir_$i \) -o \( -d tmpdir_$i \) ; do
+  i=`expr $i + 1`
+done
+mkdir tmpdir_$i
+cd tmpdir_$i
+cat > conftest.$ac_ext <<_ACEOF
+
+!234567
+      module conftest_module
+      contains
+      subroutine conftest_routine
+      write(*,'(a)') 'gotcha!'
+      end subroutine conftest_routine
+      end module conftest_module
+
+_ACEOF
+if ac_fn_fc_try_compile "$LINENO"; then :
+
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+cd ..
+ax_cv_f90_modflag="not found"
+for ax_flag in "-I " "-I" "-M" "-p"; do
+  if test "$ax_cv_f90_modflag" = "not found" ; then
+    ax_save_FCFLAGS="$FCFLAGS"
+    FCFLAGS="$ax_save_FCFLAGS ${ax_flag}tmpdir_$i"
+    cat > conftest.$ac_ext <<_ACEOF
+
+!234567
+      program conftest_program
+      use conftest_module
+      call conftest_routine
+      end program conftest_program
+
+_ACEOF
+if ac_fn_fc_try_compile "$LINENO"; then :
+  ax_cv_f90_modflag="$ax_flag"
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+    FCFLAGS="$ax_save_FCFLAGS"
+  fi
+done
+rm -fr tmpdir_$i
+if test "$ax_cv_f90_modflag" = "not found" ; then
+  as_fn_error $? "unable to find compiler flag for modules inclusion" "$LINENO" 5
+fi
+ac_ext=c
+ac_cpp='$CPP $CPPFLAGS'
+ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
+ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_c_compiler_gnu
+
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ax_cv_f90_modflag" >&5
+$as_echo "$ax_cv_f90_modflag" >&6; }
+# The module flag may be "-I " or so, and some make implementations
+# swallow trailing space in variable settings, so we employ a little
+# trick.
+empty=""
+
+FC_MODINC=$ax_cv_f90_modflag'${empty}'
+
+# Find out the file name extensions of Fortran module files.
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking fortran 90 modules extension" >&5
+$as_echo_n "checking fortran 90 modules extension... " >&6; }
+if ${ax_cv_f90_modext+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_ext=${ac_fc_srcext-f}
+ac_compile='$FC -c $FCFLAGS $ac_fcflags_srcext conftest.$ac_ext >&5'
+ac_link='$FC -o conftest$ac_exeext $FCFLAGS $LDFLAGS $ac_fcflags_srcext conftest.$ac_ext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_fc_compiler_gnu
+
+i=0
+while test \( -f tmpdir_$i \) -o \( -d tmpdir_$i \) ; do
+  i=`expr $i + 1`
+done
+mkdir tmpdir_$i
+cd tmpdir_$i
+cat > conftest.$ac_ext <<_ACEOF
+
+!234567
+      module conftest_module
+      contains
+      subroutine conftest_routine
+      write(*,'(a)') 'gotcha!'
+      end subroutine conftest_routine
+      end module conftest_module
+
+_ACEOF
+if ac_fn_fc_try_compile "$LINENO"; then :
+  ax_cv_f90_modext=`ls | sed -n 's,conftest_module\.,,p'`
+   if test x$ax_cv_f90_modext = x ; then
+     ax_cv_f90_modext=`ls | sed -n 's,CONFTEST_MODULE\.,,p'`
+     if test x$ax_cv_f90_modext = x ; then
+       ax_cv_f90_modext=""
+     fi
+   fi
+
+else
+  ax_cv_f90_modext=""
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+cd ..
+rm -fr tmpdir_$i
+ac_ext=c
+ac_cpp='$CPP $CPPFLAGS'
+ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
+ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_c_compiler_gnu
+
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ax_cv_f90_modext" >&5
+$as_echo "$ax_cv_f90_modext" >&6; }
+if test "x$ax_f90_modext" != xunknown; then
+  FC_MODEXT=$ax_cv_f90_modext
+else
+  FC_MODEXT=$ax_cv_f90_modext
+fi
+
 echo ""
 echo "  Check library generation"
 echo ""

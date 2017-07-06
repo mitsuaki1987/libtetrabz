@@ -36,6 +36,24 @@ if test x"$with_openmp" != xno; then
   ])
 fi
 echo ""
+echo "  Check fortran module"
+echo ""
+# Find out how to add to the Fortran include path.
+AX_F90_MODULE_FLAG
+# The module flag may be "-I " or so, and some make implementations
+# swallow trailing space in variable settings, so we employ a little
+# trick.
+AC_SUBST([empty], [""])
+AC_SUBST([FC_MODINC], [$ax_cv_f90_modflag'${empty}'])
+# Find out the file name extensions of Fortran module files.
+AX_F90_MODULE_EXTENSION
+if test "x$ax_f90_modext" != xunknown; then
+  FC_MODEXT=$ax_cv_f90_modext
+else
+  FC_MODEXT=$ax_cv_f90_modext
+fi
+AC_SUBST([FC_MODEXT])
+echo ""
 echo "  Check library generation"
 echo ""
 AM_PROG_AR

@@ -1,7 +1,7 @@
 ACLOCAL_AMFLAGS = -I config/m4
 SUBDIRS = src test example
 MAINTAINERCLEANFILES = Makefile.in aclocal.m4 configure
-EXTRA_DIST = doc/
+EXTRA_DIST = doc
 
 docs:
 	cd doc/ja/;make latexpdfja; make html

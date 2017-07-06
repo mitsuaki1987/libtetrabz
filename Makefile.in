@@ -229,6 +229,8 @@ EXEEXT = @EXEEXT@
 F77 = @F77@
 FC = @FC@
 FCFLAGS = @FCFLAGS@
+FC_MODEXT = @FC_MODEXT@
+FC_MODINC = @FC_MODINC@
 FFLAGS = @FFLAGS@
 FGREP = @FGREP@
 GREP = @GREP@
@@ -294,6 +296,7 @@ datadir = @datadir@
 datarootdir = @datarootdir@
 docdir = @docdir@
 dvidir = @dvidir@
+empty = @empty@
 exec_prefix = @exec_prefix@
 host = @host@
 host_alias = @host_alias@
@@ -326,7 +329,7 @@ top_srcdir = @top_srcdir@
 ACLOCAL_AMFLAGS = -I config/m4
 SUBDIRS = src test example
 MAINTAINERCLEANFILES = Makefile.in aclocal.m4 configure
-EXTRA_DIST = doc/
+EXTRA_DIST = doc
 all: config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-recursive
 

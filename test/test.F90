@@ -482,7 +482,7 @@ END MODULE tests
 PROGRAM test
   !
 #if defined(__MPI)
-  USE mpi, ONLY : MPI_COMM_WORLD
+  USE mpi, ONLY : MPI_COMM_WORLD, MPI_INTEGER
 #endif
   USE tests, ONLY : test_occ, test_fermieng, test_dos, test_intdos, &
   &                 test_dblstep, test_dbldelta, test_polstat, &
@@ -502,7 +502,14 @@ PROGRAM test
   my_proc = 0
 #endif
   !
-  READ(*,*) ltetra, nge1, ngw1
+  IF(my_proc == 0) READ(*,*) ltetra, nge1, ngw1
+#if defined(__MPI)
+  call MPI_BCAST(ltetra, 1, MPI_INTEGER, 0, MPI_COMM_WORLD, ierr)
+  call MPI_BCAST(nge1,   1, MPI_INTEGER, 0, MPI_COMM_WORLD, ierr)
+  call MPI_BCAST(ngw1,   1, MPI_INTEGER, 0, MPI_COMM_WORLD, ierr)
+
+#endif
+  !
   nge(1:3) = nge1
   ngw(1:3) = ngw1
   nke = PRODUCT(nge(1:3))
