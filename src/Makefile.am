@@ -1,6 +1,7 @@
 MAINTAINERCLEANFILES = Makefile.in
 
-include_HEADERS = libtetrabz.h libtetrabz.mod
+include_HEADERS = libtetrabz.h
+nodist_include_HEADERS = libtetrabz.$(FC_MODEXT)
 lib_LTLIBRARIES = libtetrabz.la
 
 libtetrabz_la_SOURCES = libtetrabz.F90 libtetrabz_polcmplx_mod.F90 libtetrabz_fermigr_mod.F90 \
