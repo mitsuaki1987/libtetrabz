@@ -49,8 +49,8 @@
 
 さらに,
 この計算と同じ結果を得るように粗いグリッド上での積分重み
-:math:`w_k^{\rm coarse}` を  :math:`w_k{\rm dense}` から求める(逆補間)ことも可能である
-( :ref:`[2] <ref>` のAppendix).
+:math:`w_k^{\rm coarse}` を  :math:`w_k{\rm dense}` から求める
+**逆補間** ( :ref:`[2] <ref>` のAppendix)も可能である.
 すなわち,
 
 .. math::
@@ -85,3 +85,135 @@
 2重デルタ関数の積分
 -------------------
 
+For the integration
+
+.. math::
+
+   \begin{align}
+   \sum_{n n' k} \delta(\varepsilon_{\rm F} -
+   \varepsilon_{n k}) \delta(\varepsilon_{\rm F} - \varepsilon'_{n' k})
+   X_{n n' k}
+   \end{align}
+
+first, we cut out one or two triangles where
+:math:`\varepsilon_{n k} = \varepsilon_{\rm F}` from a tetrahedron
+and evaluate :math:`\varepsilon_{n' k+q}` at the corners of each triangles as
+
+.. math::
+
+   \begin{align}
+   \varepsilon'^{k+q}_{i} = \sum_{j=1}^4 F_{i j}(
+   \varepsilon_1^{k}, \cdots, \varepsilon_{4}^{k}, \varepsilon_{\rm F}) 
+   \epsilon_{j}^{k+q}.
+   \end{align}
+   
+Then we calculate :math:`\delta(\varepsilon_{n' k+q} - \varepsilon{\rm F})`
+in each triangles and obtain weights of corners.
+This weights of corners are mapped into those of corners of the original tetrahedron as
+
+.. math::
+   
+   \begin{align}
+   W_{i} = \sum_{j=1}^3 \frac{S}{\nabla_k \varepsilon_k}F_{j i}(
+   \varepsilon_{1}^k, \cdots, \varepsilon_{4}^k, \varepsilon_{\rm F}) 
+   W'_{j}.
+   \end{align}
+
+:math:`F_{i j}` and :math:`\frac{S}{\nabla_k \varepsilon_k}` are calculated as follows 
+(:math:`a_{i j} \equiv (\varepsilon_i - \varepsilon_j)/(\varepsilon_{\rm F} - \varepsilon_j)`):
+
+.. _dbldeltapng:
+
+.. figure:: ../figs/dbldelta.png
+   :scale: 100
+
+   How to divide a tetrahedron 
+   in the case of :math:`\epsilon_1 \leq \varepsilon_{\rm F} \leq \varepsilon_2` (a), 
+   :math:`\varepsilon_2 \leq \varepsilon_{\rm F} \leq \varepsilon_3` (b), and
+   :math:`\varepsilon_3 \leq \varepsilon_{\rm F} \leq \varepsilon_4` (c).
+
+- When :math:`\varepsilon_1 \leq \varepsilon_{\rm F} \leq \varepsilon_2 \leq \varepsilon_3 \leq\varepsilon_4`
+  [Fig. :num:`dbldeltapng` (a)], 
+
+   .. math::
+   
+      \begin{align}
+      F &= 
+      \begin{pmatrix}
+      a_{1 2} & a_{2 1} &       0 & 0 \\
+      a_{1 3} &       0 & a_{3 1} & 0 \\
+      a_{1 4} &       0 &       0 & a_{4 1}
+      \end{pmatrix}, 
+      \qquad
+      \frac{S}{\nabla_k \varepsilon_k} = \frac{3 a_{2 1} a_{3 1} a_{4 1}}{\varepsilon_{\rm F} - \varepsilon_1}
+      \end{align}
+  
+- When :math:`\varepsilon_1 \leq \varepsilon_2 \leq \varepsilon_{\rm F} \leq \varepsilon_3 \leq\varepsilon_4`
+  [Fig. :num:`dbldeltapng` (b)], 
+
+   .. math::
+   
+      \begin{align}
+      F &= 
+      \begin{pmatrix}
+      a_{1 3} &       0 & a_{3 1} & 0 \\
+      a_{1 4} &       0 &       0 & a_{4 1} \\
+      0 & a_{2 4} &       0 & a_{4 2}
+      \end{pmatrix}, 
+      \qquad
+      \frac{S}{\nabla_k \varepsilon_k} = \frac{3 a_{3 1} a_{4 1} a_{2 4}}{\varepsilon_{\rm F} - \varepsilon_1}
+      \end{align}
+  
+   .. math::
+   
+      \begin{align}
+      F &= 
+      \begin{pmatrix}
+      a_{1 3} &       0 & a_{3 1} & 0 \\
+      0 & a_{2 3} & a_{3 2} & 0 \\
+      0 & a_{2 4} &       0 & a_{4 2}
+      \end{pmatrix}, 
+      \qquad
+      \frac{S}{\nabla_k \varepsilon_k} = \frac{3 a_{2 3} a_{3 1} a_{4 2}}{\varepsilon_{\rm F} - \varepsilon_1}
+      \end{align}
+
+- When :math:`\varepsilon_1 \leq \varepsilon_2 \leq \varepsilon_3 \leq \varepsilon_{\rm F} \leq \varepsilon_4`
+  [Fig. :num:`dbldeltapng` (c)], 
+
+   .. math::
+   
+      \begin{align}
+      F &= 
+      \begin{pmatrix}
+      a_{1 4} &       0 &       0 & a_{4 1} \\
+      a_{1 3} & a_{2 4} &       0 & a_{4 2} \\
+      a_{1 2} &       0 & a_{3 4} & a_{4 3}
+      \end{pmatrix}, 
+      \qquad
+      \frac{S}{\nabla_k \varepsilon_k} = \frac{3 a_{1 4} a_{2 4} a_{3 4}}{\varepsilon_1 - \varepsilon_{\rm F}}
+      \end{align}
+
+Weights on each corners of the triangle are computed as follows
+[(:math:`a'_{i j} \equiv (\varepsilon'_i - \varepsilon'_j)/(\varepsilon_{\rm F} - \varepsilon'_j)`)]:
+
+- When :math:`\varepsilon'_1 \leq \varepsilon_{\rm F} \leq \varepsilon'_2 \leq \varepsilon'_3` [Fig. :num:`dbldeltapng` (d)], 
+
+   .. math::
+   
+      \begin{align}
+      W'_1 = L (a'_{1 2} + a'_{1 3}), \qquad
+      W'_2 = L a'_{2 1}, \qquad
+      W'_3 = L a'_{3 1}, \qquad
+      L \equiv \frac{a'_{2 1} a'_{3 1}}{\varepsilon_{\rm F} - \varepsilon'_{1}}
+      \end{align}
+
+- When :math:`\varepsilon'_1 \leq \varepsilon'_2 \leq \varepsilon_{\rm F} \leq \varepsilon'_3` [Fig. :num:`dbldeltapng` (e)], 
+
+   .. math::
+   
+      \begin{align}
+      W'_1 = L a'_{1 3}, \qquad
+      W'_2 = L a'_{2 3}, \qquad
+      W'_3 = L (a'_{3 1} + a'_{3 2}), \qquad
+      L \equiv \frac{a'_{1 3} a'_{2 3}}{\varepsilon'_{3} - \varepsilon_{\rm F}} 
+      \end{align}

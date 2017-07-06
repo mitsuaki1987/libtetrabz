@@ -16,7 +16,7 @@
 
 以下のものが必要となる.
 
--  fortran コンパイラ
+-  fortran および C コンパイラ
 -  MPI ライブラリ (MPI/ハイブリッド並列版を利用する場合)
 
 インストール手順
@@ -34,72 +34,72 @@
       $ tar xzvf libtetrabz-version.tar.gz
       $ cd libtetrabz-version
                
-最もシンプルには次のとおりである.
+#. ビルド環境を設定する.
 
-.. code-block:: bash
+   .. code-block:: bash
 
-   $ ./configure --prefix=install_dir
+      $ ./configure --prefix=install_dir
 
-これにより, ビルドに必要なコンパイラやライブラリ等の環境のチェックが行われ,
-Makefile等が作成される.
-ただし ``install_dir`` はインストール先のディレクトリの絶対パスとする (以後各自のディレクトリ名で読み替えること).
-なにも指定しないと ``/use/local/`` が設定され, 後述の ``make install`` で
-``/usr/local/lib`` 内にライブラリが置かれる (したがって, 管理者権限がない場合には ``install_dir`` を
-別の場所に指定しなければならない).
-``configure`` にはこの他にも様々なオプションがあり, 必要に応じて用途や環境に合わせてそれらを使用する.
-詳しくは :ref:`configoption` を参照.
+   これにより, ビルドに必要なコンパイラやライブラリ等の環境のチェックが行われ,
+   Makefile等が作成される.
+   ただし ``install_dir`` はインストール先のディレクトリの絶対パスとする (以後各自のディレクトリ名で読み替えること).
+   なにも指定しないと ``/use/local/`` が設定され, 後述の ``make install`` で
+   ``/usr/local/lib`` 内にライブラリが置かれる (したがって, 管理者権限がない場合には ``install_dir`` を
+   別の場所に指定しなければならない).
+   ``configure`` にはこの他にも様々なオプションがあり, 必要に応じて用途や環境に合わせてそれらを使用する.
+   詳しくは :ref:`configoption` を参照.
 
-``configure`` の実行が正常に行われ, ``Makefile`` が生成された後は
+#. ``configure`` の実行が正常に行われ, ``Makefile`` が生成された後は
 
-.. code-block:: bash
+   .. code-block:: bash
 
-   $ make
+      $ make
 
-とタイプしてライブラリ等のビルドを行う.これが成功したのちに
+   とタイプしてライブラリ等のビルドを行う.これが成功したのちに
 
-.. code-block:: bash
+   .. code-block:: bash
 
-   $ make install
+      $ make install
 
-とすると, ライブラリが ``install_dir/lib`` に置かれる.
-``make install`` をしなくても, ビルドをしたディレクトリ内にあるライブラリやミニアプリを使うことは可能であるが, 使い勝手がやや異なる.
+   とすると, ライブラリが ``install_dir/lib`` に置かれる.
+   ``make install`` をしなくても, ビルドをしたディレクトリ内にあるライブラリやミニアプリを使うことは可能であるが, 使い勝手がやや異なる.
 
-共有リンクを行ったプログラムの実行時にライブラリを探しにいけるよう,
-環境変数 ``LD_LIBRARY_PATH`` にlibtetrabzをインストールしたディレクトリを追加する.
+#. 共有リンクを行ったプログラムの実行時にライブラリを探しにいけるよう,
+   環境変数 ``LD_LIBRARY_PATH`` にlibtetrabzをインストールしたディレクトリを追加する.
 
-.. code-block:: bash
+   .. code-block:: bash
 
-   $ export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:install_dir/lib
+      $ export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:install_dir/lib
 
-また,
-``example/`` 以下のライブラリ使用例のプログラムもコンパイルされる.
+#. また,
+   ``example/`` 以下のライブラリ使用例のプログラムもコンパイルされる.
 
-``example/dos.x`` :
-立法格子シングルバンドタイトバインディングモデルのDOSを 計算する.
-ソースコードは ``dos.f90``
+   ``example/dos.x`` :
+   立法格子シングルバンドタイトバインディングモデルのDOSを 計算する.
+   ソースコードは ``dos.f90``
 
-   .. figure:: ../figs/dos.png
-               :scale: 50
+      .. figure:: ../figs/dos.png
+         :scale: 50
 
-               dos.xを使って計算した,
-               立法格子タイトバインディング模型の状態密度.
-               実線は十分多くの :math:`k` 点を利用した時の結果.
-               " :math:`+` ",
-               " :math:`\times` "はそれぞれ
-               :math:`8\times8\times8 k` グリッドでの
-               線形テトラへドロン法および最適化テトラへドロン法の結果.
+         dos.xを使って計算した,
+         立法格子タイトバインディング模型の状態密度.
+         実線は十分多くの :math:`k` 点を利用した時の結果.
+         " :math:`+` ",
+         " :math:`\times` "はそれぞれ
+         :math:`8\times8\times8 k` グリッドでの
+         線形テトラへドロン法および最適化テトラへドロン法の結果.
 
-``example/lindhard.x`` : リントハルト関数を計算する.
-ソースコードは ``lindhard.f90``
+   ``example/lindhard.x`` : リントハルト関数を計算する.
+   ソースコードは ``lindhard.f90``
 
-   .. figure:: ../figs/lindhard.png
-               :scale: 50
+      .. figure:: ../figs/lindhard.png
+         :scale: 50
 
-               lindhard.xを使って計算したLindhard関数.
-               実線は解析的な結果.
-               " :math:`+` ", " :math:`\times` "はそれぞれ
-               :math:`8\times8\times8 k`
-               グリッドでの線形テトラへドロン法および最適化テトラへドロン法の結果.
+         lindhard.xを使って計算したLindhard関数.
+         実線は解析的な結果.
+         " :math:`+` ", " :math:`\times` "はそれぞれ
+         :math:`8\times8\times8 k`
+         グリッドでの線形テトラへドロン法および最適化テトラへドロン法の結果.
 
 .. _configoption:
 
@@ -140,9 +140,9 @@ configureには多数のオプションと変数があり, それらを組み合
    デフォルト: ``--enable-static``.
    静的ライブラリを作成するか否か.
 
-``FC``
+``FC``, ``CC``
 
-   デフォルト: システムにインストールされているfortranコンパイラをスキャンして,
+   デフォルト: システムにインストールされているfortran/Cコンパイラをスキャンして,
    自動的に設定する. ``--with-mpi`` を指定した時にはそれに応じたコマンド
    (``mpif90`` 等)を自動で探し出して設定する. 
    ``configure`` の最後に出力される ``FC`` が望んだものでは無かった場合には

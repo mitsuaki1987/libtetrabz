@@ -22,7 +22,17 @@
 	    <h4>固体中の電子状態計算においてBrillouin Zone積分を効率的に行うテトラへドロン法を
           任意のコードに実装するためのライブラリ群です。</h4>
 
-
+        <hr>
+        <h3>引用につきまして</h3>
+        <h4>
+          libtetrabzを使った研究におきまして, 下記の論文を適宜引用していただけましたら幸いです.
+          <p><a href="https://journals.aps.org/prb/abstract/10.1103/PhysRevB.89.094515" target="_blank">
+              &quot;Improved tetrahedron method for the Brillouin-zone integration applicable to response functions&quot;,
+              M. Kawamura, Y. Gohda, and S. Tsuneyuki, Phys. Rev. B <b>89</b>, 094515 (2014).
+          </a></p>
+        </h4>
+        <hr>
+        
         <script type="text/javascript">
 	      var sfjp_widget_width = null;
 	      var sfjp_widget_customcss = null;
