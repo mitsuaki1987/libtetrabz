@@ -80,7 +80,8 @@ build_triplet = @build@
 host_triplet = @host@
 bin_PROGRAMS = dos.x$(EXEEXT) lindhard.x$(EXEEXT) dos_c.x$(EXEEXT)
 subdir = example
-DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am
+DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
+	$(top_srcdir)/config/depcomp
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/config/m4/libtool.m4 \
 	$(top_srcdir)/config/m4/ltoptions.m4 \
@@ -103,7 +104,7 @@ AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
 am__v_lt_0 = --silent
 am__v_lt_1 = 
-am_dos_c_x_OBJECTS =
+am_dos_c_x_OBJECTS = dos_c.$(OBJEXT)
 dos_c_x_OBJECTS = $(am_dos_c_x_OBJECTS)
 dos_c_x_DEPENDENCIES =
 am_lindhard_x_OBJECTS = dos.$(OBJEXT)
@@ -122,6 +123,9 @@ am__v_at_ = $(am__v_at_@AM_DEFAULT_V@)
 am__v_at_0 = @
 am__v_at_1 = 
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
+depcomp = $(SHELL) $(top_srcdir)/config/depcomp
+am__depfiles_maybe = depfiles
+am__mv = mv -f
 PPFCCOMPILE = $(FC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
 	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_FCFLAGS) $(FCFLAGS)
 LTPPFCCOMPILE = $(LIBTOOL) $(AM_V_lt) --tag=FC $(AM_LIBTOOLFLAGS) \
@@ -310,16 +314,16 @@ top_srcdir = @top_srcdir@
 MAINTAINERCLEANFILES = Makefile.in
 dos_x_SOURCES = dos.F90
 lindhard_x_SOURCES = dos.F90
-dos_c_x_SOURCES = dos.cF90
+dos_c_x_SOURCES = dos_c.c
 AM_FCFLAGS = -I$(top_builddir) -I$(top_builddir)/src
 AM_CFLAGS = -I$(top_builddir) -I$(top_builddir)/src
 dos_x_LDADD = -L$(top_builddir)/src -ltetrabz $(LAPACK_LIBS) $(BLAS_LIBS)
 lindhard_x_LDADD = -L$(top_builddir)/src -ltetrabz $(LAPACK_LIBS) $(BLAS_LIBS)
-dos_c_x_LDADD = -L$(top_builddir)/src -ltetrabz $(LAPACK_LIBS) $(BLAS_LIBS)
+dos_c_x_LDADD = -L$(top_builddir)/src -ltetrabz $(LAPACK_LIBS) $(BLAS_LIBS) -lm
 all: all-am
 
 .SUFFIXES:
-.SUFFIXES: .F90 .lo .o .obj
+.SUFFIXES: .F90 .c .lo .o .obj
 $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
 	@for dep in $?; do \
 	  case '$(am__configure_deps)' in \
@@ -418,6 +422,8 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dos_c.Po@am__quote@
+
 .F90.o:
 	$(AM_V_PPFC)$(PPFCCOMPILE) -c -o $@ $<
 
@@ -426,6 +432,27 @@ distclean-compile:
 
 .F90.lo:
 	$(AM_V_PPFC)$(LTPPFCCOMPILE) -c -o $@ $<
+
+.c.o:
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(COMPILE) -c -o $@ $<
+
+.c.obj:
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ `$(CYGPATH_W) '$<'`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(COMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
+
+.c.lo:
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LTCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LTCOMPILE) -c -o $@ $<
 
 mostlyclean-libtool:
 	-rm -f *.lo
@@ -558,6 +585,7 @@ clean: clean-am
 clean-am: clean-binPROGRAMS clean-generic clean-libtool mostlyclean-am
 
 distclean: distclean-am
+	-rm -rf ./$(DEPDIR)
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-tags
@@ -603,6 +631,7 @@ install-ps-am:
 installcheck-am:
 
 maintainer-clean: maintainer-clean-am
+	-rm -rf ./$(DEPDIR)
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 

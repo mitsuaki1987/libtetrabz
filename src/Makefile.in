@@ -125,7 +125,11 @@ am__uninstall_files_from_dir = { \
 am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(includedir)"
 LTLIBRARIES = $(lib_LTLIBRARIES)
 libtetrabz_la_LIBADD =
-am_libtetrabz_la_OBJECTS = libtetrabz.lo
+am_libtetrabz_la_OBJECTS = libtetrabz.lo libtetrabz_polcmplx_mod.lo \
+	libtetrabz_fermigr_mod.lo libtetrabz_polstat_mod.lo \
+	libtetrabz_dbldelta_mod.lo libtetrabz_dblstep_mod.lo \
+	libtetrabz_dos_mod.lo libtetrabz_occ_mod.lo \
+	libtetrabz_common.lo
 libtetrabz_la_OBJECTS = $(am_libtetrabz_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
@@ -314,7 +318,10 @@ top_srcdir = @top_srcdir@
 MAINTAINERCLEANFILES = Makefile.in
 include_HEADERS = libtetrabz.h libtetrabz.mod
 lib_LTLIBRARIES = libtetrabz.la
-libtetrabz_la_SOURCES = libtetrabz.F90
+libtetrabz_la_SOURCES = libtetrabz.F90 libtetrabz_polcmplx_mod.F90 libtetrabz_fermigr_mod.F90 \
+						libtetrabz_polstat_mod.F90 libtetrabz_dbldelta_mod.F90 libtetrabz_dblstep_mod.F90 \
+						libtetrabz_dos_mod.F90 libtetrabz_occ_mod.F90 libtetrabz_common.F90
+
 all: all-am
 
 .SUFFIXES:
@@ -638,15 +645,15 @@ uninstall-am: uninstall-includeHEADERS uninstall-libLTLIBRARIES
 	uninstall-libLTLIBRARIES
 
 
-libtetrabz.o : libtetrabz.F90 libtetrabz_polcmplx_mod.o libtetrabz_fermigr_mod.o libtetrabz_polstat_mod.o libtetrabz_dbldelta_mod.o libtetrabz_dblstep_mod.o libtetrabz_dos_mod.o libtetrabz_occ_mod.o
-libtetrabz_common.o : libtetrabz_common.F90
-libtetrabz_dbldelta_mod.o : libtetrabz_dbldelta_mod.F90 libtetrabz_common.o
-libtetrabz_dblstep_mod.o : libtetrabz_dblstep_mod.F90 libtetrabz_common.o
-libtetrabz_dos_mod.o : libtetrabz_dos_mod.F90 libtetrabz_common.o
-libtetrabz_fermigr_mod.o : libtetrabz_fermigr_mod.F90 libtetrabz_common.o
-libtetrabz_occ_mod.o : libtetrabz_occ_mod.F90 libtetrabz_common.o
-libtetrabz_polcmplx_mod.o : libtetrabz_polcmplx_mod.F90 libtetrabz_common.o
-libtetrabz_polstat_mod.o : libtetrabz_polstat_mod.F90 libtetrabz_common.o
+libtetrabz.lo : libtetrabz.F90 libtetrabz_polcmplx_mod.lo libtetrabz_fermigr_mod.lo libtetrabz_polstat_mod.lo libtetrabz_dbldelta_mod.lo libtetrabz_dblstep_mod.lo libtetrabz_dos_mod.lo libtetrabz_occ_mod.lo
+libtetrabz_common.lo : libtetrabz_common.F90
+libtetrabz_dbldelta_mod.lo : libtetrabz_dbldelta_mod.F90 libtetrabz_common.lo
+libtetrabz_dblstep_mod.lo : libtetrabz_dblstep_mod.F90 libtetrabz_common.lo
+libtetrabz_dos_mod.lo : libtetrabz_dos_mod.F90 libtetrabz_common.lo
+libtetrabz_fermigr_mod.lo : libtetrabz_fermigr_mod.F90 libtetrabz_common.lo
+libtetrabz_occ_mod.lo : libtetrabz_occ_mod.F90 libtetrabz_common.lo
+libtetrabz_polcmplx_mod.lo : libtetrabz_polcmplx_mod.F90 libtetrabz_common.lo
+libtetrabz_polstat_mod.lo : libtetrabz_polstat_mod.F90 libtetrabz_common.lo
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
