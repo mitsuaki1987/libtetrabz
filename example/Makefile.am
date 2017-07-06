@@ -1,6 +1,6 @@
 MAINTAINERCLEANFILES    = Makefile.in
 
-bin_PROGRAMS = dos.x lindhard.x dos_c.x
+noinst_PROGRAMS = dos.x lindhard.x dos_c.x
 
 dos_x_SOURCES = dos.F90
 lindhard_x_SOURCES = dos.F90

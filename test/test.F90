@@ -491,7 +491,7 @@ PROGRAM test
   &                    bvec, VBZ, eig1, eig2, mat
   IMPLICIT NONE
   !
-  INTEGER :: i1, i2, i3, ik
+  INTEGER :: i1, i2, i3, ik, nge1, ngw1
   REAL(8) :: kvec(3)
   !
 #if defined(__MPI)
@@ -502,9 +502,9 @@ PROGRAM test
   my_proc = 0
 #endif
   !
-  ltetra = 2
-  nge(1:3) = 8
-  ngw(1:3) = 8
+  READ(*,*) ltetra, nge1, ngw1
+  nge(1:3) = nge1
+  ngw(1:3) = ngw1
   nke = PRODUCT(nge(1:3))
   nkw = PRODUCT(ngw(1:3))
   nb = 2
