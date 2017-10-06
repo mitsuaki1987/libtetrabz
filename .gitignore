@@ -21,3 +21,9 @@ stamp-h1
 *.so.*
 *.lai
 *.Po
+test/*.sh.log
+test/*.sh.trs
+test/test.in
+test/test.out
+test/test.out.ref
+test/test-suite.log
