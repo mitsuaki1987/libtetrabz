@@ -17,13 +17,17 @@
         <p align="left">日本語 
           <a href="index.html">English</a></p>
         <hr>
-        <h1><a href="http://osdn.jp/projects/libtetrabz/">libtetrabz</a></h1>
+        <h1><a href="http://osdn.jp/projects/libtetrabz/">LibTetraBZ</a></h1>
         
 	    <h4>固体中の電子状態計算においてBrillouin Zone積分を効率的に行うテトラへドロン法を
           任意のコードに実装するためのライブラリ群です。</h4>
 
         <hr>
-        <h3>引用につきまして</h3>
+        <img src="figs/libtetrabz.png" height="200">
+        <img src="figs/dos.png" height="200">
+        <img src="figs/lindhard.png" height="200">
+        <hr>
+        <h2>引用につきまして</h2>
         <h4>
           libtetrabzを使った研究におきまして, 下記の論文を適宜引用していただけましたら幸いです.
           <p><a href="https://journals.aps.org/prb/abstract/10.1103/PhysRevB.89.094515" target="_blank">
@@ -31,6 +35,23 @@
               M. Kawamura, Y. Gohda, and S. Tsuneyuki, Phys. Rev. B <b>89</b>, 094515 (2014).
           </a></p>
         </h4>
+        <hr>
+        <h2>News</h2>
+        <ul>
+          <li>
+            <h3>2017/7/7 libtetrabz-2.0.0 is released</h3>
+            <h4>詳しくは
+              <a href="https://ja.osdn.net/projects/libtetrabz/releases/67987">リリースノート</a>
+              をご覧ください.</h4>
+          </li>
+          
+          <li>
+            <h3>2016/4/15 RSDFT ver. 1.3.0 に LibTetraBZ が組み込まれました.</h3>
+            <h4>密度汎関数理論および実空間差分法による第一原理プログラムパッケージ
+              <a href="https://github.com/j-iwata/RSDFT">RSDFT</a>
+              にLibTetraBZが組み込まれました.</h4>
+          </li>
+        </ul>
         <hr>
         
         <script type="text/javascript">
