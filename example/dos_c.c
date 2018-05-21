@@ -39,7 +39,7 @@ int main()
   ie = scanf("%d", &ltetra);
   printf("\n k-point mesh ?: ");
   ie = scanf("%d", &ng);
-  if(ie != 0) printf("error %d\n",ie);
+  if(ie != 1) printf("error %d\n",ie);
   /**/
   pi = acos(-1.0);
   nb = 1;
