@@ -336,103 +336,40 @@ END SUBROUTINE libtetrabz_sort
 !
 ! Linear interpolation
 !
-SUBROUTINE libtetrabz_interpol_indx(nintp,ng,kvec,kintp,wintp)
+SUBROUTINE libtetrabz_interpol_indx(ng,kvec,kintp,wintp)
   !
   IMPLICIT NONE
   !
-  INTEGER,INTENT(in) :: nintp, ng(3)
+  INTEGER,INTENT(in) :: ng(3)
   REAL(8),INTENT(in) :: kvec(3)
-  INTEGER,INTENT(out) :: kintp(nintp)
-  REAL(8),INTENT(out) :: wintp(nintp)
+  INTEGER,INTENT(out) :: kintp(8)
+  REAL(8),INTENT(out) :: wintp(8)
   !
-  INTEGER :: ikv(3,20), dikv(3,3), ii
-  REAL(8) :: x, y, z, xv(3)
-  !
-  ! Search nearest neighbor grid points.
+  INTEGER :: ii
+  REAL(8) :: xv(3)
+  integer :: ikv0(3), ikv1(3), i1, i2, i3
   !
   xv(1:3) = kvec(1:3) * DBLE(ng(1:3))
-  ikv(1:3,1) = NINT(xv(1:3))
-  dikv(1:3,1:3) = 0
-  DO ii = 1, 3
-     dikv(ii,ii) = ikv(ii,1) - FLOOR(xv(ii))
-     dikv(ii,ii) = 1 - 2 * dikv(ii,ii)
-  END DO
-  xv(1:3) = ABS(xv(1:3) - DBLE(ikv(1:3,1)))
-  x = xv(1)
-  y = xv(2)
-  z = xv(3)
+  ikv0(1:3) = FLOOR(xv(1:3))
+  xv(1:3) = xv(1:3) - DBLE(ikv0(1:3))
   !
-  ikv(1:3, 2) = ikv(1:3,1) + dikv(1:3,1)
-  ikv(1:3, 3) = ikv(1:3,1) + dikv(1:3,2)
-  ikv(1:3, 4) = ikv(1:3,1) + dikv(1:3,3)
-  !
-  IF(nintp == 4) THEN
-     !
-     wintp(1) = 1d0 - x - y - z
-     wintp(2) = x
-     wintp(3) = y
-     wintp(4) = z
-     !
-  ELSE
-     !
-     ikv(1:3, 5) = ikv(1:3,1) + SUM(dikv(1:3,1:3), 2)
-     !
-     ikv(1:3, 6) = ikv(1:3,1) - dikv(1:3,1)
-     ikv(1:3, 7) = ikv(1:3,1) - dikv(1:3,2)
-     ikv(1:3, 8) = ikv(1:3,1) - dikv(1:3,3)
-     !
-     ikv(1:3, 9) = ikv(1:3,1) + 2*dikv(1:3,1)
-     ikv(1:3,10) = ikv(1:3,1) + 2*dikv(1:3,2)
-     ikv(1:3,11) = ikv(1:3,1) + 2*dikv(1:3,3)
-     !
-     ikv(1:3,12) = ikv(1:3,1) + dikv(1:3,2) + dikv(1:3,3)
-     ikv(1:3,13) = ikv(1:3,1) + dikv(1:3,3) + dikv(1:3,1)
-     ikv(1:3,14) = ikv(1:3,1) + dikv(1:3,1) + dikv(1:3,2)
-     !
-     ikv(1:3,15) = ikv(1:3,1) - dikv(1:3,1) + dikv(1:3,3)
-     ikv(1:3,16) = ikv(1:3,1) - dikv(1:3,2) + dikv(1:3,1)
-     ikv(1:3,17) = ikv(1:3,1) - dikv(1:3,3) + dikv(1:3,2)
-     !
-     ikv(1:3,18) = ikv(1:3,1) + dikv(1:3,1) - dikv(1:3,3)
-     ikv(1:3,19) = ikv(1:3,1) + dikv(1:3,2) - dikv(1:3,1)
-     ikv(1:3,20) = ikv(1:3,1) + dikv(1:3,3) - dikv(1:3,2)
-     !
-     wintp( 1) = ( (x - 2d0)*(x - 1d0)*(1d0 + x) &
-     &           + (y - 2d0)*(y - 1d0)*(1d0 + y) &
-     &           + (z - 2d0)*(z - 1d0)*(1d0 + z) &
-     &           + 2d0*(x*y + y*z + z*x)*(x + y + z - 1d0) &
-     &           - 8d0*x*y*z - 4d0) * 0.5d0
-     wintp( 2) = x * ( 2d0 + x*(1d0 - x - y - z) &
-     &               + y*(1d0 - 2d0*y + z) &
-     &               + z*(1d0 - 2d0*z + y)) * 0.5d0
-     wintp( 3) = y * ( 2d0 + y*(1d0 - x - y - z) &
-     &               + x*(1d0 - 2d0*x + z) &
-     &               + z*(1d0 - 2d0*z + x)) * 0.5d0
-     wintp( 4) = z * ( 2d0 + z*(1d0 - x - y - z) &
-     &               + y*(1d0 - 2d0*y + x) &
-     &               + x*(1d0 - 2d0*x + y)) * 0.5d0
-     wintp( 5) = x * y * z
-     wintp( 6) = x * (1d0 - x) * (    x + 3d0*y + 3d0*z - 2d0) / 6d0
-     wintp( 7) = y * (1d0 - y) * (3d0*x +     y + 3d0*z - 2d0) / 6d0
-     wintp( 8) = z * (1d0 - z) * (3d0*x + 3d0*y +     z - 2d0) / 6d0
-     wintp( 9) = x * (x - 1d0) * (x + 1d0) / 6d0
-     wintp(10) = y * (y - 1d0) * (y + 1d0) / 6d0
-     wintp(11) = z * (z - 1d0) * (z + 1d0) / 6d0
-     wintp(12) = y * z * (y + z - 2d0 * x) * 0.5d0
-     wintp(13) = z * x * (z + x - 2d0 * y) * 0.5d0
-     wintp(14) = x * y * (x + y - 2d0 * z) * 0.5d0
-     wintp(15) = x * z * (x - 1d0) * 0.5d0
-     wintp(16) = x * y * (y - 1d0) * 0.5d0
-     wintp(17) = y * z * (z - 1d0) * 0.5d0
-     wintp(18) = x * z * (z - 1d0) * 0.5d0
-     wintp(19) = x * y * (x - 1d0) * 0.5d0
-     wintp(20) = y * z * (y - 1d0) * 0.5d0
-     !
-  END IF
-  !
-  DO ii = 1, nintp
-     ikv(1:3,ii) = MODULO(ikv(1:3,ii), ng(1:3))
-     kintp(ii) = 1 + ikv(1,ii) + ng(1) * ikv(2,ii) + ng(1) * ng(2) * ikv(3,ii)
+  ii = 0
+  DO i1 = 0, 1
+     DO i2 = 0, 1
+        DO i3 = 0, 1
+           !
+           ii = ii + 1
+           !
+           ikv1(1:3) = ikv0(1:3) + (/i1, i2, i3/)
+           ikv1(1:3) = MODULO(ikv1(1:3), ng(1:3))
+           kintp(ii) = 1 + ikv1(1) + ng(1) * ikv1(2) + ng(1) * ng(2) * ikv1(3)
+           !
+           wintp(ii) = xv(1)**i1 * (1.0d0 - xv(1))**(1 - i1) &
+           &         * xv(2)**i2 * (1.0d0 - xv(2))**(1 - i2) &
+           &         * xv(3)**i3 * (1.0d0 - xv(3))**(1 - i3) 
+           !
+        END DO
+     END DO
   END DO
   !
 END SUBROUTINE libtetrabz_interpol_indx
