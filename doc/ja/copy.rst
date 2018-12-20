@@ -32,7 +32,7 @@ Autoconfの使用に支障がある場合には, 以下の簡易版のMakefile�
    libtetrabz_occ_mod.o \
    libtetrabz_polcmplx_mod.o \
    libtetrabz_polstat_mod.o \
-   libtetrabz_common.o
+   libtetrabz_common.o \
 
    .SUFFIXES :
    .SUFFIXES : .o .F90

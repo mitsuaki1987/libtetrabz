@@ -31,7 +31,7 @@ you can use the following simple Makefile (please care about TAB).
    libtetrabz_occ_mod.o \
    libtetrabz_polcmplx_mod.o \
    libtetrabz_polstat_mod.o \
-   libtetrabz_common.o
+   libtetrabz_common.o \
 
    .SUFFIXES :
    .SUFFIXES : .o .F90
