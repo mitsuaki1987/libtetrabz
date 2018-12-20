@@ -35,7 +35,9 @@ C言語で書かれたプログラムから呼び出す場合には次のよう�
 .. math::
 
    \begin{align}
-   \sum_{n k} \theta(\varepsilon_{\rm F} -
+   \sum_{n}
+   \int_{\rm BZ} \frac{d^3 k}{V_{\rm BZ}}
+   \theta(\varepsilon_{\rm F} -
    \varepsilon_{n k}) X_{n k}
    \end{align}
 
@@ -116,7 +118,9 @@ Fermi エネルギー(占有率も同時に計算する)
 .. math::
 
    \begin{align}
-   \sum_{n k} \theta(\varepsilon_{\rm F} -
+   \sum_{n}
+   \int_{\rm BZ} \frac{d^3 k}{V_{\rm BZ}}
+   \theta(\varepsilon_{\rm F} -
    \varepsilon_{n k}) X_{n k} 
    \end{align}
 
@@ -217,7 +221,9 @@ Fermi エネルギー(占有率も同時に計算する)
 .. math::
 
    \begin{align}
-   \sum_{n k} \delta(\omega - \varepsilon_{n k})
+   \sum_{n}
+   \int_{\rm BZ} \frac{d^3 k}{V_{\rm BZ}}
+   \delta(\omega - \varepsilon_{n k})
    X_{n k}(\omega) 
    \end{align}
 
@@ -311,7 +317,9 @@ Fermi エネルギー(占有率も同時に計算する)
 .. math::
 
    \begin{align}
-   \sum_{n k} \theta(\omega - \varepsilon_{n k})
+   \sum_{n}
+   \int_{\rm BZ} \frac{d^3 k}{V_{\rm BZ}}
+   \theta(\omega - \varepsilon_{n k})
    X_{n k}(\omega) 
    \end{align}
 
@@ -405,7 +413,9 @@ Fermi エネルギー(占有率も同時に計算する)
 .. math::
 
    \begin{align}
-   \sum_{n n' k} \delta(\varepsilon_{\rm F} -
+   \sum_{n n'}
+   \int_{\rm BZ} \frac{d^3 k}{V_{\rm BZ}}
+   \delta(\varepsilon_{\rm F} -
    \varepsilon_{n k}) \delta(\varepsilon_{\rm F} - \varepsilon'_{n' k})
    X_{n n' k}
    \end{align}
@@ -496,7 +506,9 @@ DFPT 計算の一部
 .. math::
 
    \begin{align}
-   \sum_{n n' k} \theta(\varepsilon_{\rm F} -
+   \sum_{n n'}
+   \int_{\rm BZ} \frac{d^3 k}{V_{\rm BZ}}
+   \theta(\varepsilon_{\rm F} -
    \varepsilon_{n k}) \theta(\varepsilon_{n k} - \varepsilon'_{n' k}) 
    X_{n n' k}
    \end{align}
@@ -587,7 +599,9 @@ DFPT 計算の一部
 .. math::
 
    \begin{align}
-   \sum_{n n' k} \frac{\theta(\varepsilon_{\rm F} - \varepsilon_{n k})
+   \sum_{n n'}
+   \int_{\rm BZ} \frac{d^3 k}{V_{\rm BZ}}
+   \frac{\theta(\varepsilon_{\rm F} - \varepsilon_{n k})
    \theta(\varepsilon'_{n' k} - \varepsilon_{\rm F})}
    {\varepsilon'_{n' k} - \varepsilon_{n k}}
    X_{n n' k} 
@@ -679,7 +693,9 @@ DFPT 計算の一部
 .. math::
 
    \begin{align}
-   \sum_{n n' k} \theta(\varepsilon_{\rm F} -
+   \sum_{n n'}
+   \int_{\rm BZ} \frac{d^3 k}{V_{\rm BZ}}
+   \theta(\varepsilon_{\rm F} -
    \varepsilon_{n k}) \theta(\varepsilon'_{n' k} - \varepsilon_{\rm F})
    \delta(\varepsilon'_{n' k} - \varepsilon_{n k} - \omega)
    X_{n n' k}(\omega) 
@@ -785,7 +801,9 @@ DFPT 計算の一部
 .. math::
 
    \begin{align}
-   \sum_{n n' k} \frac{\theta(\varepsilon_{\rm F} - \varepsilon_{n k})
+   \sum_{n n'}
+   \int_{\rm BZ} \frac{d^3 k}{V_{\rm BZ}}
+   \frac{\theta(\varepsilon_{\rm F} - \varepsilon_{n k})
    \theta(\varepsilon'_{n' k} - \varepsilon_{\rm F})}
    {\varepsilon'_{n' k} - \varepsilon_{n k} + i \omega}
    X_{n n' k}(\omega) 

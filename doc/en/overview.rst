@@ -11,8 +11,10 @@ calculate weights :math:`w_{n n' k}` for integration such as
 .. math::
 
    \begin{align}
-   \sum_{n n' k} F(\varepsilon_{n k}, \varepsilon_{n' k+q})X_{n n' k}
-   = \sum_{n n' k} w_{n n' k} X_{n n' k}
+   \sum_{n n'}
+   \int_{\rm BZ} \frac{d^3 k}{V_{\rm BZ}}
+   F(\varepsilon_{n k}, \varepsilon_{n' k+q})X_{n n' k}
+   = \sum_{n n'} \sum_{k}^{N_k} w_{n n' k} X_{n n' k}
    \end{align}
 
 ``libtetrabz`` supports following Brillouin-zone integrations
@@ -20,7 +22,8 @@ calculate weights :math:`w_{n n' k}` for integration such as
 .. math::
 
    \begin{align}
-   \sum_{n k}
+   \sum_{n}
+   \int_{\rm BZ} \frac{d^3 k}{V_{\rm BZ}}
    \theta(\varepsilon_{\rm F} - \varepsilon_{n k})
    X_{n k}
    \end{align}
@@ -28,7 +31,8 @@ calculate weights :math:`w_{n n' k}` for integration such as
 .. math::
  
    \begin{align}
-   \sum_{n k}
+   \sum_{n}
+   \int_{\rm BZ} \frac{d^3 k}{V_{\rm BZ}}
    \delta(\omega - \varepsilon_{n k})
    X_{n k}(\omega)
    \end{align}
@@ -36,7 +40,8 @@ calculate weights :math:`w_{n n' k}` for integration such as
 .. math::
 
    \begin{align}
-   \sum_{n n' k}
+   \sum_{n n'}
+   \int_{\rm BZ} \frac{d^3 k}{V_{\rm BZ}}
    \delta(\varepsilon_{\rm F} - \varepsilon_{n k})
    \delta(\varepsilon_{\rm F} - \varepsilon'_{n' k})
    X_{n n' k}
@@ -45,7 +50,8 @@ calculate weights :math:`w_{n n' k}` for integration such as
 .. math::
 
    \begin{align}
-   \sum_{n n' k}
+   \sum_{n n'}
+   \int_{\rm BZ} \frac{d^3 k}{V_{\rm BZ}}
    \theta(\varepsilon_{\rm F} - \varepsilon_{n k})
    \theta(\varepsilon_{n k} - \varepsilon'_{n' k})
    X_{n n' k}
@@ -54,7 +60,8 @@ calculate weights :math:`w_{n n' k}` for integration such as
 .. math::
 
    \begin{align}
-   \sum_{n n' k}
+   \sum_{n n'}
+   \int_{\rm BZ} \frac{d^3 k}{V_{\rm BZ}}
    \frac{
    \theta(\varepsilon_{\rm F} - \varepsilon_{n k})
    \theta(\varepsilon'_{n' k} - \varepsilon_{\rm F})}
@@ -65,7 +72,8 @@ calculate weights :math:`w_{n n' k}` for integration such as
 .. math::
 
    \begin{align}
-   \sum_{n n' k}
+   \sum_{n n'}
+   \int_{\rm BZ} \frac{d^3 k}{V_{\rm BZ}}
    \theta(\varepsilon_{\rm F} - \varepsilon_{n k})
    \theta(\varepsilon'_{n' k} - \varepsilon_{\rm F})
    \delta(\varepsilon'_{n' k} - \varepsilon_{n k} - \omega)
@@ -75,7 +83,8 @@ calculate weights :math:`w_{n n' k}` for integration such as
 .. math::
 
    \begin{align}
-   \sum_{n n' k}
+   \sum_{n n'}
+   \int_{\rm BZ} \frac{d^3 k}{V_{\rm BZ}}
    \frac{
    \theta(\varepsilon_{\rm F} - \varepsilon_{n k})
    \theta(\varepsilon'_{n' k} - \varepsilon_{\rm F})}

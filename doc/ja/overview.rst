@@ -10,8 +10,8 @@
 .. math::
 
    \begin{align}
-   \sum_{n n' k} F(\varepsilon_{n k}, \varepsilon_{n' k+q})X_{n n' k}
-   = \sum_{n n' k} w_{n n' k} X_{n n' k}
+   \sum_{n n'} \int_{\rm BZ} \frac{d^3 k}{V_{\rm BZ}} F(\varepsilon_{n k}, \varepsilon_{n' k+q})X_{n n' k}
+   = \sum_{n n'} \sum_{k}^{N_k} w_{n n' k} X_{n n' k}
    \end{align}
 
 のような積分における, 積分重み :math:`w_{n n' k}` を出力するサブルーチンを,
@@ -20,7 +20,8 @@
 .. math::
 
    \begin{align}
-   \sum_{n k}
+   \sum_{n}
+   \int_{\rm BZ} \frac{d^3 k}{V_{\rm BZ}}
    \theta(\varepsilon_{\rm F} - \varepsilon_{n k})
    X_{n k}
    \end{align}
@@ -28,7 +29,8 @@
 .. math::
  
    \begin{align}
-   \sum_{n k}
+   \sum_{n}
+   \int_{\rm BZ} \frac{d^3 k}{V_{\rm BZ}}
    \delta(\omega - \varepsilon_{n k})
    X_{n k}(\omega)
    \end{align}
@@ -36,7 +38,8 @@
 .. math::
 
    \begin{align}
-   \sum_{n n' k}
+   \sum_{n n'}
+   \int_{\rm BZ} \frac{d^3 k}{V_{\rm BZ}}
    \delta(\varepsilon_{\rm F} - \varepsilon_{n k})
    \delta(\varepsilon_{\rm F} - \varepsilon'_{n' k})
    X_{n n' k}
@@ -45,7 +48,8 @@
 .. math::
 
    \begin{align}
-   \sum_{n n' k}
+   \sum_{n n'}
+   \int_{\rm BZ} \frac{d^3 k}{V_{\rm BZ}}
    \theta(\varepsilon_{\rm F} - \varepsilon_{n k})
    \theta(\varepsilon_{n k} - \varepsilon'_{n' k})
    X_{n n' k}
@@ -54,7 +58,8 @@
 .. math::
 
    \begin{align}
-   \sum_{n n' k}
+   \sum_{n n'}
+   \int_{\rm BZ} \frac{d^3 k}{V_{\rm BZ}}
    \frac{
    \theta(\varepsilon_{\rm F} - \varepsilon_{n k})
    \theta(\varepsilon'_{n' k} - \varepsilon_{\rm F})}
@@ -65,7 +70,8 @@
 .. math::
 
    \begin{align}
-   \sum_{n n' k}
+   \sum_{n n'}
+   \int_{\rm BZ} \frac{d^3 k}{V_{\rm BZ}}
    \theta(\varepsilon_{\rm F} - \varepsilon_{n k})
    \theta(\varepsilon'_{n' k} - \varepsilon_{\rm F})
    \delta(\varepsilon'_{n' k} - \varepsilon_{n k} - \omega)
@@ -75,7 +81,8 @@
 .. math::
 
    \begin{align}
-   \sum_{n n' k}
+   \int_{\rm BZ} \frac{d^3 k}{V_{\rm BZ}}
+   \sum_{n n'}
    \frac{
    \theta(\varepsilon_{\rm F} - \varepsilon_{n k})
    \theta(\varepsilon'_{n' k} - \varepsilon_{\rm F})}

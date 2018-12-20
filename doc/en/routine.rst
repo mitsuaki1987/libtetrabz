@@ -34,7 +34,9 @@ Total energy, charge density, occupations
 .. math::
 
    \begin{align}
-   \sum_{n k} \theta(\varepsilon_{\rm F} -
+   \sum_{n}
+   \int_{\rm BZ} \frac{d^3 k}{V_{\rm BZ}}
+   \theta(\varepsilon_{\rm F} -
    \varepsilon_{n k}) X_{n k}
    \end{align}
 
@@ -115,7 +117,9 @@ Fermi energy and occupations
 .. math::
 
    \begin{align}
-   \sum_{n k} \theta(\varepsilon_{\rm F} -
+   \sum_{n}
+   \int_{\rm BZ} \frac{d^3 k}{V_{\rm BZ}}
+   \theta(\varepsilon_{\rm F} -
    \varepsilon_{n k}) X_{n k} 
    \end{align}
 
@@ -210,7 +214,9 @@ Partial density of states
 .. math::
 
    \begin{align}
-   \sum_{n k} \delta(\omega - \varepsilon_{n k})
+   \sum_{n}
+   \int_{\rm BZ} \frac{d^3 k}{V_{\rm BZ}}
+   \delta(\omega - \varepsilon_{n k})
    X_{n k}(\omega) 
    \end{align}
 
@@ -305,7 +311,9 @@ Integrated density of states
 .. math::
 
    \begin{align}
-   \sum_{n k} \theta(\omega - \varepsilon_{n k})
+   \sum_{n}
+   \int_{\rm BZ} \frac{d^3 k}{V_{\rm BZ}}
+   \theta(\omega - \varepsilon_{n k})
    X_{n k}(\omega) 
    \end{align}
 
@@ -400,7 +408,9 @@ Nesting function and Fr&oumlhlich parameter
 .. math::
 
    \begin{align}
-   \sum_{n n' k} \delta(\varepsilon_{\rm F} -
+   \sum_{n n'}
+   \int_{\rm BZ} \frac{d^3 k}{V_{\rm BZ}}
+   \delta(\varepsilon_{\rm F} -
    \varepsilon_{n k}) \delta(\varepsilon_{\rm F} - \varepsilon'_{n' k})
    X_{n n' k}
    \end{align}
@@ -491,7 +501,9 @@ A part of DFPT calculation
 .. math::
 
    \begin{align}
-   \sum_{n n' k} \theta(\varepsilon_{\rm F} -
+   \sum_{n n'}
+   \int_{\rm BZ} \frac{d^3 k}{V_{\rm BZ}}
+   \theta(\varepsilon_{\rm F} -
    \varepsilon_{n k}) \theta(\varepsilon_{n k} - \varepsilon'_{n' k}) 
    X_{n n' k}
    \end{align}
@@ -582,7 +594,9 @@ Static polarization function
 .. math::
 
    \begin{align}
-   \sum_{n n' k} \frac{\theta(\varepsilon_{\rm F} - \varepsilon_{n k})
+   \sum_{n n'}
+   \int_{\rm BZ} \frac{d^3 k}{V_{\rm BZ}}
+   \frac{\theta(\varepsilon_{\rm F} - \varepsilon_{n k})
    \theta(\varepsilon'_{n' k} - \varepsilon_{\rm F})}
    {\varepsilon'_{n' k} - \varepsilon_{n k}}
    X_{n n' k} 
@@ -674,7 +688,9 @@ Phonon linewidth
 .. math::
 
    \begin{align}
-   \sum_{n n' k} \theta(\varepsilon_{\rm F} -
+   \sum_{n n'}
+   \int_{\rm BZ} \frac{d^3 k}{V_{\rm BZ}}
+   \theta(\varepsilon_{\rm F} -
    \varepsilon_{n k}) \theta(\varepsilon'_{n' k} - \varepsilon_{\rm F})
    \delta(\varepsilon'_{n' k} - \varepsilon_{n k} - \omega)
    X_{n n' k}(\omega) 
@@ -780,7 +796,9 @@ Polarization function (complex frequency)
 .. math::
 
    \begin{align}
-   \sum_{n n' k} \frac{\theta(\varepsilon_{\rm F} - \varepsilon_{n k})
+   \sum_{n n'}
+   \int_{\rm BZ} \frac{d^3 k}{V_{\rm BZ}}
+   \frac{\theta(\varepsilon_{\rm F} - \varepsilon_{n k})
    \theta(\varepsilon'_{n' k} - \varepsilon_{\rm F})}
    {\varepsilon'_{n' k} - \varepsilon_{n k} + i \omega}
    X_{n n' k}(\omega) 
