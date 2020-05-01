@@ -106,7 +106,9 @@ html_theme = 'default'
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
 # documentation.
-#html_theme_options = {}
+html_theme_options = {
+    "body_max_width" : "none"
+}
 
 # Add any paths that contain custom themes here, relative to this directory.
 #html_theme_path = []
@@ -194,7 +196,7 @@ latex_elements = {
 # Additional stuff for the LaTeX preamble.
 #'preamble': '\usepackage{pxjahyper}',
     'babel': '\\usepackage[english]{babel}',
-    'classoptions': ',dvipdfmx,openany'
+    'classoptions': ',pdftex,openany'
 }
 
 # Grouping the document tree into LaTeX files. List of tuples
