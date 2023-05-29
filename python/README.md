@@ -8,11 +8,11 @@ using the tetrahedron method.
 
 To experience libtetrabz, please open the following python notebook with jupyter, Google colab, etc.
 
-https://libtetrabz.osdn.jp/python/libtetrabz_tutorial.ipynb
+https://github.com/mitsuaki1987/libtetrabz/blob/main/python/src/libtetrabz_tutorial.ipynb
 
 ## Manual
 
-https://libtetrabz.osdn.jp/python/
+https://mitsuaki1987.github.io/libtetrabz/python/_build/html/index.html
 
 ## For citing libtetrabz
 We would appreciate if you cite the following article in your 
@@ -28,4 +28,4 @@ https://arxiv.org/abs/2203.15648
 
 ## Git repository
 
-https://osdn.net/projects/libtetrabz/scm/git/python/
+https://github.com/mitsuaki1987/libtetrabz
