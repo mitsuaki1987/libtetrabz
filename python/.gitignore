@@ -1,0 +1,11 @@
+src/.ipynb_checkpoints/
+src/sc.frmsf
+dist/
+*.pyc
+doc/_build
+src/libtetrabz.egg-info/
+*.x
+*.o
+.idea
+build
+
