@@ -1,0 +1,183 @@
+
+<!DOCTYPE html>
+
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <title>はじめに &#8212; libtetrabz 2.0.0 ドキュメント</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/classic.css" />
+    
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/translations.js"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    
+    <link rel="index" title="索引" href="genindex.html" />
+    <link rel="search" title="検索" href="search.html" />
+    <link rel="next" title="インストール方法" href="install.html" />
+    <link rel="prev" title="Welcome to LibTetraBZ&#39;s documentation!" href="index.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="総合索引"
+             accesskey="I">索引</a></li>
+        <li class="right" >
+          <a href="install.html" title="インストール方法"
+             accesskey="N">次へ</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to LibTetraBZ&#39;s documentation!"
+             accesskey="P">前へ</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">libtetrabz 2.0.0 ドキュメント</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">はじめに</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="id1">
+<h1>はじめに<a class="headerlink" href="#id1" title="この見出しへのパーマリンク">¶</a></h1>
+<p>この文書ではテトラへドロン法ライブラリ <code class="docutils literal notranslate"><span class="pre">libtetrabz</span></code> についての解説を行っている.
+<code class="docutils literal notranslate"><span class="pre">libtetrabz</span></code> は線形テトラへドロン法もしくは最適化線形テトラへドロン法 <a class="reference internal" href="ref.html#ref"><span class="std std-ref">[1]</span></a>
+を用いて全エネルギーや電荷密度, 部分状態密度,
+分極関数等を計算するためのライブラリ群である.
+このライブラリには, 軌道エネルギーをインプットとして,</p>
+<div class="math notranslate nohighlight">
+\[\begin{align}
+\sum_{n n'} \int_{\rm BZ} \frac{d^3 k}{V_{\rm BZ}} F(\varepsilon_{n k}, \varepsilon_{n' k+q})X_{n n' k}
+= \sum_{n n'} \sum_{k}^{N_k} w_{n n' k} X_{n n' k}
+\end{align}\]</div>
+<p>のような積分における, 積分重み <span class="math notranslate nohighlight">\(w_{n n' k}\)</span> を出力するサブルーチンを,
+各種計算について取り揃えている. 具体的には以下の計算に対応している.</p>
+<div class="math notranslate nohighlight">
+\[\begin{align}
+\sum_{n}
+\int_{\rm BZ} \frac{d^3 k}{V_{\rm BZ}}
+\theta(\varepsilon_{\rm F} - \varepsilon_{n k})
+X_{n k}
+\end{align}\]</div>
+<div class="math notranslate nohighlight">
+\[\begin{align}
+\sum_{n}
+\int_{\rm BZ} \frac{d^3 k}{V_{\rm BZ}}
+\delta(\omega - \varepsilon_{n k})
+X_{n k}(\omega)
+\end{align}\]</div>
+<div class="math notranslate nohighlight">
+\[\begin{align}
+\sum_{n n'}
+\int_{\rm BZ} \frac{d^3 k}{V_{\rm BZ}}
+\delta(\varepsilon_{\rm F} - \varepsilon_{n k})
+\delta(\varepsilon_{\rm F} - \varepsilon'_{n' k})
+X_{n n' k}
+\end{align}\]</div>
+<div class="math notranslate nohighlight">
+\[\begin{align}
+\sum_{n n'}
+\int_{\rm BZ} \frac{d^3 k}{V_{\rm BZ}}
+\theta(\varepsilon_{\rm F} - \varepsilon_{n k})
+\theta(\varepsilon_{n k} - \varepsilon'_{n' k})
+X_{n n' k}
+\end{align}\]</div>
+<div class="math notranslate nohighlight">
+\[\begin{align}
+\sum_{n n'}
+\int_{\rm BZ} \frac{d^3 k}{V_{\rm BZ}}
+\frac{
+\theta(\varepsilon_{\rm F} - \varepsilon_{n k})
+\theta(\varepsilon'_{n' k} - \varepsilon_{\rm F})}
+{\varepsilon'_{n' k} - \varepsilon_{n k}}
+X_{n n' k}
+\end{align}\]</div>
+<div class="math notranslate nohighlight">
+\[\begin{align}
+\sum_{n n'}
+\int_{\rm BZ} \frac{d^3 k}{V_{\rm BZ}}
+\theta(\varepsilon_{\rm F} - \varepsilon_{n k})
+\theta(\varepsilon'_{n' k} - \varepsilon_{\rm F})
+\delta(\varepsilon'_{n' k} - \varepsilon_{n k} - \omega)
+X_{n n' k}(\omega)
+\end{align}\]</div>
+<div class="math notranslate nohighlight">
+\[\begin{align}
+\int_{\rm BZ} \frac{d^3 k}{V_{\rm BZ}}
+\sum_{n n'}
+\frac{
+\theta(\varepsilon_{\rm F} - \varepsilon_{n k})
+\theta(\varepsilon'_{n' k} - \varepsilon_{\rm F})}
+{\varepsilon'_{n' k} - \varepsilon_{n k} + i \omega}
+X_{n n' k}(\omega)
+\end{align}\]</div>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="index.html">
+              <img class="logo" src="_static/libtetrabz.png" alt="Logo"/>
+            </a></p>
+  <div>
+    <h4>前のトピックへ</h4>
+    <p class="topless"><a href="index.html"
+                          title="前の章へ">Welcome to LibTetraBZ's documentation!</a></p>
+  </div>
+  <div>
+    <h4>次のトピックへ</h4>
+    <p class="topless"><a href="install.html"
+                          title="次の章へ">インストール方法</a></p>
+  </div>
+  <div role="note" aria-label="source link">
+    <h3>このページ</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/overview.rst.txt"
+            rel="nofollow">ソースコードを表示</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">クイック検索</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="検索" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="総合索引"
+             >索引</a></li>
+        <li class="right" >
+          <a href="install.html" title="インストール方法"
+             >次へ</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to LibTetraBZ&#39;s documentation!"
+             >前へ</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">libtetrabz 2.0.0 ドキュメント</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">はじめに</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2017, Mitsuaki Kawamura.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.3.
+    </div>
+  </body>
+</html>

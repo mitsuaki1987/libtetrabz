@@ -1,0 +1,28 @@
+\babel@toc {english}{}
+\contentsline {chapter}{\numberline {1}Introduction}{1}{chapter.1}%
+\contentsline {chapter}{\numberline {2}Installation}{2}{chapter.2}%
+\contentsline {section}{\numberline {2.1}Important files and directories}{2}{section.2.1}%
+\contentsline {section}{\numberline {2.2}Prerequisite}{2}{section.2.2}%
+\contentsline {section}{\numberline {2.3}Installation guide}{2}{section.2.3}%
+\contentsline {section}{\numberline {2.4}Options for configure}{4}{section.2.4}%
+\contentsline {chapter}{\numberline {3}Linking libtetrabz}{5}{chapter.3}%
+\contentsline {chapter}{\numberline {4}Subroutines}{6}{chapter.4}%
+\contentsline {section}{\numberline {4.1}Total energy, charge density, occupations}{6}{section.4.1}%
+\contentsline {section}{\numberline {4.2}Fermi energy and occupations}{7}{section.4.2}%
+\contentsline {section}{\numberline {4.3}Partial density of states}{8}{section.4.3}%
+\contentsline {section}{\numberline {4.4}Integrated density of states}{9}{section.4.4}%
+\contentsline {section}{\numberline {4.5}Nesting function and Fr\&oumlhlich parameter}{10}{section.4.5}%
+\contentsline {section}{\numberline {4.6}A part of DFPT calculation}{11}{section.4.6}%
+\contentsline {section}{\numberline {4.7}Static polarization function}{12}{section.4.7}%
+\contentsline {section}{\numberline {4.8}Phonon linewidth}{13}{section.4.8}%
+\contentsline {section}{\numberline {4.9}Polarization function (complex frequency)}{14}{section.4.9}%
+\contentsline {chapter}{\numberline {5}Piece of sample code}{16}{chapter.5}%
+\contentsline {chapter}{\numberline {6}Re\sphinxhyphen {}distribution of this program}{17}{chapter.6}%
+\contentsline {section}{\numberline {6.1}Contain libtetrabz in your program}{17}{section.6.1}%
+\contentsline {section}{\numberline {6.2}Build libtetrabz without Autoconf}{17}{section.6.2}%
+\contentsline {section}{\numberline {6.3}MIT License}{18}{section.6.3}%
+\contentsline {chapter}{\numberline {7}Contacts}{19}{chapter.7}%
+\contentsline {chapter}{\numberline {8}Appendix}{20}{chapter.8}%
+\contentsline {section}{\numberline {8.1}Inverse interpolation}{20}{section.8.1}%
+\contentsline {section}{\numberline {8.2}Double delta integration}{21}{section.8.2}%
+\contentsline {chapter}{\numberline {9}Reference}{23}{chapter.9}%

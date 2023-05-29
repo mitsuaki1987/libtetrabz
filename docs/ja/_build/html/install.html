@@ -1,0 +1,275 @@
+
+<!DOCTYPE html>
+
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <title>インストール方法 &#8212; libtetrabz 2.0.0 ドキュメント</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/classic.css" />
+    
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/translations.js"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    
+    <link rel="index" title="索引" href="genindex.html" />
+    <link rel="search" title="検索" href="search.html" />
+    <link rel="next" title="ライブラリのリンク方法" href="link.html" />
+    <link rel="prev" title="はじめに" href="overview.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="総合索引"
+             accesskey="I">索引</a></li>
+        <li class="right" >
+          <a href="link.html" title="ライブラリのリンク方法"
+             accesskey="N">次へ</a> |</li>
+        <li class="right" >
+          <a href="overview.html" title="はじめに"
+             accesskey="P">前へ</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">libtetrabz 2.0.0 ドキュメント</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">インストール方法</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="id1">
+<h1>インストール方法<a class="headerlink" href="#id1" title="この見出しへのパーマリンク">¶</a></h1>
+<section id="id2">
+<h2>主なファイルとディレクトリ<a class="headerlink" href="#id2" title="この見出しへのパーマリンク">¶</a></h2>
+<ul class="simple">
+<li><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">doc/</span></code><span class="classifier">マニュアルのディレクトリ</span></dt><dd><ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">doc/index.html</span></code> : 目録ページ</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">src/</span></code> : ライブラリのソースコードのディレクトリ</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">example/</span></code> : ライブラリ使用例のディレクトリ</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">test/</span></code> : ライブラリのビルドのテスト用ディレクトリ</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">configure</span></code> : ビルド環境設定用スクリプト</p></li>
+</ul>
+</section>
+<section id="id3">
+<h2>要件<a class="headerlink" href="#id3" title="この見出しへのパーマリンク">¶</a></h2>
+<p>以下のものが必要となる.</p>
+<ul class="simple">
+<li><p>fortran および C コンパイラ</p></li>
+<li><p>MPI ライブラリ (MPI/ハイブリッド並列版を利用する場合)</p></li>
+</ul>
+</section>
+<section id="id4">
+<h2>インストール手順<a class="headerlink" href="#id4" title="この見出しへのパーマリンク">¶</a></h2>
+<ol class="arabic">
+<li><p>以下の場所から <code class="docutils literal notranslate"><span class="pre">.tar.gz</span></code> ファイルをダウンロードする.</p>
+<p><a class="reference external" href="http://osdn.jp/projects/libtetrabz/releases/">http://osdn.jp/projects/libtetrabz/releases/</a></p>
+</li>
+<li><p>ダウンロードした <code class="docutils literal notranslate"><span class="pre">.tar.gz</span></code> ファイルを展開し,
+出来たディレクトリに入る.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>tar<span class="w"> </span>xzvf<span class="w"> </span>libtetrabz-version.tar.gz
+$<span class="w"> </span><span class="nb">cd</span><span class="w"> </span>libtetrabz-version
+</pre></div>
+</div>
+</li>
+<li><p>ビルド環境を設定する.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>./configure<span class="w"> </span>--prefix<span class="o">=</span>install_dir
+</pre></div>
+</div>
+<p>これにより, ビルドに必要なコンパイラやライブラリ等の環境のチェックが行われ,
+Makefile等が作成される.
+ただし <code class="docutils literal notranslate"><span class="pre">install_dir</span></code> はインストール先のディレクトリの絶対パスとする (以後各自のディレクトリ名で読み替えること).
+なにも指定しないと <code class="docutils literal notranslate"><span class="pre">/use/local/</span></code> が設定され, 後述の <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">install</span></code> で
+<code class="docutils literal notranslate"><span class="pre">/usr/local/lib</span></code> 内にライブラリが置かれる (したがって, 管理者権限がない場合には <code class="docutils literal notranslate"><span class="pre">install_dir</span></code> を
+別の場所に指定しなければならない).
+<code class="docutils literal notranslate"><span class="pre">configure</span></code> にはこの他にも様々なオプションがあり, 必要に応じて用途や環境に合わせてそれらを使用する.
+詳しくは <a class="reference internal" href="#configoption"><span class="std std-ref">configureのオプション</span></a> を参照.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">configure</span></code> の実行が正常に行われ, <code class="docutils literal notranslate"><span class="pre">Makefile</span></code> が生成された後は</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>make
+</pre></div>
+</div>
+<p>とタイプしてライブラリ等のビルドを行う.これが成功したのちに</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>make<span class="w"> </span>install
+</pre></div>
+</div>
+<p>とすると, ライブラリが <code class="docutils literal notranslate"><span class="pre">install_dir/lib</span></code> に置かれる.
+<code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">install</span></code> をしなくても, ビルドをしたディレクトリ内にあるライブラリやミニアプリを使うことは可能であるが, 使い勝手がやや異なる.</p>
+</li>
+<li><p>共有リンクを行ったプログラムの実行時にライブラリを探しにいけるよう,
+環境変数 <code class="docutils literal notranslate"><span class="pre">LD_LIBRARY_PATH</span></code> にlibtetrabzをインストールしたディレクトリを追加する.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="nv">LD_LIBRARY_PATH</span><span class="o">=</span><span class="si">${</span><span class="nv">LD_LIBRARY_PATH</span><span class="si">}</span>:install_dir/lib
+</pre></div>
+</div>
+</li>
+<li><p>また,
+<code class="docutils literal notranslate"><span class="pre">example/</span></code> 以下のライブラリ使用例のプログラムもコンパイルされる.</p>
+<p><code class="docutils literal notranslate"><span class="pre">example/dos.x</span></code> :
+立法格子シングルバンドタイトバインディングモデルのDOSを 計算する.
+ソースコードは <code class="docutils literal notranslate"><span class="pre">dos.f90</span></code></p>
+<blockquote>
+<div><figure class="align-default" id="id5">
+<a class="reference internal image-reference" href="_images/dos.png"><img alt="_images/dos.png" src="_images/dos.png" style="width: 471.0px; height: 354.0px;" /></a>
+<figcaption>
+<p><span class="caption-text">dos.xを使って計算した,
+立法格子タイトバインディング模型の状態密度.
+実線は十分多くの <span class="math notranslate nohighlight">\(k\)</span> 点を利用した時の結果.
+&quot; <span class="math notranslate nohighlight">\(+\)</span> &quot;,
+&quot; <span class="math notranslate nohighlight">\(\times\)</span> &quot;はそれぞれ
+<span class="math notranslate nohighlight">\(8\times8\times8 k\)</span> グリッドでの
+線形テトラへドロン法および最適化テトラへドロン法の結果.</span><a class="headerlink" href="#id5" title="この画像へのパーマリンク">¶</a></p>
+</figcaption>
+</figure>
+</div></blockquote>
+<p><code class="docutils literal notranslate"><span class="pre">example/lindhard.x</span></code> : リントハルト関数を計算する.
+ソースコードは <code class="docutils literal notranslate"><span class="pre">lindhard.f90</span></code></p>
+<blockquote>
+<div><figure class="align-default" id="id6">
+<a class="reference internal image-reference" href="_images/lindhard.png"><img alt="_images/lindhard.png" src="_images/lindhard.png" style="width: 471.0px; height: 354.0px;" /></a>
+<figcaption>
+<p><span class="caption-text">lindhard.xを使って計算したLindhard関数.
+実線は解析的な結果.
+&quot; <span class="math notranslate nohighlight">\(+\)</span> &quot;, &quot; <span class="math notranslate nohighlight">\(\times\)</span> &quot;はそれぞれ
+<span class="math notranslate nohighlight">\(8\times8\times8 k\)</span>
+グリッドでの線形テトラへドロン法および最適化テトラへドロン法の結果.</span><a class="headerlink" href="#id6" title="この画像へのパーマリンク">¶</a></p>
+</figcaption>
+</figure>
+</div></blockquote>
+</li>
+</ol>
+</section>
+<section id="configure">
+<span id="configoption"></span><h2>configureのオプション<a class="headerlink" href="#configure" title="この見出しへのパーマリンク">¶</a></h2>
+<p>configureには多数のオプションと変数があり, それらを組み合わせて指定する.
+指定しない場合にはデフォルト値が使われる.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>./configure<span class="w"> </span>--prefix<span class="o">=</span>/home/libtetrabz/<span class="w"> </span>--with-mpi<span class="o">=</span>yes<span class="w"> </span><span class="nv">FC</span><span class="o">=</span>mpif90
+</pre></div>
+</div>
+<p>おもなものを次に挙げる.</p>
+<p><code class="docutils literal notranslate"><span class="pre">---prefix</span></code></p>
+<blockquote>
+<div><p>デフォルト: <code class="docutils literal notranslate"><span class="pre">---prefix=/usr/local/</span></code>.
+ライブラリ等のインストールを行うディレクトリツリーを指定する.</p>
+</div></blockquote>
+<p><code class="docutils literal notranslate"><span class="pre">--with-mpi</span></code></p>
+<blockquote>
+<div><p>デフォルト: <code class="docutils literal notranslate"><span class="pre">--with-mpi=no</span></code> (MPIを用いない).
+MPIを用いるか (<code class="docutils literal notranslate"><span class="pre">--with-mpi=yes</span></code>), 否かを指定する.</p>
+</div></blockquote>
+<p><code class="docutils literal notranslate"><span class="pre">--with-openmp</span></code></p>
+<blockquote>
+<div><p>デフォルト: <code class="docutils literal notranslate"><span class="pre">--with-openmp=yes</span></code> (OpenMPを用いる).
+OpenMPを用いるか否か (<code class="docutils literal notranslate"><span class="pre">--with-openmp=no</span></code>) を指定する.</p>
+</div></blockquote>
+<p><code class="docutils literal notranslate"><span class="pre">--enable-shared</span></code></p>
+<blockquote>
+<div><p>デフォルト: <code class="docutils literal notranslate"><span class="pre">--enable-shared</span></code>.
+共有ライブラリを作成するか否か</p>
+</div></blockquote>
+<p><code class="docutils literal notranslate"><span class="pre">--enable-static</span></code></p>
+<blockquote>
+<div><p>デフォルト: <code class="docutils literal notranslate"><span class="pre">--enable-static</span></code>.
+静的ライブラリを作成するか否か.</p>
+</div></blockquote>
+<p><code class="docutils literal notranslate"><span class="pre">FC</span></code>, <code class="docutils literal notranslate"><span class="pre">CC</span></code></p>
+<blockquote>
+<div><p>デフォルト: システムにインストールされているfortran/Cコンパイラをスキャンして,
+自動的に設定する. <code class="docutils literal notranslate"><span class="pre">--with-mpi</span></code> を指定した時にはそれに応じたコマンド
+(<code class="docutils literal notranslate"><span class="pre">mpif90</span></code> 等)を自動で探し出して設定する.
+<code class="docutils literal notranslate"><span class="pre">configure</span></code> の最後に出力される <code class="docutils literal notranslate"><span class="pre">FC</span></code> が望んだものでは無かった場合には
+<code class="docutils literal notranslate"><span class="pre">./configure</span> <span class="pre">FC=gfortran</span></code> のように手で指定する.</p>
+</div></blockquote>
+<p><code class="docutils literal notranslate"><span class="pre">--help</span></code></p>
+<blockquote>
+<div><p>このオプションを指定した時には, ビルドの環境設定は行われず,
+上記を含めたすべてのオプションを表示する.</p>
+</div></blockquote>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="index.html">
+              <img class="logo" src="_static/libtetrabz.png" alt="Logo"/>
+            </a></p>
+  <div>
+    <h3><a href="index.html">Table of Contents</a></h3>
+    <ul>
+<li><a class="reference internal" href="#">インストール方法</a><ul>
+<li><a class="reference internal" href="#id2">主なファイルとディレクトリ</a></li>
+<li><a class="reference internal" href="#id3">要件</a></li>
+<li><a class="reference internal" href="#id4">インストール手順</a></li>
+<li><a class="reference internal" href="#configure">configureのオプション</a></li>
+</ul>
+</li>
+</ul>
+
+  </div>
+  <div>
+    <h4>前のトピックへ</h4>
+    <p class="topless"><a href="overview.html"
+                          title="前の章へ">はじめに</a></p>
+  </div>
+  <div>
+    <h4>次のトピックへ</h4>
+    <p class="topless"><a href="link.html"
+                          title="次の章へ">ライブラリのリンク方法</a></p>
+  </div>
+  <div role="note" aria-label="source link">
+    <h3>このページ</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/install.rst.txt"
+            rel="nofollow">ソースコードを表示</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">クイック検索</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="検索" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="総合索引"
+             >索引</a></li>
+        <li class="right" >
+          <a href="link.html" title="ライブラリのリンク方法"
+             >次へ</a> |</li>
+        <li class="right" >
+          <a href="overview.html" title="はじめに"
+             >前へ</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">libtetrabz 2.0.0 ドキュメント</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">インストール方法</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2017, Mitsuaki Kawamura.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.3.
+    </div>
+  </body>
+</html>

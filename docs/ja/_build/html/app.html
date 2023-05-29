@@ -1,0 +1,310 @@
+
+<!DOCTYPE html>
+
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <title>補遺 &#8212; libtetrabz 2.0.0 ドキュメント</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/classic.css" />
+    
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/translations.js"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    
+    <link rel="index" title="索引" href="genindex.html" />
+    <link rel="search" title="検索" href="search.html" />
+    <link rel="next" title="参考文献" href="ref.html" />
+    <link rel="prev" title="問い合わせ先" href="contact.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="総合索引"
+             accesskey="I">索引</a></li>
+        <li class="right" >
+          <a href="ref.html" title="参考文献"
+             accesskey="N">次へ</a> |</li>
+        <li class="right" >
+          <a href="contact.html" title="問い合わせ先"
+             accesskey="P">前へ</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">libtetrabz 2.0.0 ドキュメント</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">補遺</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="app">
+<span id="id1"></span><h1>補遺<a class="headerlink" href="#app" title="この見出しへのパーマリンク">¶</a></h1>
+<section id="id2">
+<h2>逆補間<a class="headerlink" href="#id2" title="この見出しへのパーマリンク">¶</a></h2>
+<p>積分</p>
+<div class="math notranslate nohighlight">
+\[\begin{align}
+\langle X \rangle = \sum_{k} X_k w(\varepsilon_k)
+\end{align}\]</div>
+<p>を計算するとする. このとき,</p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(w\)</span> は <span class="math notranslate nohighlight">\(\varepsilon_k\)</span> に敏感な関数(階段関数 <span class="math notranslate nohighlight">\(\cdot\)</span> デルタ関数等)であり,
+なるべく細かいグリッド上の <span class="math notranslate nohighlight">\(\varepsilon_k\)</span> が必要である.</p></li>
+<li><p><span class="math notranslate nohighlight">\(X_k\)</span> を求めるための計算コストが <span class="math notranslate nohighlight">\(\varepsilon_k\)</span> の計算コストよりかなり大きい.</p></li>
+</ul>
+<p>という場合には <span class="math notranslate nohighlight">\(X_k\)</span> のグリッドを補間により増やす方法が有効である.
+それは,</p>
+<ol class="arabic simple">
+<li><p><span class="math notranslate nohighlight">\(\varepsilon_k\)</span> を細かい <span class="math notranslate nohighlight">\(k\)</span> グリッド上で計算する.</p></li>
+<li><p><span class="math notranslate nohighlight">\(X_k\)</span> を粗いグリッド上で計算し, それを補間(線形補間, 多項式補間,
+スプライン補間など)して細かいグリッド上での値を得る.</p></li>
+</ol>
+<div class="math notranslate nohighlight">
+\[\begin{align}
+X_k^{\rm dense} = \sum_{k'}^{\rm coarse}
+F_{k k'} X_{k'}^{\rm coarse}
+\end{align}\]</div>
+<ol class="arabic simple">
+<li><p>細かい <span class="math notranslate nohighlight">\(k\)</span> グリッドで上記の積分を行う.</p></li>
+</ol>
+<div class="math notranslate nohighlight">
+\[\begin{align}
+\langle X \rangle = \sum_{k}^{\rm dense}
+X_k^{\rm dense} w_k^{\rm dense}
+\end{align}\]</div>
+<p>という流れで行われる.</p>
+<p>さらに,
+この計算と同じ結果を得るように粗いグリッド上での積分重み
+<span class="math notranslate nohighlight">\(w_k^{\rm coarse}\)</span> を  <span class="math notranslate nohighlight">\(w_k{\rm dense}\)</span> から求める
+<strong>逆補間</strong> ( <a class="reference internal" href="ref.html#ref"><span class="std std-ref">[2]</span></a> のAppendix)も可能である.
+すなわち,</p>
+<div class="math notranslate nohighlight">
+\[\begin{align}
+\sum_k^{\rm dense} X_k^{\rm dense} w_k^{\rm dense}
+= \sum_k^{\rm coarse} X_k^{\rm coarse} w_k^{\rm coarse}
+\end{align}\]</div>
+<p>が満たされる事を要請すると</p>
+<div class="math notranslate nohighlight">
+\[\begin{align}
+w_k^{\rm coarse} = \sum_k^{\rm dense} F_{k' k}
+w_{k'}^{\rm dense}
+\end{align}\]</div>
+<p>となる. この場合の計算手順は,</p>
+<ol class="arabic simple">
+<li><p>細かい <span class="math notranslate nohighlight">\(k\)</span> グリッド上の  <span class="math notranslate nohighlight">\(\varepsilon_k\)</span> から
+<span class="math notranslate nohighlight">\(w_k^{\rm dense}\)</span> を計算する.</p></li>
+<li><p>逆補間により <span class="math notranslate nohighlight">\(w_k^{\rm coarse}\)</span> を求める.</p></li>
+<li><p>粗いグリッド上での <span class="math notranslate nohighlight">\(X_k\)</span> との積和を行う.</p></li>
+</ol>
+<p>となる. このライブラリ内の全ルーチンはこの逆補間の機能を備えており,
+軌道エネルギーの <span class="math notranslate nohighlight">\(k\)</span> グリッドと重み関数の <span class="math notranslate nohighlight">\(k\)</span> グリッドを
+異なる値にすると逆補間された <span class="math notranslate nohighlight">\(w_k^{\rm coarse}\)</span> が出力される.</p>
+</section>
+<section id="id3">
+<h2>2重デルタ関数の積分<a class="headerlink" href="#id3" title="この見出しへのパーマリンク">¶</a></h2>
+<p>For the integration</p>
+<div class="math notranslate nohighlight">
+\[\begin{align}
+\sum_{n n' k} \delta(\varepsilon_{\rm F} -
+\varepsilon_{n k}) \delta(\varepsilon_{\rm F} - \varepsilon'_{n' k})
+X_{n n' k}
+\end{align}\]</div>
+<p>first, we cut out one or two triangles where
+<span class="math notranslate nohighlight">\(\varepsilon_{n k} = \varepsilon_{\rm F}\)</span> from a tetrahedron
+and evaluate <span class="math notranslate nohighlight">\(\varepsilon_{n' k+q}\)</span> at the corners of each triangles as</p>
+<div class="math notranslate nohighlight">
+\[\begin{align}
+\varepsilon'^{k+q}_{i} = \sum_{j=1}^4 F_{i j}(
+\varepsilon_1^{k}, \cdots, \varepsilon_{4}^{k}, \varepsilon_{\rm F})
+\epsilon_{j}^{k+q}.
+\end{align}\]</div>
+<p>Then we calculate <span class="math notranslate nohighlight">\(\delta(\varepsilon_{n' k+q} - \varepsilon{\rm F})\)</span>
+in each triangles and obtain weights of corners.
+This weights of corners are mapped into those of corners of the original tetrahedron as</p>
+<div class="math notranslate nohighlight">
+\[\begin{align}
+W_{i} = \sum_{j=1}^3 \frac{S}{\nabla_k \varepsilon_k}F_{j i}(
+\varepsilon_{1}^k, \cdots, \varepsilon_{4}^k, \varepsilon_{\rm F})
+W'_{j}.
+\end{align}\]</div>
+<p><span class="math notranslate nohighlight">\(F_{i j}\)</span> and <span class="math notranslate nohighlight">\(\frac{S}{\nabla_k \varepsilon_k}\)</span> are calculated as follows
+(<span class="math notranslate nohighlight">\(a_{i j} \equiv (\varepsilon_i - \varepsilon_j)/(\varepsilon_{\rm F} - \varepsilon_j)\)</span>):</p>
+<figure class="align-default" id="id4">
+<span id="dbldeltapng"></span><a class="reference internal image-reference" href="_images/dbldelta.png"><img alt="_images/dbldelta.png" src="_images/dbldelta.png" style="width: 885.0px; height: 204.0px;" /></a>
+<figcaption>
+<p><span class="caption-text">How to divide a tetrahedron
+in the case of <span class="math notranslate nohighlight">\(\epsilon_1 \leq \varepsilon_{\rm F} \leq \varepsilon_2\)</span> (a),
+<span class="math notranslate nohighlight">\(\varepsilon_2 \leq \varepsilon_{\rm F} \leq \varepsilon_3\)</span> (b), and
+<span class="math notranslate nohighlight">\(\varepsilon_3 \leq \varepsilon_{\rm F} \leq \varepsilon_4\)</span> (c).</span><a class="headerlink" href="#id4" title="この画像へのパーマリンク">¶</a></p>
+</figcaption>
+</figure>
+<ul>
+<li><p>When <span class="math notranslate nohighlight">\(\varepsilon_1 \leq \varepsilon_{\rm F} \leq \varepsilon_2 \leq \varepsilon_3 \leq\varepsilon_4\)</span>
+[Fig. <a href="#dbldeltapng">1</a> (a)],</p>
+<blockquote>
+<div><div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+F &amp;=
+\begin{pmatrix}
+a_{1 2} &amp; a_{2 1} &amp;       0 &amp; 0 \\
+a_{1 3} &amp;       0 &amp; a_{3 1} &amp; 0 \\
+a_{1 4} &amp;       0 &amp;       0 &amp; a_{4 1}
+\end{pmatrix},
+\qquad
+\frac{S}{\nabla_k \varepsilon_k} = \frac{3 a_{2 1} a_{3 1} a_{4 1}}{\varepsilon_{\rm F} - \varepsilon_1}
+\end{align}\end{split}\]</div>
+</div></blockquote>
+</li>
+<li><p>When <span class="math notranslate nohighlight">\(\varepsilon_1 \leq \varepsilon_2 \leq \varepsilon_{\rm F} \leq \varepsilon_3 \leq\varepsilon_4\)</span>
+[Fig. <a href="#dbldeltapng">1</a> (b)],</p>
+<blockquote>
+<div><div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+F &amp;=
+\begin{pmatrix}
+a_{1 3} &amp;       0 &amp; a_{3 1} &amp; 0 \\
+a_{1 4} &amp;       0 &amp;       0 &amp; a_{4 1} \\
+0 &amp; a_{2 4} &amp;       0 &amp; a_{4 2}
+\end{pmatrix},
+\qquad
+\frac{S}{\nabla_k \varepsilon_k} = \frac{3 a_{3 1} a_{4 1} a_{2 4}}{\varepsilon_{\rm F} - \varepsilon_1}
+\end{align}\end{split}\]</div>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+F &amp;=
+\begin{pmatrix}
+a_{1 3} &amp;       0 &amp; a_{3 1} &amp; 0 \\
+0 &amp; a_{2 3} &amp; a_{3 2} &amp; 0 \\
+0 &amp; a_{2 4} &amp;       0 &amp; a_{4 2}
+\end{pmatrix},
+\qquad
+\frac{S}{\nabla_k \varepsilon_k} = \frac{3 a_{2 3} a_{3 1} a_{4 2}}{\varepsilon_{\rm F} - \varepsilon_1}
+\end{align}\end{split}\]</div>
+</div></blockquote>
+</li>
+<li><p>When <span class="math notranslate nohighlight">\(\varepsilon_1 \leq \varepsilon_2 \leq \varepsilon_3 \leq \varepsilon_{\rm F} \leq \varepsilon_4\)</span>
+[Fig. <a href="#dbldeltapng">1</a> (c)],</p>
+<blockquote>
+<div><div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+F &amp;=
+\begin{pmatrix}
+a_{1 4} &amp;       0 &amp;       0 &amp; a_{4 1} \\
+a_{1 3} &amp; a_{2 4} &amp;       0 &amp; a_{4 2} \\
+a_{1 2} &amp;       0 &amp; a_{3 4} &amp; a_{4 3}
+\end{pmatrix},
+\qquad
+\frac{S}{\nabla_k \varepsilon_k} = \frac{3 a_{1 4} a_{2 4} a_{3 4}}{\varepsilon_1 - \varepsilon_{\rm F}}
+\end{align}\end{split}\]</div>
+</div></blockquote>
+</li>
+</ul>
+<p>Weights on each corners of the triangle are computed as follows
+[(<span class="math notranslate nohighlight">\(a'_{i j} \equiv (\varepsilon'_i - \varepsilon'_j)/(\varepsilon_{\rm F} - \varepsilon'_j)\)</span>)]:</p>
+<ul>
+<li><p>When <span class="math notranslate nohighlight">\(\varepsilon'_1 \leq \varepsilon_{\rm F} \leq \varepsilon'_2 \leq \varepsilon'_3\)</span> [Fig. <a href="#dbldeltapng">1</a> (d)],</p>
+<blockquote>
+<div><div class="math notranslate nohighlight">
+\[\begin{align}
+W'_1 = L (a'_{1 2} + a'_{1 3}), \qquad
+W'_2 = L a'_{2 1}, \qquad
+W'_3 = L a'_{3 1}, \qquad
+L \equiv \frac{a'_{2 1} a'_{3 1}}{\varepsilon_{\rm F} - \varepsilon'_{1}}
+\end{align}\]</div>
+</div></blockquote>
+</li>
+<li><p>When <span class="math notranslate nohighlight">\(\varepsilon'_1 \leq \varepsilon'_2 \leq \varepsilon_{\rm F} \leq \varepsilon'_3\)</span> [Fig. <a href="#dbldeltapng">1</a> (e)],</p>
+<blockquote>
+<div><div class="math notranslate nohighlight">
+\[\begin{align}
+W'_1 = L a'_{1 3}, \qquad
+W'_2 = L a'_{2 3}, \qquad
+W'_3 = L (a'_{3 1} + a'_{3 2}), \qquad
+L \equiv \frac{a'_{1 3} a'_{2 3}}{\varepsilon'_{3} - \varepsilon_{\rm F}}
+\end{align}\]</div>
+</div></blockquote>
+</li>
+</ul>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="index.html">
+              <img class="logo" src="_static/libtetrabz.png" alt="Logo"/>
+            </a></p>
+  <div>
+    <h3><a href="index.html">Table of Contents</a></h3>
+    <ul>
+<li><a class="reference internal" href="#">補遺</a><ul>
+<li><a class="reference internal" href="#id2">逆補間</a></li>
+<li><a class="reference internal" href="#id3">2重デルタ関数の積分</a></li>
+</ul>
+</li>
+</ul>
+
+  </div>
+  <div>
+    <h4>前のトピックへ</h4>
+    <p class="topless"><a href="contact.html"
+                          title="前の章へ">問い合わせ先</a></p>
+  </div>
+  <div>
+    <h4>次のトピックへ</h4>
+    <p class="topless"><a href="ref.html"
+                          title="次の章へ">参考文献</a></p>
+  </div>
+  <div role="note" aria-label="source link">
+    <h3>このページ</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/app.rst.txt"
+            rel="nofollow">ソースコードを表示</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">クイック検索</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="検索" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="総合索引"
+             >索引</a></li>
+        <li class="right" >
+          <a href="ref.html" title="参考文献"
+             >次へ</a> |</li>
+        <li class="right" >
+          <a href="contact.html" title="問い合わせ先"
+             >前へ</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">libtetrabz 2.0.0 ドキュメント</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">補遺</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2017, Mitsuaki Kawamura.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.3.
+    </div>
+  </body>
+</html>

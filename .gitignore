@@ -6,8 +6,6 @@ make.sys
 *~
 example/dos.dat
 example/lindhard.dat
-doc/ja/_build/
-doc/en/_build/
 autom4te.cache/
 config.h
 config.log

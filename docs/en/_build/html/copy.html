@@ -1,0 +1,203 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <title>Re-distribution of this program &#8212; libtetrabz 2.0.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/classic.css" />
+    
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Contacts" href="contact.html" />
+    <link rel="prev" title="Piece of sample code" href="sample.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="contact.html" title="Contacts"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="sample.html" title="Piece of sample code"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">libtetrabz 2.0.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Re-distribution of this program</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="re-distribution-of-this-program">
+<h1>Re-distribution of this program<a class="headerlink" href="#re-distribution-of-this-program" title="Permalink to this heading">¶</a></h1>
+<section id="contain-libtetrabz-in-your-program">
+<h2>Contain libtetrabz in your program<a class="headerlink" href="#contain-libtetrabz-in-your-program" title="Permalink to this heading">¶</a></h2>
+<p>libtetrabz is distributed with the <a class="reference internal" href="#mitlicense"><span class="std std-ref">MIT License</span></a>.
+To summarize this, you can freely modify, copy and paste libtetrabz to any program
+such as a private program (in the research group, co-workers, etc.),
+open-source, free, and commercial software.
+Also, you can freely choose the license to distribute your program.</p>
+</section>
+<section id="build-libtetrabz-without-autoconf">
+<h2>Build libtetrabz without Autoconf<a class="headerlink" href="#build-libtetrabz-without-autoconf" title="Permalink to this heading">¶</a></h2>
+<p>In this package, libtetrabz is built with Autotools (Autoconf, Automake, Libtool).
+If you do not want to use Autotools for your distributed program with libtetrabz’s source,
+you can use the following simple Makefile (please care about TAB).</p>
+<div class="highlight-makefile notranslate"><div class="highlight"><pre><span></span><span class="nv">F90</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>gfortran
+<span class="nv">FFLAGS</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>-fopenmp<span class="w"> </span>-O2<span class="w"> </span>-g
+
+<span class="nv">OBJS</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="se">\</span>
+libtetrabz.o<span class="w"> </span><span class="se">\</span>
+libtetrabz_dbldelta_mod.o<span class="w"> </span><span class="se">\</span>
+libtetrabz_dblstep_mod.o<span class="w"> </span><span class="se">\</span>
+libtetrabz_dos_mod.o<span class="w"> </span><span class="se">\</span>
+libtetrabz_fermigr_mod.o<span class="w"> </span><span class="se">\</span>
+libtetrabz_occ_mod.o<span class="w"> </span><span class="se">\</span>
+libtetrabz_polcmplx_mod.o<span class="w"> </span><span class="se">\</span>
+libtetrabz_polstat_mod.o<span class="w"> </span><span class="se">\</span>
+libtetrabz_common.o<span class="w"> </span><span class="se">\</span>
+
+<span class="nf">.SUFFIXES </span><span class="o">:</span>
+<span class="nf">.SUFFIXES </span><span class="o">:</span><span class="w"> </span>.<span class="n">o</span> .<span class="n">F</span>90
+
+<span class="nf">libtetrabz.a</span><span class="o">:</span><span class="k">$(</span><span class="nv">OBJS</span><span class="k">)</span>
+<span class="w">     </span>ar<span class="w"> </span>cr<span class="w"> </span><span class="nv">$@</span><span class="w"> </span><span class="k">$(</span>OBJS<span class="k">)</span>
+
+<span class="nf">.F90.o</span><span class="o">:</span>
+<span class="w">      </span><span class="k">$(</span>F90<span class="k">)</span><span class="w"> </span><span class="k">$(</span>FFLAGS<span class="k">)</span><span class="w"> </span>-c<span class="w"> </span>$&lt;
+
+<span class="nf">clean</span><span class="o">:</span>
+<span class="w">      </span>rm<span class="w"> </span>-f<span class="w"> </span>*.a<span class="w"> </span>*.o<span class="w"> </span>*.mod
+
+<span class="nf">libtetrabz.o</span><span class="o">:</span><span class="n">libtetrabz_polcmplx_mod</span>.<span class="n">o</span>
+<span class="nf">libtetrabz.o</span><span class="o">:</span><span class="n">libtetrabz_fermigr_mod</span>.<span class="n">o</span>
+<span class="nf">libtetrabz.o</span><span class="o">:</span><span class="n">libtetrabz_polstat_mod</span>.<span class="n">o</span>
+<span class="nf">libtetrabz.o</span><span class="o">:</span><span class="n">libtetrabz_dbldelta_mod</span>.<span class="n">o</span>
+<span class="nf">libtetrabz.o</span><span class="o">:</span><span class="n">libtetrabz_dblstep_mod</span>.<span class="n">o</span>
+<span class="nf">libtetrabz.o</span><span class="o">:</span><span class="n">libtetrabz_dos_mod</span>.<span class="n">o</span>
+<span class="nf">libtetrabz.o</span><span class="o">:</span><span class="n">libtetrabz_occ_mod</span>.<span class="n">o</span>
+<span class="nf">libtetrabz_dbldelta_mod.o</span><span class="o">:</span><span class="n">libtetrabz_common</span>.<span class="n">o</span>
+<span class="nf">libtetrabz_dblstep_mod.o</span><span class="o">:</span><span class="n">libtetrabz_common</span>.<span class="n">o</span>
+<span class="nf">libtetrabz_dos_mod.o</span><span class="o">:</span><span class="n">libtetrabz_common</span>.<span class="n">o</span>
+<span class="nf">libtetrabz_fermigr_mod.o</span><span class="o">:</span><span class="n">libtetrabz_common</span>.<span class="n">o</span>
+<span class="nf">libtetrabz_occ_mod.o</span><span class="o">:</span><span class="n">libtetrabz_common</span>.<span class="n">o</span>
+<span class="nf">libtetrabz_polcmplx_mod.o</span><span class="o">:</span><span class="n">libtetrabz_common</span>.<span class="n">o</span>
+<span class="nf">libtetrabz_polstat_mod.o</span><span class="o">:</span><span class="n">libtetrabz_common</span>.<span class="n">o</span>
+</pre></div>
+</div>
+</section>
+<section id="mit-license">
+<span id="mitlicense"></span><h2>MIT License<a class="headerlink" href="#mit-license" title="Permalink to this heading">¶</a></h2>
+<div class="line-block">
+<div class="line">Copyright (c) 2014 Mitsuaki Kawamura</div>
+<div class="line"><br /></div>
+<div class="line">Permission is hereby granted, free of charge, to any person obtaining a</div>
+<div class="line">copy of this software and associated documentation files (the</div>
+<div class="line">“Software”), to deal in the Software without restriction, including</div>
+<div class="line">without limitation the rights to use, copy, modify, merge, publish,</div>
+<div class="line">distribute, sublicense, and/or sell copies of the Software, and to</div>
+<div class="line">permit persons to whom the Software is furnished to do so, subject to</div>
+<div class="line">the following conditions:</div>
+<div class="line"><br /></div>
+<div class="line">The above copyright notice and this permission notice shall be included</div>
+<div class="line">in all copies or substantial portions of the Software.</div>
+<div class="line"><br /></div>
+<div class="line">THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS</div>
+<div class="line">OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF</div>
+<div class="line">MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.</div>
+<div class="line">IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY</div>
+<div class="line">CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,</div>
+<div class="line">TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE</div>
+<div class="line">SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</div>
+</div>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="index.html">
+              <img class="logo" src="_static/libtetrabz.png" alt="Logo"/>
+            </a></p>
+  <div>
+    <h3><a href="index.html">Table of Contents</a></h3>
+    <ul>
+<li><a class="reference internal" href="#">Re-distribution of this program</a><ul>
+<li><a class="reference internal" href="#contain-libtetrabz-in-your-program">Contain libtetrabz in your program</a></li>
+<li><a class="reference internal" href="#build-libtetrabz-without-autoconf">Build libtetrabz without Autoconf</a></li>
+<li><a class="reference internal" href="#mit-license">MIT License</a></li>
+</ul>
+</li>
+</ul>
+
+  </div>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="sample.html"
+                          title="previous chapter">Piece of sample code</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="contact.html"
+                          title="next chapter">Contacts</a></p>
+  </div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/copy.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="contact.html" title="Contacts"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="sample.html" title="Piece of sample code"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">libtetrabz 2.0.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Re-distribution of this program</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2017, Mitsuaki Kawamura.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.3.
+    </div>
+  </body>
+</html>

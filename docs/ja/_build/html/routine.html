@@ -1,0 +1,919 @@
+
+<!DOCTYPE html>
+
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <title>各サブルーチンの説明 &#8212; libtetrabz 2.0.0 ドキュメント</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/classic.css" />
+    
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/translations.js"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    
+    <link rel="index" title="索引" href="genindex.html" />
+    <link rel="search" title="検索" href="search.html" />
+    <link rel="next" title="サンプルコード(抜粋)" href="sample.html" />
+    <link rel="prev" title="ライブラリのリンク方法" href="link.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="総合索引"
+             accesskey="I">索引</a></li>
+        <li class="right" >
+          <a href="sample.html" title="サンプルコード(抜粋)"
+             accesskey="N">次へ</a> |</li>
+        <li class="right" >
+          <a href="link.html" title="ライブラリのリンク方法"
+             accesskey="P">前へ</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">libtetrabz 2.0.0 ドキュメント</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">各サブルーチンの説明</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="id1">
+<h1>各サブルーチンの説明<a class="headerlink" href="#id1" title="この見出しへのパーマリンク">¶</a></h1>
+<p>以下のサブルーチンを任意のプログラム内で</p>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="k">USE </span><span class="n">libtetrabz</span><span class="p">,</span><span class="w"> </span><span class="k">ONLY</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">libtetrabz_occ</span>
+
+<span class="k">CALL </span><span class="n">libtetrabz_occ</span><span class="p">(</span><span class="n">ltetra</span><span class="p">,</span><span class="n">bvec</span><span class="p">,</span><span class="n">nb</span><span class="p">,</span><span class="n">nge</span><span class="p">,</span><span class="n">eig</span><span class="p">,</span><span class="n">ngw</span><span class="p">,</span><span class="n">wght</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>のように呼び出して使用できる.
+サブルーチン名はすべて <code class="docutils literal notranslate"><span class="pre">libtetrabz_</span></code> からはじまる.</p>
+<p>C言語で書かれたプログラムから呼び出す場合には次のようにする.</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;libtetrabz.h&quot;</span>
+
+<span class="n">libtetrabz_occ</span><span class="p">(</span><span class="o">&amp;</span><span class="n">ltetra</span><span class="p">,</span><span class="n">bvec</span><span class="p">,</span><span class="o">&amp;</span><span class="n">nb</span><span class="p">,</span><span class="n">nge</span><span class="p">,</span><span class="n">eig</span><span class="p">,</span><span class="n">ngw</span><span class="p">,</span><span class="n">wght</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>変数はすべてポインタとして渡す.
+配列はすべて1次元配列として定義し一番左の添字が内側のループとなるようにする.
+またMPI/ハイブリッド並列のときにライブラリに渡すコミュニケーター変数を,
+次のようにC/C++のものからfortranのものに変換する。</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">comm_f</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MPI_Comm_c2f</span><span class="p">(</span><span class="n">comm_c</span><span class="p">);</span>
+</pre></div>
+</div>
+<section id="id2">
+<h2>全エネルギー, 電荷密度等(占有率の計算)<a class="headerlink" href="#id2" title="この見出しへのパーマリンク">¶</a></h2>
+<div class="math notranslate nohighlight">
+\[\begin{align}
+\sum_{n}
+\int_{\rm BZ} \frac{d^3 k}{V_{\rm BZ}}
+\theta(\varepsilon_{\rm F} -
+\varepsilon_{n k}) X_{n k}
+\end{align}\]</div>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="k">CALL </span><span class="n">libtetrabz_occ</span><span class="p">(</span><span class="n">ltetra</span><span class="p">,</span><span class="n">bvec</span><span class="p">,</span><span class="n">nb</span><span class="p">,</span><span class="n">nge</span><span class="p">,</span><span class="n">eig</span><span class="p">,</span><span class="n">ngw</span><span class="p">,</span><span class="n">wght</span><span class="p">,</span><span class="n">comm</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>パラメーター</p>
+<blockquote>
+<div><div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">INTEGER</span><span class="p">,</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ltetra</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>テトラへドロン法の種類を決める.
+1 <span class="math notranslate nohighlight">\(\cdots\)</span> 線形テトラへドロン法,
+2 <span class="math notranslate nohighlight">\(\cdots\)</span> 最適化線形テトラへドロン法 <a class="reference internal" href="ref.html#ref"><span class="std std-ref">[1]</span></a></p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">REAL</span><span class="p">(</span><span class="mi">8</span><span class="p">),</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">bvec</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>逆格子ベクトル. 単位は任意で良い.
+逆格子の形によって四面体の切り方を決めるため,
+それらの長さの比のみが必要であるため.</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">INTEGER</span><span class="p">,</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">nb</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>バンド本数</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">INTEGER</span><span class="p">,</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">nge</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>軌道エネルギーのメッシュ数.</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">REAL</span><span class="p">(</span><span class="mi">8</span><span class="p">),</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">eig</span><span class="p">(</span><span class="n">nb</span><span class="p">,</span><span class="n">nge</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="n">nge</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span><span class="n">nge</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>軌道エネルギー.
+Fermiエネルギーを基準とすること( <span class="math notranslate nohighlight">\(\varepsilon_{\rm F} = 0\)</span> ).</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">INTEGER</span><span class="p">,</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ngw</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p><code class="docutils literal notranslate"><span class="pre">ngw(3)</span></code> : (入力, 整数配列) 積分重みの <span class="math notranslate nohighlight">\(k\)</span> メッシュ.
+<code class="docutils literal notranslate"><span class="pre">nge</span></code> と違っていても構わない(<a class="reference internal" href="app.html#app"><span class="std std-ref">補遺</span></a> 参照).</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">REAL</span><span class="p">(</span><span class="mi">8</span><span class="p">),</span><span class="k">INTENT</span><span class="p">(</span><span class="n">OUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">wght</span><span class="p">(</span><span class="n">nb</span><span class="p">,</span><span class="n">ngw</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="n">ngw</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span><span class="n">ngw</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p><code class="docutils literal notranslate"><span class="pre">wght(nb,ngw(1),ngw(2),ngw(3))</span></code> : (出力, 実数配列) 積分重み</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">INTEGER</span><span class="p">,</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">),</span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">comm</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>オプショナル引数.
+MPIのコミニュケーター( <code class="docutils literal notranslate"><span class="pre">MPI_COMM_WORLD</span></code> など)を入れる.
+libtetrabz を内部でMPI/Hybrid並列するときのみ入力する.
+C言語では使用しないときには <code class="docutils literal notranslate"><span class="pre">NULL</span></code> を入れる.</p>
+</div></blockquote>
+</div></blockquote>
+</section>
+<section id="fermi">
+<h2>Fermi エネルギー(占有率も同時に計算する)<a class="headerlink" href="#fermi" title="この見出しへのパーマリンク">¶</a></h2>
+<div class="math notranslate nohighlight">
+\[\begin{align}
+\sum_{n}
+\int_{\rm BZ} \frac{d^3 k}{V_{\rm BZ}}
+\theta(\varepsilon_{\rm F} -
+\varepsilon_{n k}) X_{n k}
+\end{align}\]</div>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="k">CALL </span><span class="n">libtetrabz_fermieng</span><span class="p">(</span><span class="n">ltetra</span><span class="p">,</span><span class="n">bvec</span><span class="p">,</span><span class="n">nb</span><span class="p">,</span><span class="n">nge</span><span class="p">,</span><span class="n">eig</span><span class="p">,</span><span class="n">ngw</span><span class="p">,</span><span class="n">wght</span><span class="p">,</span><span class="n">ef</span><span class="p">,</span><span class="n">nelec</span><span class="p">,</span><span class="n">comm</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>パラメーター</p>
+<blockquote>
+<div><div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">INTEGER</span><span class="p">,</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ltetra</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>テトラへドロン法の種類を決める.
+1 <span class="math notranslate nohighlight">\(\cdots\)</span> 線形テトラへドロン法,
+2 <span class="math notranslate nohighlight">\(\cdots\)</span> 最適化線形テトラへドロン法 <a class="reference internal" href="ref.html#ref"><span class="std std-ref">[1]</span></a></p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">REAL</span><span class="p">(</span><span class="mi">8</span><span class="p">),</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">bvec</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>逆格子ベクトル. 単位は任意で良い.
+逆格子の形によって四面体の切り方を決めるため,
+それらの長さの比のみが必要であるため.</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">INTEGER</span><span class="p">,</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">nb</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>バンド本数</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">INTEGER</span><span class="p">,</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">nge</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>軌道エネルギーのメッシュ数.</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">REAL</span><span class="p">(</span><span class="mi">8</span><span class="p">),</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">eig</span><span class="p">(</span><span class="n">nb</span><span class="p">,</span><span class="n">nge</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="n">nge</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span><span class="n">nge</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>軌道エネルギー.</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">INTEGER</span><span class="p">,</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">nge</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>軌道エネルギーのメッシュ数.</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">INTEGER</span><span class="p">,</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ngw</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>積分重みの <span class="math notranslate nohighlight">\(k\)</span> メッシュ.
+<code class="docutils literal notranslate"><span class="pre">nge</span></code> と違っていても構わない(<a class="reference internal" href="app.html#app"><span class="std std-ref">補遺</span></a> 参照).</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">REAL</span><span class="p">(</span><span class="mi">8</span><span class="p">),</span><span class="k">INTENT</span><span class="p">(</span><span class="n">OUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">wght</span><span class="p">(</span><span class="n">nb</span><span class="p">,</span><span class="n">ngw</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="n">ngw</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span><span class="n">ngw</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>積分重み</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">REAL</span><span class="p">(</span><span class="mi">8</span><span class="p">),</span><span class="k">INTENT</span><span class="p">(</span><span class="n">OUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ef</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>Fermi エネルギー</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">REAL</span><span class="p">(</span><span class="mi">8</span><span class="p">),</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">nelec</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>スピンあたりの(荷)電子数</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">INTEGER</span><span class="p">,</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">),</span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">comm</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>オプショナル引数.
+MPIのコミニュケーター( <code class="docutils literal notranslate"><span class="pre">MPI_COMM_WORLD</span></code> など)を入れる.
+libtetrabz を内部でMPI/Hybrid並列するときのみ入力する.
+C言語では使用しないときには <code class="docutils literal notranslate"><span class="pre">NULL</span></code> を入れる.</p>
+</div></blockquote>
+</div></blockquote>
+</section>
+<section id="id3">
+<h2>(部分)状態密度<a class="headerlink" href="#id3" title="この見出しへのパーマリンク">¶</a></h2>
+<div class="math notranslate nohighlight">
+\[\begin{align}
+\sum_{n}
+\int_{\rm BZ} \frac{d^3 k}{V_{\rm BZ}}
+\delta(\omega - \varepsilon_{n k})
+X_{n k}(\omega)
+\end{align}\]</div>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="k">CALL </span><span class="n">libtetrabz_dos</span><span class="p">(</span><span class="n">ltetra</span><span class="p">,</span><span class="n">bvec</span><span class="p">,</span><span class="n">nb</span><span class="p">,</span><span class="n">nge</span><span class="p">,</span><span class="n">eig</span><span class="p">,</span><span class="n">ngw</span><span class="p">,</span><span class="n">wght</span><span class="p">,</span><span class="n">ne</span><span class="p">,</span><span class="n">e0</span><span class="p">,</span><span class="n">comm</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>パラメーター</p>
+<blockquote>
+<div><div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">INTEGER</span><span class="p">,</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ltetra</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>テトラへドロン法の種類を決める.
+1 <span class="math notranslate nohighlight">\(\cdots\)</span> 線形テトラへドロン法,
+2 <span class="math notranslate nohighlight">\(\cdots\)</span> 最適化線形テトラへドロン法 <a class="reference internal" href="ref.html#ref"><span class="std std-ref">[1]</span></a></p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">REAL</span><span class="p">(</span><span class="mi">8</span><span class="p">),</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">bvec</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>逆格子ベクトル. 単位は任意で良い.
+逆格子の形によって四面体の切り方を決めるため,
+それらの長さの比のみが必要であるため.</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">INTEGER</span><span class="p">,</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">nb</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>バンド本数</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">INTEGER</span><span class="p">,</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">nge</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>軌道エネルギーの <span class="math notranslate nohighlight">\(k\)</span> メッシュ数.</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">REAL</span><span class="p">(</span><span class="mi">8</span><span class="p">),</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">eig</span><span class="p">(</span><span class="n">nb</span><span class="p">,</span><span class="n">nge</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="n">nge</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span><span class="n">nge</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>軌道エネルギー.</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">INTEGER</span><span class="p">,</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ngw</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>積分重みの <span class="math notranslate nohighlight">\(k\)</span> メッシュ.
+<code class="docutils literal notranslate"><span class="pre">nge</span></code> と違っていても構わない(<a class="reference internal" href="app.html#app"><span class="std std-ref">補遺</span></a> 参照).</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">REAL</span><span class="p">(</span><span class="mi">8</span><span class="p">),</span><span class="k">INTENT</span><span class="p">(</span><span class="n">OUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">wght</span><span class="p">(</span><span class="n">ne</span><span class="p">,</span><span class="n">nb</span><span class="p">,</span><span class="n">ngw</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="n">ngw</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span><span class="n">ngw</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>積分重み</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">INTEGER</span><span class="p">,</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ne</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>状態密度を計算するエネルギー点数</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">REAL</span><span class="p">(</span><span class="mi">8</span><span class="p">),</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">e0</span><span class="p">(</span><span class="n">ne</span><span class="p">)</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>状態密度を計算するエネルギー</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">INTEGER</span><span class="p">,</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">),</span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">comm</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>オプショナル引数.
+MPIのコミニュケーター( <code class="docutils literal notranslate"><span class="pre">MPI_COMM_WORLD</span></code> など)を入れる.
+libtetrabz を内部でMPI/Hybrid並列するときのみ入力する.
+C言語では使用しないときには <code class="docutils literal notranslate"><span class="pre">NULL</span></code> を入れる.</p>
+</div></blockquote>
+</div></blockquote>
+</section>
+<section id="id4">
+<h2>積分状態密度<a class="headerlink" href="#id4" title="この見出しへのパーマリンク">¶</a></h2>
+<div class="math notranslate nohighlight">
+\[\begin{align}
+\sum_{n}
+\int_{\rm BZ} \frac{d^3 k}{V_{\rm BZ}}
+\theta(\omega - \varepsilon_{n k})
+X_{n k}(\omega)
+\end{align}\]</div>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="k">CALL </span><span class="n">libtetrabz_intdos</span><span class="p">(</span><span class="n">ltetra</span><span class="p">,</span><span class="n">bvec</span><span class="p">,</span><span class="n">nb</span><span class="p">,</span><span class="n">nge</span><span class="p">,</span><span class="n">eig</span><span class="p">,</span><span class="n">ngw</span><span class="p">,</span><span class="n">wght</span><span class="p">,</span><span class="n">ne</span><span class="p">,</span><span class="n">e0</span><span class="p">,</span><span class="n">comm</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>パラメーター</p>
+<blockquote>
+<div><div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">INTEGER</span><span class="p">,</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ltetra</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>テトラへドロン法の種類を決める.
+1 <span class="math notranslate nohighlight">\(\cdots\)</span> 線形テトラへドロン法,
+2 <span class="math notranslate nohighlight">\(\cdots\)</span> 最適化線形テトラへドロン法 <a class="reference internal" href="ref.html#ref"><span class="std std-ref">[1]</span></a></p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">REAL</span><span class="p">(</span><span class="mi">8</span><span class="p">),</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">bvec</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>逆格子ベクトル. 単位は任意で良い.
+逆格子の形によって四面体の切り方を決めるため,
+それらの長さの比のみが必要であるため.</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">INTEGER</span><span class="p">,</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">nb</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>バンド本数</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">INTEGER</span><span class="p">,</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">nge</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>軌道エネルギーの <span class="math notranslate nohighlight">\(k\)</span> メッシュ数.</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">REAL</span><span class="p">(</span><span class="mi">8</span><span class="p">),</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">eig</span><span class="p">(</span><span class="n">nb</span><span class="p">,</span><span class="n">nge</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="n">nge</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span><span class="n">nge</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>軌道エネルギー.</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">INTEGER</span><span class="p">,</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ngw</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>積分重みの <span class="math notranslate nohighlight">\(k\)</span> メッシュ.
+<code class="docutils literal notranslate"><span class="pre">nge</span></code> と違っていても構わない(<a class="reference internal" href="app.html#app"><span class="std std-ref">補遺</span></a> 参照).</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">REAL</span><span class="p">(</span><span class="mi">8</span><span class="p">),</span><span class="k">INTENT</span><span class="p">(</span><span class="n">OUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">wght</span><span class="p">(</span><span class="n">ne</span><span class="p">,</span><span class="n">nb</span><span class="p">,</span><span class="n">ngw</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="n">ngw</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span><span class="n">ngw</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>積分重み</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">INTEGER</span><span class="p">,</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ne</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>状態密度を計算するエネルギー点数</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">REAL</span><span class="p">(</span><span class="mi">8</span><span class="p">),</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">e0</span><span class="p">(</span><span class="n">ne</span><span class="p">)</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>状態密度を計算するエネルギー</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">INTEGER</span><span class="p">,</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">),</span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">comm</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>オプショナル引数.
+MPIのコミニュケーター( <code class="docutils literal notranslate"><span class="pre">MPI_COMM_WORLD</span></code> など)を入れる.
+libtetrabz を内部でMPI/Hybrid並列するときのみ入力する.
+C言語では使用しないときには <code class="docutils literal notranslate"><span class="pre">NULL</span></code> を入れる.</p>
+</div></blockquote>
+</div></blockquote>
+</section>
+<section id="frohlich">
+<h2>ネスティング関数, Fröhlich パラメーター<a class="headerlink" href="#frohlich" title="この見出しへのパーマリンク">¶</a></h2>
+<div class="math notranslate nohighlight">
+\[\begin{align}
+\sum_{n n'}
+\int_{\rm BZ} \frac{d^3 k}{V_{\rm BZ}}
+\delta(\varepsilon_{\rm F} -
+\varepsilon_{n k}) \delta(\varepsilon_{\rm F} - \varepsilon'_{n' k})
+X_{n n' k}
+\end{align}\]</div>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="k">CALL </span><span class="n">libtetrabz_dbldelta</span><span class="p">(</span><span class="n">ltetra</span><span class="p">,</span><span class="n">bvec</span><span class="p">,</span><span class="n">nb</span><span class="p">,</span><span class="n">nge</span><span class="p">,</span><span class="n">eig1</span><span class="p">,</span><span class="n">eig2</span><span class="p">,</span><span class="n">ngw</span><span class="p">,</span><span class="n">wght</span><span class="p">,</span><span class="n">comm</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>パラメーター</p>
+<blockquote>
+<div><div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">INTEGER</span><span class="p">,</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ltetra</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>テトラへドロン法の種類を決める.
+1 <span class="math notranslate nohighlight">\(\cdots\)</span> 線形テトラへドロン法,
+2 <span class="math notranslate nohighlight">\(\cdots\)</span> 最適化線形テトラへドロン法 <a class="reference internal" href="ref.html#ref"><span class="std std-ref">[1]</span></a></p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">REAL</span><span class="p">(</span><span class="mi">8</span><span class="p">),</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">bvec</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>逆格子ベクトル. 単位は任意で良い.
+逆格子の形によって四面体の切り方を決めるため,
+それらの長さの比のみが必要であるため.</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">INTEGER</span><span class="p">,</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">nb</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>バンド本数</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">INTEGER</span><span class="p">,</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">nge</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>軌道エネルギーの <span class="math notranslate nohighlight">\(k\)</span> メッシュ数.</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">REAL</span><span class="p">(</span><span class="mi">8</span><span class="p">),</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">eig1</span><span class="p">(</span><span class="n">nb</span><span class="p">,</span><span class="n">nge</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="n">nge</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span><span class="n">nge</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>軌道エネルギー.
+Fermi エネルギーを基準とすること( <span class="math notranslate nohighlight">\(\varepsilon_{\rm F}=0\)</span> ).
+<code class="docutils literal notranslate"><span class="pre">eig2</span></code> も同様.</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">REAL</span><span class="p">(</span><span class="mi">8</span><span class="p">),</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">eig2</span><span class="p">(</span><span class="n">nb</span><span class="p">,</span><span class="n">nge</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="n">nge</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span><span class="n">nge</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>軌道エネルギー.
+移行運動量の分だけグリッドをずらしたものなど.</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">INTEGER</span><span class="p">,</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ngw</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>積分重みの <span class="math notranslate nohighlight">\(k\)</span> メッシュ.
+<code class="docutils literal notranslate"><span class="pre">nge</span></code> と違っていても構わない(<a class="reference internal" href="app.html#app"><span class="std std-ref">補遺</span></a> 参照).</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">REAL</span><span class="p">(</span><span class="mi">8</span><span class="p">),</span><span class="k">INTENT</span><span class="p">(</span><span class="n">OUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">wght</span><span class="p">(</span><span class="n">nb</span><span class="p">,</span><span class="n">nb</span><span class="p">,</span><span class="n">ngw</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="n">ngw</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span><span class="n">ngw</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>積分重み</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">INTEGER</span><span class="p">,</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">),</span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">comm</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>オプショナル引数.
+MPIのコミニュケーター( <code class="docutils literal notranslate"><span class="pre">MPI_COMM_WORLD</span></code> など)を入れる.
+libtetrabz を内部でMPI/Hybrid並列するときのみ入力する.
+C言語では使用しないときには <code class="docutils literal notranslate"><span class="pre">NULL</span></code> を入れる.</p>
+</div></blockquote>
+</div></blockquote>
+</section>
+<section id="dfpt">
+<h2>DFPT 計算の一部<a class="headerlink" href="#dfpt" title="この見出しへのパーマリンク">¶</a></h2>
+<div class="math notranslate nohighlight">
+\[\begin{align}
+\sum_{n n'}
+\int_{\rm BZ} \frac{d^3 k}{V_{\rm BZ}}
+\theta(\varepsilon_{\rm F} -
+\varepsilon_{n k}) \theta(\varepsilon_{n k} - \varepsilon'_{n' k})
+X_{n n' k}
+\end{align}\]</div>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="k">CALL </span><span class="n">libtetrabz_dblstep</span><span class="p">(</span><span class="n">ltetra</span><span class="p">,</span><span class="n">bvec</span><span class="p">,</span><span class="n">nb</span><span class="p">,</span><span class="n">nge</span><span class="p">,</span><span class="n">eig1</span><span class="p">,</span><span class="n">eig2</span><span class="p">,</span><span class="n">ngw</span><span class="p">,</span><span class="n">wght</span><span class="p">,</span><span class="n">comm</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>パラメーター</p>
+<blockquote>
+<div><div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">INTEGER</span><span class="p">,</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ltetra</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>テトラへドロン法の種類を決める.
+1 <span class="math notranslate nohighlight">\(\cdots\)</span> 線形テトラへドロン法,
+2 <span class="math notranslate nohighlight">\(\cdots\)</span> 最適化線形テトラへドロン法 <a class="reference internal" href="ref.html#ref"><span class="std std-ref">[1]</span></a></p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">REAL</span><span class="p">(</span><span class="mi">8</span><span class="p">),</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">bvec</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>逆格子ベクトル. 単位は任意で良い.
+逆格子の形によって四面体の切り方を決めるため,
+それらの長さの比のみが必要であるため.</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">INTEGER</span><span class="p">,</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">nb</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>バンド本数</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">INTEGER</span><span class="p">,</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">nge</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>軌道エネルギーのメッシュ数.</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">REAL</span><span class="p">(</span><span class="mi">8</span><span class="p">),</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">eig1</span><span class="p">(</span><span class="n">nb</span><span class="p">,</span><span class="n">nge</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="n">nge</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span><span class="n">nge</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>軌道エネルギー.
+Fermi エネルギーを基準とすること
+( <span class="math notranslate nohighlight">\(\varepsilon_{\rm F}=0\)</span> ). <code class="docutils literal notranslate"><span class="pre">eig2</span></code> も同様.</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">REAL</span><span class="p">(</span><span class="mi">8</span><span class="p">),</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">eig2</span><span class="p">(</span><span class="n">nb</span><span class="p">,</span><span class="n">nge</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="n">nge</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span><span class="n">nge</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>軌道エネルギー.
+移行運動量の分だけグリッドをずらしたものなど.</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">INTEGER</span><span class="p">,</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ngw</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>積分重みの <span class="math notranslate nohighlight">\(k\)</span> メッシュ. <code class="docutils literal notranslate"><span class="pre">nge</span></code>
+と違っていても構わない(<a class="reference internal" href="app.html#app"><span class="std std-ref">補遺</span></a> 参照).</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">REAL</span><span class="p">(</span><span class="mi">8</span><span class="p">),</span><span class="k">INTENT</span><span class="p">(</span><span class="n">OUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">wght</span><span class="p">(</span><span class="n">nb</span><span class="p">,</span><span class="n">nb</span><span class="p">,</span><span class="n">ngw</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="n">ngw</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span><span class="n">ngw</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>積分重み</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">INTEGER</span><span class="p">,</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">),</span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">comm</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>オプショナル引数.
+MPIのコミニュケーター( <code class="docutils literal notranslate"><span class="pre">MPI_COMM_WORLD</span></code> など)を入れる.
+libtetrabz を内部でMPI/Hybrid並列するときのみ入力する.
+C言語では使用しないときには <code class="docutils literal notranslate"><span class="pre">NULL</span></code> を入れる.</p>
+</div></blockquote>
+</div></blockquote>
+</section>
+<section id="id5">
+<h2>独立分極関数(静的)<a class="headerlink" href="#id5" title="この見出しへのパーマリンク">¶</a></h2>
+<div class="math notranslate nohighlight">
+\[\begin{align}
+\sum_{n n'}
+\int_{\rm BZ} \frac{d^3 k}{V_{\rm BZ}}
+\frac{\theta(\varepsilon_{\rm F} - \varepsilon_{n k})
+\theta(\varepsilon'_{n' k} - \varepsilon_{\rm F})}
+{\varepsilon'_{n' k} - \varepsilon_{n k}}
+X_{n n' k}
+\end{align}\]</div>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="k">CALL </span><span class="n">libtetrabz_polstat</span><span class="p">(</span><span class="n">ltetra</span><span class="p">,</span><span class="n">bvec</span><span class="p">,</span><span class="n">nb</span><span class="p">,</span><span class="n">nge</span><span class="p">,</span><span class="n">eig1</span><span class="p">,</span><span class="n">eig2</span><span class="p">,</span><span class="n">ngw</span><span class="p">,</span><span class="n">wght</span><span class="p">,</span><span class="n">comm</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>パラメーター</p>
+<blockquote>
+<div><div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">INTEGER</span><span class="p">,</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ltetra</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>テトラへドロン法の種類を決める.
+1 <span class="math notranslate nohighlight">\(\cdots\)</span> 線形テトラへドロン法,
+2 <span class="math notranslate nohighlight">\(\cdots\)</span> 最適化線形テトラへドロン法 <a class="reference internal" href="ref.html#ref"><span class="std std-ref">[1]</span></a></p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">REAL</span><span class="p">(</span><span class="mi">8</span><span class="p">),</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">bvec</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>逆格子ベクトル. 単位は任意で良い.
+逆格子の形によって四面体の切り方を決めるため,
+それらの長さの比のみが必要であるため.</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">INTEGER</span><span class="p">,</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">nb</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>バンド本数</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">INTEGER</span><span class="p">,</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">nge</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>軌道エネルギーのメッシュ数.</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">REAL</span><span class="p">(</span><span class="mi">8</span><span class="p">),</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">eig1</span><span class="p">(</span><span class="n">nb</span><span class="p">,</span><span class="n">nge</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="n">nge</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span><span class="n">nge</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>軌道エネルギー.
+Fermi エネルギーを基準とすること
+( <span class="math notranslate nohighlight">\(\varepsilon_{\rm F}=0\)</span> ). <code class="docutils literal notranslate"><span class="pre">eig2</span></code> も同様.</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">REAL</span><span class="p">(</span><span class="mi">8</span><span class="p">),</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">eig2</span><span class="p">(</span><span class="n">nb</span><span class="p">,</span><span class="n">nge</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="n">nge</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span><span class="n">nge</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>軌道エネルギー.
+移行運動量の分だけグリッドをずらしたものなど.</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">INTEGER</span><span class="p">,</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ngw</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>積分重みの <span class="math notranslate nohighlight">\(k\)</span> メッシュ.
+<code class="docutils literal notranslate"><span class="pre">nge</span></code> と違っていても構わない(<a class="reference internal" href="app.html#app"><span class="std std-ref">補遺</span></a> 参照).</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">REAL</span><span class="p">(</span><span class="mi">8</span><span class="p">),</span><span class="k">INTENT</span><span class="p">(</span><span class="n">OUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">wght</span><span class="p">(</span><span class="n">nb</span><span class="p">,</span><span class="n">nb</span><span class="p">,</span><span class="n">ngw</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="n">ngw</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span><span class="n">ngw</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>積分重み</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">INTEGER</span><span class="p">,</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">),</span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">comm</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>オプショナル引数.
+MPIのコミニュケーター( <code class="docutils literal notranslate"><span class="pre">MPI_COMM_WORLD</span></code> など)を入れる.
+libtetrabz を内部でMPI/Hybrid並列するときのみ入力する.
+C言語では使用しないときには <code class="docutils literal notranslate"><span class="pre">NULL</span></code> を入れる.</p>
+</div></blockquote>
+</div></blockquote>
+</section>
+<section id="id6">
+<h2>フォノン線幅等<a class="headerlink" href="#id6" title="この見出しへのパーマリンク">¶</a></h2>
+<div class="math notranslate nohighlight">
+\[\begin{align}
+\sum_{n n'}
+\int_{\rm BZ} \frac{d^3 k}{V_{\rm BZ}}
+\theta(\varepsilon_{\rm F} -
+\varepsilon_{n k}) \theta(\varepsilon'_{n' k} - \varepsilon_{\rm F})
+\delta(\varepsilon'_{n' k} - \varepsilon_{n k} - \omega)
+X_{n n' k}(\omega)
+\end{align}\]</div>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="k">CALL </span><span class="n">libtetrabz_fermigr</span><span class="p">(</span><span class="n">ltetra</span><span class="p">,</span><span class="n">bvec</span><span class="p">,</span><span class="n">nb</span><span class="p">,</span><span class="n">nge</span><span class="p">,</span><span class="n">eig1</span><span class="p">,</span><span class="n">eig2</span><span class="p">,</span><span class="n">ngw</span><span class="p">,</span><span class="n">wght</span><span class="p">,</span><span class="n">ne</span><span class="p">,</span><span class="n">e0</span><span class="p">,</span><span class="n">comm</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>パラメーター</p>
+<blockquote>
+<div><div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">INTEGER</span><span class="p">,</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ltetra</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>テトラへドロン法の種類を決める.
+1 <span class="math notranslate nohighlight">\(\cdots\)</span> 線形テトラへドロン法,
+2 <span class="math notranslate nohighlight">\(\cdots\)</span> 最適化線形テトラへドロン法 <a class="reference internal" href="ref.html#ref"><span class="std std-ref">[1]</span></a></p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">REAL</span><span class="p">(</span><span class="mi">8</span><span class="p">),</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">bvec</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>逆格子ベクトル. 単位は任意で良い.
+逆格子の形によって四面体の切り方を決めるため,
+それらの長さの比のみが必要であるため.</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">INTEGER</span><span class="p">,</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">nb</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>バンド本数</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">INTEGER</span><span class="p">,</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">nge</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>軌道エネルギーのメッシュ数.</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">REAL</span><span class="p">(</span><span class="mi">8</span><span class="p">),</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">eig1</span><span class="p">(</span><span class="n">nb</span><span class="p">,</span><span class="n">nge</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="n">nge</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span><span class="n">nge</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>軌道エネルギー.
+Fermi エネルギーを基準とすること
+( <span class="math notranslate nohighlight">\(\varepsilon_{\rm F}=0\)</span> ). <code class="docutils literal notranslate"><span class="pre">eig2</span></code> も同様.</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">REAL</span><span class="p">(</span><span class="mi">8</span><span class="p">),</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">eig2</span><span class="p">(</span><span class="n">nb</span><span class="p">,</span><span class="n">nge</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="n">nge</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span><span class="n">nge</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>軌道エネルギー.
+移行運動量の分だけグリッドをずらしたものなど.</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">INTEGER</span><span class="p">,</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ngw</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>積分重みの <span class="math notranslate nohighlight">\(k\)</span> メッシュ.
+<code class="docutils literal notranslate"><span class="pre">nge</span></code> と違っていても構わない(<a class="reference internal" href="app.html#app"><span class="std std-ref">補遺</span></a> 参照).</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">REAL</span><span class="p">(</span><span class="mi">8</span><span class="p">),</span><span class="k">INTENT</span><span class="p">(</span><span class="n">OUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">wght</span><span class="p">(</span><span class="n">ne</span><span class="p">,</span><span class="n">nb</span><span class="p">,</span><span class="n">nb</span><span class="p">,</span><span class="n">ngw</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="n">ngw</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span><span class="n">ngw</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>積分重み</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">INTEGER</span><span class="p">,</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ne</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>フォノンモード数</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">REAL</span><span class="p">(</span><span class="mi">8</span><span class="p">),</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">e0</span><span class="p">(</span><span class="n">ne</span><span class="p">)</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>フォノン振動数</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">INTEGER</span><span class="p">,</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">),</span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">comm</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>オプショナル引数.
+MPIのコミニュケーター( <code class="docutils literal notranslate"><span class="pre">MPI_COMM_WORLD</span></code> など)を入れる.
+libtetrabz を内部でMPI/Hybrid並列するときのみ入力する.
+C言語では使用しないときには <code class="docutils literal notranslate"><span class="pre">NULL</span></code> を入れる.</p>
+</div></blockquote>
+</div></blockquote>
+</section>
+<section id="id7">
+<h2>分極関数(複素振動数)<a class="headerlink" href="#id7" title="この見出しへのパーマリンク">¶</a></h2>
+<div class="math notranslate nohighlight">
+\[\begin{align}
+\sum_{n n'}
+\int_{\rm BZ} \frac{d^3 k}{V_{\rm BZ}}
+\frac{\theta(\varepsilon_{\rm F} - \varepsilon_{n k})
+\theta(\varepsilon'_{n' k} - \varepsilon_{\rm F})}
+{\varepsilon'_{n' k} - \varepsilon_{n k} + i \omega}
+X_{n n' k}(\omega)
+\end{align}\]</div>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="k">CALL </span><span class="n">libtetrabz_polcmplx</span><span class="p">(</span><span class="n">ltetra</span><span class="p">,</span><span class="n">bvec</span><span class="p">,</span><span class="n">nb</span><span class="p">,</span><span class="n">nge</span><span class="p">,</span><span class="n">eig1</span><span class="p">,</span><span class="n">eig2</span><span class="p">,</span><span class="n">ngw</span><span class="p">,</span><span class="n">wght</span><span class="p">,</span><span class="n">ne</span><span class="p">,</span><span class="n">e0</span><span class="p">,</span><span class="n">comm</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>パラメーター</p>
+<blockquote>
+<div><div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">INTEGER</span><span class="p">,</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ltetra</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>テトラへドロン法の種類を決める.
+1 <span class="math notranslate nohighlight">\(\cdots\)</span> 線形テトラへドロン法,
+2 <span class="math notranslate nohighlight">\(\cdots\)</span> 最適化線形テトラへドロン法 <a class="reference internal" href="ref.html#ref"><span class="std std-ref">[1]</span></a></p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">REAL</span><span class="p">(</span><span class="mi">8</span><span class="p">),</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">bvec</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>逆格子ベクトル. 単位は任意で良い.
+逆格子の形によって四面体の切り方を決めるため,
+それらの長さの比のみが必要であるため.</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">INTEGER</span><span class="p">,</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">nb</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>バンド本数</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">INTEGER</span><span class="p">,</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">nge</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>軌道エネルギーのメッシュ数.</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">REAL</span><span class="p">(</span><span class="mi">8</span><span class="p">),</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">eig1</span><span class="p">(</span><span class="n">nb</span><span class="p">,</span><span class="n">nge</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="n">nge</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span><span class="n">nge</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>軌道エネルギー.
+Fermi エネルギーを基準とすること
+( <span class="math notranslate nohighlight">\(\varepsilon_{\rm F}=0\)</span> ). <code class="docutils literal notranslate"><span class="pre">eig2</span></code> も同様.</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">REAL</span><span class="p">(</span><span class="mi">8</span><span class="p">),</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">eig2</span><span class="p">(</span><span class="n">nb</span><span class="p">,</span><span class="n">nge</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="n">nge</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span><span class="n">nge</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>軌道エネルギー.
+移行運動量の分だけグリッドをずらしたものなど.</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">INTEGER</span><span class="p">,</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ngw</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>積分重みの <span class="math notranslate nohighlight">\(k\)</span> メッシュ.
+<code class="docutils literal notranslate"><span class="pre">nge</span></code> と違っていても構わない(<a class="reference internal" href="app.html#app"><span class="std std-ref">補遺</span></a> 参照).</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">COMPLEX</span><span class="p">(</span><span class="mi">8</span><span class="p">),</span><span class="k">INTENT</span><span class="p">(</span><span class="n">OUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">wght</span><span class="p">(</span><span class="n">ne</span><span class="p">,</span><span class="n">nb</span><span class="p">,</span><span class="n">nb</span><span class="p">,</span><span class="n">ngw</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="n">ngw</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span><span class="n">ngw</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>積分重み .</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">INTEGER</span><span class="p">,</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ne</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>計算を行う虚振動数の点数</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">COMPLEX</span><span class="p">(</span><span class="mi">8</span><span class="p">),</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">e0</span><span class="p">(</span><span class="n">ne</span><span class="p">)</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>計算を行う複素振動数</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">INTEGER</span><span class="p">,</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">),</span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">comm</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>オプショナル引数.
+MPIのコミニュケーター( <code class="docutils literal notranslate"><span class="pre">MPI_COMM_WORLD</span></code> など)を入れる.
+libtetrabz を内部でMPI/Hybrid並列するときのみ入力する.
+C言語では使用しないときには <code class="docutils literal notranslate"><span class="pre">NULL</span></code> を入れる.</p>
+</div></blockquote>
+</div></blockquote>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="index.html">
+              <img class="logo" src="_static/libtetrabz.png" alt="Logo"/>
+            </a></p>
+  <div>
+    <h3><a href="index.html">Table of Contents</a></h3>
+    <ul>
+<li><a class="reference internal" href="#">各サブルーチンの説明</a><ul>
+<li><a class="reference internal" href="#id2">全エネルギー, 電荷密度等(占有率の計算)</a></li>
+<li><a class="reference internal" href="#fermi">Fermi エネルギー(占有率も同時に計算する)</a></li>
+<li><a class="reference internal" href="#id3">(部分)状態密度</a></li>
+<li><a class="reference internal" href="#id4">積分状態密度</a></li>
+<li><a class="reference internal" href="#frohlich">ネスティング関数, Fröhlich パラメーター</a></li>
+<li><a class="reference internal" href="#dfpt">DFPT 計算の一部</a></li>
+<li><a class="reference internal" href="#id5">独立分極関数(静的)</a></li>
+<li><a class="reference internal" href="#id6">フォノン線幅等</a></li>
+<li><a class="reference internal" href="#id7">分極関数(複素振動数)</a></li>
+</ul>
+</li>
+</ul>
+
+  </div>
+  <div>
+    <h4>前のトピックへ</h4>
+    <p class="topless"><a href="link.html"
+                          title="前の章へ">ライブラリのリンク方法</a></p>
+  </div>
+  <div>
+    <h4>次のトピックへ</h4>
+    <p class="topless"><a href="sample.html"
+                          title="次の章へ">サンプルコード(抜粋)</a></p>
+  </div>
+  <div role="note" aria-label="source link">
+    <h3>このページ</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/routine.rst.txt"
+            rel="nofollow">ソースコードを表示</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">クイック検索</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="検索" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="総合索引"
+             >索引</a></li>
+        <li class="right" >
+          <a href="sample.html" title="サンプルコード(抜粋)"
+             >次へ</a> |</li>
+        <li class="right" >
+          <a href="link.html" title="ライブラリのリンク方法"
+             >前へ</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">libtetrabz 2.0.0 ドキュメント</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">各サブルーチンの説明</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2017, Mitsuaki Kawamura.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.3.
+    </div>
+  </body>
+</html>

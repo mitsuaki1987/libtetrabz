@@ -1,0 +1,916 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <title>Subroutines &#8212; libtetrabz 2.0.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/classic.css" />
+    
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Piece of sample code" href="sample.html" />
+    <link rel="prev" title="Linking libtetrabz" href="link.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="sample.html" title="Piece of sample code"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="link.html" title="Linking libtetrabz"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">libtetrabz 2.0.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Subroutines</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="subroutines">
+<h1>Subroutines<a class="headerlink" href="#subroutines" title="Permalink to this heading">¶</a></h1>
+<p>You can call a subroutine in this library as follows:</p>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="k">USE </span><span class="n">libtetrabz</span><span class="p">,</span><span class="w"> </span><span class="k">ONLY</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">libtetrabz_occ</span>
+
+<span class="k">CALL </span><span class="n">libtetrabz_occ</span><span class="p">(</span><span class="n">ltetra</span><span class="p">,</span><span class="n">bvec</span><span class="p">,</span><span class="n">nb</span><span class="p">,</span><span class="n">nge</span><span class="p">,</span><span class="n">eig</span><span class="p">,</span><span class="n">ngw</span><span class="p">,</span><span class="n">wght</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Every subroutine has a name starts from <code class="docutils literal notranslate"><span class="pre">libtetrabz_</span></code>.</p>
+<p>For the C program, it can be used as follows:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;libtetrabz.h&quot;</span>
+
+<span class="n">libtetrabz_occ</span><span class="p">(</span><span class="o">&amp;</span><span class="n">ltetra</span><span class="p">,</span><span class="n">bvec</span><span class="p">,</span><span class="o">&amp;</span><span class="n">nb</span><span class="p">,</span><span class="n">nge</span><span class="p">,</span><span class="n">eig</span><span class="p">,</span><span class="n">ngw</span><span class="p">,</span><span class="n">wght</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Variables should be passed as pointers.
+Arrays should be declared as one dimensional arrays.
+Also, the communicator argument for the routine should be
+transformed from the C/C++’s one to the fortran’s one as follows.</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">comm_f</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MPI_Comm_c2f</span><span class="p">(</span><span class="n">comm_c</span><span class="p">);</span>
+</pre></div>
+</div>
+<section id="total-energy-charge-density-occupations">
+<h2>Total energy, charge density, occupations<a class="headerlink" href="#total-energy-charge-density-occupations" title="Permalink to this heading">¶</a></h2>
+<div class="math notranslate nohighlight">
+\[\begin{align}
+\sum_{n}
+\int_{\rm BZ} \frac{d^3 k}{V_{\rm BZ}}
+\theta(\varepsilon_{\rm F} -
+\varepsilon_{n k}) X_{n k}
+\end{align}\]</div>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="k">CALL </span><span class="n">libtetrabz_occ</span><span class="p">(</span><span class="n">ltetra</span><span class="p">,</span><span class="n">bvec</span><span class="p">,</span><span class="n">nb</span><span class="p">,</span><span class="n">nge</span><span class="p">,</span><span class="n">eig</span><span class="p">,</span><span class="n">ngw</span><span class="p">,</span><span class="n">wght</span><span class="p">,</span><span class="n">comm</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Parameters</p>
+<blockquote>
+<div><div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">INTEGER</span><span class="p">,</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ltetra</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>Specify the type of the tetrahedron method.
+1 <span class="math notranslate nohighlight">\(\cdots\)</span> the linear tetrahedron method.
+2 <span class="math notranslate nohighlight">\(\cdots\)</span> the optimized tetrahedron method <a class="reference internal" href="ref.html#ref"><span class="std std-ref">[1]</span></a>.</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">REAL</span><span class="p">(</span><span class="mi">8</span><span class="p">),</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">bvec</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>Reciprocal lattice vectors (arbitrary unit).
+Because they are used to choose the direction of tetrahedra,
+only their ratio is used.</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">INTEGER</span><span class="p">,</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">nb</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>The number of bands.</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">INTEGER</span><span class="p">,</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">nge</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>Specify the <span class="math notranslate nohighlight">\(k\)</span>-grid
+for input orbital energy.</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">REAL</span><span class="p">(</span><span class="mi">8</span><span class="p">),</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">eig</span><span class="p">(</span><span class="n">nb</span><span class="p">,</span><span class="n">nge</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="n">nge</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span><span class="n">nge</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>The orbital energy measured from the Fermi energy
+( <span class="math notranslate nohighlight">\(\varepsilon_{\rm F} = 0\)</span> ).</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">INTEGER</span><span class="p">,</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ngw</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>Specify the <span class="math notranslate nohighlight">\(k\)</span>-grid for output integration weights.
+You can make <code class="docutils literal notranslate"><span class="pre">ngw</span></code> <span class="math notranslate nohighlight">\(\neq\)</span> <code class="docutils literal notranslate"><span class="pre">nge</span></code> (See <a class="reference internal" href="app.html#app"><span class="std std-ref">Appendix</span></a>).</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">REAL</span><span class="p">(</span><span class="mi">8</span><span class="p">),</span><span class="k">INTENT</span><span class="p">(</span><span class="n">OUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">wght</span><span class="p">(</span><span class="n">nb</span><span class="p">,</span><span class="n">ngw</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="n">ngw</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span><span class="n">ngw</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>The integration weights.</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">INTEGER</span><span class="p">,</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">),</span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">comm</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>Optional argument. Communicators for MPI such as <code class="docutils literal notranslate"><span class="pre">MPI_COMM_WORLD</span></code>.
+Only for MPI / Hybrid parallelization.
+For C compiler without MPI, just pass <code class="docutils literal notranslate"><span class="pre">NULL</span></code> to omit this argment.</p>
+</div></blockquote>
+</div></blockquote>
+</section>
+<section id="fermi-energy-and-occupations">
+<h2>Fermi energy and occupations<a class="headerlink" href="#fermi-energy-and-occupations" title="Permalink to this heading">¶</a></h2>
+<div class="math notranslate nohighlight">
+\[\begin{align}
+\sum_{n}
+\int_{\rm BZ} \frac{d^3 k}{V_{\rm BZ}}
+\theta(\varepsilon_{\rm F} -
+\varepsilon_{n k}) X_{n k}
+\end{align}\]</div>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="k">CALL </span><span class="n">libtetrabz_fermieng</span><span class="p">(</span><span class="n">ltetra</span><span class="p">,</span><span class="n">bvec</span><span class="p">,</span><span class="n">nb</span><span class="p">,</span><span class="n">nge</span><span class="p">,</span><span class="n">eig</span><span class="p">,</span><span class="n">ngw</span><span class="p">,</span><span class="n">wght</span><span class="p">,</span><span class="n">ef</span><span class="p">,</span><span class="n">nelec</span><span class="p">,</span><span class="n">comm</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Parameters</p>
+<blockquote>
+<div><div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">INTEGER</span><span class="p">,</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ltetra</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>Specify the type of the tetrahedron method.
+1 <span class="math notranslate nohighlight">\(\cdots\)</span> the linear tetrahedron method.
+2 <span class="math notranslate nohighlight">\(\cdots\)</span> the optimized tetrahedron method <a class="reference internal" href="ref.html#ref"><span class="std std-ref">[1]</span></a>.</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">REAL</span><span class="p">(</span><span class="mi">8</span><span class="p">),</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">bvec</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>Reciprocal lattice vectors (arbitrary unit).
+Because they are used to choose the direction of tetrahedra,
+only their ratio is used.</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">INTEGER</span><span class="p">,</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">nb</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>The number of bands.</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">INTEGER</span><span class="p">,</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">nge</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>Specify the <span class="math notranslate nohighlight">\(k\)</span>-grid
+for input orbital energy.</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">REAL</span><span class="p">(</span><span class="mi">8</span><span class="p">),</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">eig</span><span class="p">(</span><span class="n">nb</span><span class="p">,</span><span class="n">nge</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="n">nge</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span><span class="n">nge</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>The orbital energy measured from the Fermi energy
+( <span class="math notranslate nohighlight">\(\varepsilon_{\rm F} = 0\)</span> ).</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">INTEGER</span><span class="p">,</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ngw</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>Specify the <span class="math notranslate nohighlight">\(k\)</span>-grid for output integration weights.
+You can make <code class="docutils literal notranslate"><span class="pre">ngw</span></code> <span class="math notranslate nohighlight">\(\neq\)</span> <code class="docutils literal notranslate"><span class="pre">nge</span></code> (See <a class="reference internal" href="app.html#app"><span class="std std-ref">Appendix</span></a>).</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">REAL</span><span class="p">(</span><span class="mi">8</span><span class="p">),</span><span class="k">INTENT</span><span class="p">(</span><span class="n">OUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">wght</span><span class="p">(</span><span class="n">nb</span><span class="p">,</span><span class="n">ngw</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="n">ngw</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span><span class="n">ngw</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>The integration weights.</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">REAL</span><span class="p">(</span><span class="mi">8</span><span class="p">),</span><span class="k">INTENT</span><span class="p">(</span><span class="n">OUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ef</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>The Fermi energy.</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">REAL</span><span class="p">(</span><span class="mi">8</span><span class="p">),</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">nelec</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>The number of (valence) electrons per spin.</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">INTEGER</span><span class="p">,</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">),</span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">comm</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>Optional argument. Communicators for MPI such as <code class="docutils literal notranslate"><span class="pre">MPI_COMM_WORLD</span></code>.
+Only for MPI / Hybrid parallelization.
+For C compiler without MPI, just pass <code class="docutils literal notranslate"><span class="pre">NULL</span></code> to omit this argment.</p>
+</div></blockquote>
+</div></blockquote>
+</section>
+<section id="partial-density-of-states">
+<h2>Partial density of states<a class="headerlink" href="#partial-density-of-states" title="Permalink to this heading">¶</a></h2>
+<div class="math notranslate nohighlight">
+\[\begin{align}
+\sum_{n}
+\int_{\rm BZ} \frac{d^3 k}{V_{\rm BZ}}
+\delta(\omega - \varepsilon_{n k})
+X_{n k}(\omega)
+\end{align}\]</div>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="k">CALL </span><span class="n">libtetrabz_dos</span><span class="p">(</span><span class="n">ltetra</span><span class="p">,</span><span class="n">bvec</span><span class="p">,</span><span class="n">nb</span><span class="p">,</span><span class="n">nge</span><span class="p">,</span><span class="n">eig</span><span class="p">,</span><span class="n">ngw</span><span class="p">,</span><span class="n">wght</span><span class="p">,</span><span class="n">ne</span><span class="p">,</span><span class="n">e0</span><span class="p">,</span><span class="n">comm</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Parameters</p>
+<blockquote>
+<div><div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">INTEGER</span><span class="p">,</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ltetra</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>Specify the type of the tetrahedron method.
+1 <span class="math notranslate nohighlight">\(\cdots\)</span> the linear tetrahedron method.
+2 <span class="math notranslate nohighlight">\(\cdots\)</span> the optimized tetrahedron method <a class="reference internal" href="ref.html#ref"><span class="std std-ref">[1]</span></a>.</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">REAL</span><span class="p">(</span><span class="mi">8</span><span class="p">),</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">bvec</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>Reciprocal lattice vectors (arbitrary unit).
+Because they are used to choose the direction of tetrahedra,
+only their ratio is used.</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">INTEGER</span><span class="p">,</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">nb</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>The number of bands.</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">INTEGER</span><span class="p">,</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">nge</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>Specify the <span class="math notranslate nohighlight">\(k\)</span>-grid
+for input orbital energy.</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">REAL</span><span class="p">(</span><span class="mi">8</span><span class="p">),</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">eig</span><span class="p">(</span><span class="n">nb</span><span class="p">,</span><span class="n">nge</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="n">nge</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span><span class="n">nge</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>The orbital energy measured from the Fermi energy
+( <span class="math notranslate nohighlight">\(\varepsilon_{\rm F} = 0\)</span> ).</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">INTEGER</span><span class="p">,</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ngw</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>Specify the <span class="math notranslate nohighlight">\(k\)</span>-grid for output integration weights.
+You can make <code class="docutils literal notranslate"><span class="pre">ngw</span></code> <span class="math notranslate nohighlight">\(\neq\)</span> <code class="docutils literal notranslate"><span class="pre">nge</span></code> (See <a class="reference internal" href="app.html#app"><span class="std std-ref">Appendix</span></a>).</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">REAL</span><span class="p">(</span><span class="mi">8</span><span class="p">),</span><span class="k">INTENT</span><span class="p">(</span><span class="n">OUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">wght</span><span class="p">(</span><span class="n">ne</span><span class="p">,</span><span class="n">nb</span><span class="p">,</span><span class="n">ngw</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="n">ngw</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span><span class="n">ngw</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>The integration weights.</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">INTEGER</span><span class="p">,</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ne</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>The number of energy where DOS is calculated.</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">REAL</span><span class="p">(</span><span class="mi">8</span><span class="p">),</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">e0</span><span class="p">(</span><span class="n">ne</span><span class="p">)</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>Energies where DOS is calculated.</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">INTEGER</span><span class="p">,</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">),</span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">comm</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>Optional argument. Communicators for MPI such as <code class="docutils literal notranslate"><span class="pre">MPI_COMM_WORLD</span></code>.
+Only for MPI / Hybrid parallelization.
+For C compiler without MPI, just pass <code class="docutils literal notranslate"><span class="pre">NULL</span></code> to omit this argment.</p>
+</div></blockquote>
+</div></blockquote>
+</section>
+<section id="integrated-density-of-states">
+<h2>Integrated density of states<a class="headerlink" href="#integrated-density-of-states" title="Permalink to this heading">¶</a></h2>
+<div class="math notranslate nohighlight">
+\[\begin{align}
+\sum_{n}
+\int_{\rm BZ} \frac{d^3 k}{V_{\rm BZ}}
+\theta(\omega - \varepsilon_{n k})
+X_{n k}(\omega)
+\end{align}\]</div>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="k">CALL </span><span class="n">libtetrabz_intdos</span><span class="p">(</span><span class="n">ltetra</span><span class="p">,</span><span class="n">bvec</span><span class="p">,</span><span class="n">nb</span><span class="p">,</span><span class="n">nge</span><span class="p">,</span><span class="n">eig</span><span class="p">,</span><span class="n">ngw</span><span class="p">,</span><span class="n">wght</span><span class="p">,</span><span class="n">ne</span><span class="p">,</span><span class="n">e0</span><span class="p">,</span><span class="n">comm</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Parameters</p>
+<blockquote>
+<div><div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">INTEGER</span><span class="p">,</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ltetra</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>Specify the type of the tetrahedron method.
+1 <span class="math notranslate nohighlight">\(\cdots\)</span> the linear tetrahedron method.
+2 <span class="math notranslate nohighlight">\(\cdots\)</span> the optimized tetrahedron method <a class="reference internal" href="ref.html#ref"><span class="std std-ref">[1]</span></a>.</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">REAL</span><span class="p">(</span><span class="mi">8</span><span class="p">),</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">bvec</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>Reciprocal lattice vectors (arbitrary unit).
+Because they are used to choose the direction of tetrahedra,
+only their ratio is used.</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">INTEGER</span><span class="p">,</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">nb</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>The number of bands.</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">INTEGER</span><span class="p">,</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">nge</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>Specify the <span class="math notranslate nohighlight">\(k\)</span>-grid
+for input orbital energy.</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">REAL</span><span class="p">(</span><span class="mi">8</span><span class="p">),</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">eig</span><span class="p">(</span><span class="n">nb</span><span class="p">,</span><span class="n">nge</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="n">nge</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span><span class="n">nge</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>The orbital energy measured from the Fermi energy
+( <span class="math notranslate nohighlight">\(\varepsilon_{\rm F} = 0\)</span> ).</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">INTEGER</span><span class="p">,</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ngw</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>Specify the <span class="math notranslate nohighlight">\(k\)</span>-grid for output integration weights.
+You can make <code class="docutils literal notranslate"><span class="pre">ngw</span></code> <span class="math notranslate nohighlight">\(\neq\)</span> <code class="docutils literal notranslate"><span class="pre">nge</span></code> (See <a class="reference internal" href="app.html#app"><span class="std std-ref">Appendix</span></a>).</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">REAL</span><span class="p">(</span><span class="mi">8</span><span class="p">),</span><span class="k">INTENT</span><span class="p">(</span><span class="n">OUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">wght</span><span class="p">(</span><span class="n">ne</span><span class="p">,</span><span class="n">nb</span><span class="p">,</span><span class="n">ngw</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="n">ngw</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span><span class="n">ngw</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>The integration weights.</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">INTEGER</span><span class="p">,</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ne</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>The number of energy where DOS is calculated.</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">REAL</span><span class="p">(</span><span class="mi">8</span><span class="p">),</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">e0</span><span class="p">(</span><span class="n">ne</span><span class="p">)</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>Energies where DOS is calculated.</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">INTEGER</span><span class="p">,</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">),</span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">comm</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>Optional argument. Communicators for MPI such as <code class="docutils literal notranslate"><span class="pre">MPI_COMM_WORLD</span></code>.
+Only for MPI / Hybrid parallelization.
+For C compiler without MPI, just pass <code class="docutils literal notranslate"><span class="pre">NULL</span></code> to omit this argment.</p>
+</div></blockquote>
+</div></blockquote>
+</section>
+<section id="nesting-function-and-fr-oumlhlich-parameter">
+<h2>Nesting function and Fr&amp;oumlhlich parameter<a class="headerlink" href="#nesting-function-and-fr-oumlhlich-parameter" title="Permalink to this heading">¶</a></h2>
+<div class="math notranslate nohighlight">
+\[\begin{align}
+\sum_{n n'}
+\int_{\rm BZ} \frac{d^3 k}{V_{\rm BZ}}
+\delta(\varepsilon_{\rm F} -
+\varepsilon_{n k}) \delta(\varepsilon_{\rm F} - \varepsilon'_{n' k})
+X_{n n' k}
+\end{align}\]</div>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="k">CALL </span><span class="n">libtetrabz_dbldelta</span><span class="p">(</span><span class="n">ltetra</span><span class="p">,</span><span class="n">bvec</span><span class="p">,</span><span class="n">nb</span><span class="p">,</span><span class="n">nge</span><span class="p">,</span><span class="n">eig1</span><span class="p">,</span><span class="n">eig2</span><span class="p">,</span><span class="n">ngw</span><span class="p">,</span><span class="n">wght</span><span class="p">,</span><span class="n">comm</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Parameters</p>
+<blockquote>
+<div><div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">INTEGER</span><span class="p">,</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ltetra</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>Specify the type of the tetrahedron method.
+1 <span class="math notranslate nohighlight">\(\cdots\)</span> the linear tetrahedron method.
+2 <span class="math notranslate nohighlight">\(\cdots\)</span> the optimized tetrahedron method <a class="reference internal" href="ref.html#ref"><span class="std std-ref">[1]</span></a>.</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">REAL</span><span class="p">(</span><span class="mi">8</span><span class="p">),</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">bvec</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>Reciprocal lattice vectors (arbitrary unit).
+Because they are used to choose the direction of tetrahedra,
+only their ratio is used.</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">INTEGER</span><span class="p">,</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">nb</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>The number of bands.</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">INTEGER</span><span class="p">,</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">nge</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>Specify the <span class="math notranslate nohighlight">\(k\)</span>-grid
+for input orbital energy.</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">REAL</span><span class="p">(</span><span class="mi">8</span><span class="p">),</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">eig1</span><span class="p">(</span><span class="n">nb</span><span class="p">,</span><span class="n">nge</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="n">nge</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span><span class="n">nge</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>The orbital energy measured from the Fermi energy
+( <span class="math notranslate nohighlight">\(\varepsilon_{\rm F} = 0\)</span> ).
+Do the same with <code class="docutils literal notranslate"><span class="pre">eig2</span></code>.</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">REAL</span><span class="p">(</span><span class="mi">8</span><span class="p">),</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">eig2</span><span class="p">(</span><span class="n">nb</span><span class="p">,</span><span class="n">nge</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="n">nge</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span><span class="n">nge</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>Another orbital energy.
+E.g. <span class="math notranslate nohighlight">\(\varepsilon_{k + q}\)</span> on a shifted grid.</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">INTEGER</span><span class="p">,</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ngw</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>Specify the <span class="math notranslate nohighlight">\(k\)</span>-grid for output integration weights.
+You can make <code class="docutils literal notranslate"><span class="pre">ngw</span></code> <span class="math notranslate nohighlight">\(\neq\)</span> <code class="docutils literal notranslate"><span class="pre">nge</span></code> (See <a class="reference internal" href="app.html#app"><span class="std std-ref">Appendix</span></a>).</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">REAL</span><span class="p">(</span><span class="mi">8</span><span class="p">),</span><span class="k">INTENT</span><span class="p">(</span><span class="n">OUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">wght</span><span class="p">(</span><span class="n">nb</span><span class="p">,</span><span class="n">nb</span><span class="p">,</span><span class="n">ngw</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="n">ngw</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span><span class="n">ngw</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>The integration weights.</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">INTEGER</span><span class="p">,</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">),</span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">comm</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>Optional argument. Communicators for MPI such as <code class="docutils literal notranslate"><span class="pre">MPI_COMM_WORLD</span></code>.
+Only for MPI / Hybrid parallelization.
+For C compiler without MPI, just pass <code class="docutils literal notranslate"><span class="pre">NULL</span></code> to omit this argment.</p>
+</div></blockquote>
+</div></blockquote>
+</section>
+<section id="a-part-of-dfpt-calculation">
+<h2>A part of DFPT calculation<a class="headerlink" href="#a-part-of-dfpt-calculation" title="Permalink to this heading">¶</a></h2>
+<div class="math notranslate nohighlight">
+\[\begin{align}
+\sum_{n n'}
+\int_{\rm BZ} \frac{d^3 k}{V_{\rm BZ}}
+\theta(\varepsilon_{\rm F} -
+\varepsilon_{n k}) \theta(\varepsilon_{n k} - \varepsilon'_{n' k})
+X_{n n' k}
+\end{align}\]</div>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="k">CALL </span><span class="n">libtetrabz_dblstep</span><span class="p">(</span><span class="n">ltetra</span><span class="p">,</span><span class="n">bvec</span><span class="p">,</span><span class="n">nb</span><span class="p">,</span><span class="n">nge</span><span class="p">,</span><span class="n">eig1</span><span class="p">,</span><span class="n">eig2</span><span class="p">,</span><span class="n">ngw</span><span class="p">,</span><span class="n">wght</span><span class="p">,</span><span class="n">comm</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Parameters</p>
+<blockquote>
+<div><div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">INTEGER</span><span class="p">,</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ltetra</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>Specify the type of the tetrahedron method.
+1 <span class="math notranslate nohighlight">\(\cdots\)</span> the linear tetrahedron method.
+2 <span class="math notranslate nohighlight">\(\cdots\)</span> the optimized tetrahedron method <a class="reference internal" href="ref.html#ref"><span class="std std-ref">[1]</span></a>.</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">REAL</span><span class="p">(</span><span class="mi">8</span><span class="p">),</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">bvec</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>Reciprocal lattice vectors (arbitrary unit).
+Because they are used to choose the direction of tetrahedra,
+only their ratio is used.</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">INTEGER</span><span class="p">,</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">nb</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>The number of bands.</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">INTEGER</span><span class="p">,</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">nge</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>Specify the <span class="math notranslate nohighlight">\(k\)</span>-grid
+for input orbital energy.</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">REAL</span><span class="p">(</span><span class="mi">8</span><span class="p">),</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">eig1</span><span class="p">(</span><span class="n">nb</span><span class="p">,</span><span class="n">nge</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="n">nge</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span><span class="n">nge</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>The orbital energy measured from the Fermi energy
+( <span class="math notranslate nohighlight">\(\varepsilon_{\rm F} = 0\)</span> ).
+Do the same with <code class="docutils literal notranslate"><span class="pre">eig2</span></code>.</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">REAL</span><span class="p">(</span><span class="mi">8</span><span class="p">),</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">eig2</span><span class="p">(</span><span class="n">nb</span><span class="p">,</span><span class="n">nge</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="n">nge</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span><span class="n">nge</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>Another orbital energy.
+E.g. <span class="math notranslate nohighlight">\(\varepsilon_{k + q}\)</span> on a shifted grid.</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">INTEGER</span><span class="p">,</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ngw</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>Specify the <span class="math notranslate nohighlight">\(k\)</span>-grid for output integration weights.
+You can make <code class="docutils literal notranslate"><span class="pre">ngw</span></code> <span class="math notranslate nohighlight">\(\neq\)</span> <code class="docutils literal notranslate"><span class="pre">nge</span></code> (See <a class="reference internal" href="app.html#app"><span class="std std-ref">Appendix</span></a>).</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">REAL</span><span class="p">(</span><span class="mi">8</span><span class="p">),</span><span class="k">INTENT</span><span class="p">(</span><span class="n">OUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">wght</span><span class="p">(</span><span class="n">nb</span><span class="p">,</span><span class="n">nb</span><span class="p">,</span><span class="n">ngw</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="n">ngw</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span><span class="n">ngw</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>The integration weights.</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">INTEGER</span><span class="p">,</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">),</span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">comm</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>Optional argument. Communicators for MPI such as <code class="docutils literal notranslate"><span class="pre">MPI_COMM_WORLD</span></code>.
+Only for MPI / Hybrid parallelization.
+For C compiler without MPI, just pass <code class="docutils literal notranslate"><span class="pre">NULL</span></code> to omit this argment.</p>
+</div></blockquote>
+</div></blockquote>
+</section>
+<section id="static-polarization-function">
+<h2>Static polarization function<a class="headerlink" href="#static-polarization-function" title="Permalink to this heading">¶</a></h2>
+<div class="math notranslate nohighlight">
+\[\begin{align}
+\sum_{n n'}
+\int_{\rm BZ} \frac{d^3 k}{V_{\rm BZ}}
+\frac{\theta(\varepsilon_{\rm F} - \varepsilon_{n k})
+\theta(\varepsilon'_{n' k} - \varepsilon_{\rm F})}
+{\varepsilon'_{n' k} - \varepsilon_{n k}}
+X_{n n' k}
+\end{align}\]</div>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="k">CALL </span><span class="n">libtetrabz_polstat</span><span class="p">(</span><span class="n">ltetra</span><span class="p">,</span><span class="n">bvec</span><span class="p">,</span><span class="n">nb</span><span class="p">,</span><span class="n">nge</span><span class="p">,</span><span class="n">eig1</span><span class="p">,</span><span class="n">eig2</span><span class="p">,</span><span class="n">ngw</span><span class="p">,</span><span class="n">wght</span><span class="p">,</span><span class="n">comm</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Parameters</p>
+<blockquote>
+<div><div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">INTEGER</span><span class="p">,</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ltetra</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>Specify the type of the tetrahedron method.
+1 <span class="math notranslate nohighlight">\(\cdots\)</span> the linear tetrahedron method.
+2 <span class="math notranslate nohighlight">\(\cdots\)</span> the optimized tetrahedron method <a class="reference internal" href="ref.html#ref"><span class="std std-ref">[1]</span></a>.</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">REAL</span><span class="p">(</span><span class="mi">8</span><span class="p">),</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">bvec</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>Reciprocal lattice vectors (arbitrary unit).
+Because they are used to choose the direction of tetrahedra,
+only their ratio is used.</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">INTEGER</span><span class="p">,</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">nb</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>The number of bands.</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">INTEGER</span><span class="p">,</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">nge</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>Specify the <span class="math notranslate nohighlight">\(k\)</span>-grid
+for input orbital energy.</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">REAL</span><span class="p">(</span><span class="mi">8</span><span class="p">),</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">eig1</span><span class="p">(</span><span class="n">nb</span><span class="p">,</span><span class="n">nge</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="n">nge</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span><span class="n">nge</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>The orbital energy measured from the Fermi energy
+( <span class="math notranslate nohighlight">\(\varepsilon_{\rm F} = 0\)</span> ).
+Do the same with <code class="docutils literal notranslate"><span class="pre">eig2</span></code>.</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">REAL</span><span class="p">(</span><span class="mi">8</span><span class="p">),</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">eig2</span><span class="p">(</span><span class="n">nb</span><span class="p">,</span><span class="n">nge</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="n">nge</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span><span class="n">nge</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>Another orbital energy.
+E.g. <span class="math notranslate nohighlight">\(\varepsilon_{k + q}\)</span> on a shifted grid.</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">INTEGER</span><span class="p">,</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ngw</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>Specify the <span class="math notranslate nohighlight">\(k\)</span>-grid for output integration weights.
+You can make <code class="docutils literal notranslate"><span class="pre">ngw</span></code> <span class="math notranslate nohighlight">\(\neq\)</span> <code class="docutils literal notranslate"><span class="pre">nge</span></code> (See <a class="reference internal" href="app.html#app"><span class="std std-ref">Appendix</span></a>).</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">REAL</span><span class="p">(</span><span class="mi">8</span><span class="p">),</span><span class="k">INTENT</span><span class="p">(</span><span class="n">OUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">wght</span><span class="p">(</span><span class="n">nb</span><span class="p">,</span><span class="n">nb</span><span class="p">,</span><span class="n">ngw</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="n">ngw</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span><span class="n">ngw</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>The integration weights.</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">INTEGER</span><span class="p">,</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">),</span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">comm</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>Optional argument. Communicators for MPI such as <code class="docutils literal notranslate"><span class="pre">MPI_COMM_WORLD</span></code>.
+Only for MPI / Hybrid parallelization.
+For C compiler without MPI, just pass <code class="docutils literal notranslate"><span class="pre">NULL</span></code> to omit this argment.</p>
+</div></blockquote>
+</div></blockquote>
+</section>
+<section id="phonon-linewidth">
+<h2>Phonon linewidth<a class="headerlink" href="#phonon-linewidth" title="Permalink to this heading">¶</a></h2>
+<div class="math notranslate nohighlight">
+\[\begin{align}
+\sum_{n n'}
+\int_{\rm BZ} \frac{d^3 k}{V_{\rm BZ}}
+\theta(\varepsilon_{\rm F} -
+\varepsilon_{n k}) \theta(\varepsilon'_{n' k} - \varepsilon_{\rm F})
+\delta(\varepsilon'_{n' k} - \varepsilon_{n k} - \omega)
+X_{n n' k}(\omega)
+\end{align}\]</div>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="k">CALL </span><span class="n">libtetrabz_fermigr</span><span class="p">(</span><span class="n">ltetra</span><span class="p">,</span><span class="n">bvec</span><span class="p">,</span><span class="n">nb</span><span class="p">,</span><span class="n">nge</span><span class="p">,</span><span class="n">eig1</span><span class="p">,</span><span class="n">eig2</span><span class="p">,</span><span class="n">ngw</span><span class="p">,</span><span class="n">wght</span><span class="p">,</span><span class="n">ne</span><span class="p">,</span><span class="n">e0</span><span class="p">,</span><span class="n">comm</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Parameters</p>
+<blockquote>
+<div><div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">INTEGER</span><span class="p">,</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ltetra</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>Specify the type of the tetrahedron method.
+1 <span class="math notranslate nohighlight">\(\cdots\)</span> the linear tetrahedron method.
+2 <span class="math notranslate nohighlight">\(\cdots\)</span> the optimized tetrahedron method <a class="reference internal" href="ref.html#ref"><span class="std std-ref">[1]</span></a>.</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">REAL</span><span class="p">(</span><span class="mi">8</span><span class="p">),</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">bvec</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>Reciprocal lattice vectors (arbitrary unit).
+Because they are used to choose the direction of tetrahedra,
+only their ratio is used.</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">INTEGER</span><span class="p">,</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">nb</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>The number of bands.</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">INTEGER</span><span class="p">,</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">nge</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>Specify the <span class="math notranslate nohighlight">\(k\)</span>-grid
+for input orbital energy.</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">REAL</span><span class="p">(</span><span class="mi">8</span><span class="p">),</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">eig1</span><span class="p">(</span><span class="n">nb</span><span class="p">,</span><span class="n">nge</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="n">nge</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span><span class="n">nge</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>The orbital energy measured from the Fermi energy
+( <span class="math notranslate nohighlight">\(\varepsilon_{\rm F} = 0\)</span> ).
+Do the same with <code class="docutils literal notranslate"><span class="pre">eig2</span></code>.</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">REAL</span><span class="p">(</span><span class="mi">8</span><span class="p">),</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">eig2</span><span class="p">(</span><span class="n">nb</span><span class="p">,</span><span class="n">nge</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="n">nge</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span><span class="n">nge</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>Another orbital energy.
+E.g. <span class="math notranslate nohighlight">\(\varepsilon_{k + q}\)</span> on a shifted grid.</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">INTEGER</span><span class="p">,</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ngw</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>Specify the <span class="math notranslate nohighlight">\(k\)</span>-grid for output integration weights.
+You can make <code class="docutils literal notranslate"><span class="pre">ngw</span></code> <span class="math notranslate nohighlight">\(\neq\)</span> <code class="docutils literal notranslate"><span class="pre">nge</span></code> (See <a class="reference internal" href="app.html#app"><span class="std std-ref">Appendix</span></a>).</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">REAL</span><span class="p">(</span><span class="mi">8</span><span class="p">),</span><span class="k">INTENT</span><span class="p">(</span><span class="n">OUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">wght</span><span class="p">(</span><span class="n">ne</span><span class="p">,</span><span class="n">nb</span><span class="p">,</span><span class="n">nb</span><span class="p">,</span><span class="n">ngw</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="n">ngw</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span><span class="n">ngw</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>The integration weights.</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">INTEGER</span><span class="p">,</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ne</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>The number of branches of the phonon.</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">REAL</span><span class="p">(</span><span class="mi">8</span><span class="p">),</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">e0</span><span class="p">(</span><span class="n">ne</span><span class="p">)</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>Phonon frequencies.</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">INTEGER</span><span class="p">,</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">),</span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">comm</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>Optional argument. Communicators for MPI such as <code class="docutils literal notranslate"><span class="pre">MPI_COMM_WORLD</span></code>.
+Only for MPI / Hybrid parallelization.
+For C compiler without MPI, just pass <code class="docutils literal notranslate"><span class="pre">NULL</span></code> to omit this argment.</p>
+</div></blockquote>
+</div></blockquote>
+</section>
+<section id="polarization-function-complex-frequency">
+<h2>Polarization function (complex frequency)<a class="headerlink" href="#polarization-function-complex-frequency" title="Permalink to this heading">¶</a></h2>
+<div class="math notranslate nohighlight">
+\[\begin{align}
+\sum_{n n'}
+\int_{\rm BZ} \frac{d^3 k}{V_{\rm BZ}}
+\frac{\theta(\varepsilon_{\rm F} - \varepsilon_{n k})
+\theta(\varepsilon'_{n' k} - \varepsilon_{\rm F})}
+{\varepsilon'_{n' k} - \varepsilon_{n k} + i \omega}
+X_{n n' k}(\omega)
+\end{align}\]</div>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="k">CALL </span><span class="n">libtetrabz_polcmplx</span><span class="p">(</span><span class="n">ltetra</span><span class="p">,</span><span class="n">bvec</span><span class="p">,</span><span class="n">nb</span><span class="p">,</span><span class="n">nge</span><span class="p">,</span><span class="n">eig1</span><span class="p">,</span><span class="n">eig2</span><span class="p">,</span><span class="n">ngw</span><span class="p">,</span><span class="n">wght</span><span class="p">,</span><span class="n">ne</span><span class="p">,</span><span class="n">e0</span><span class="p">,</span><span class="n">comm</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Parameters</p>
+<blockquote>
+<div><div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">INTEGER</span><span class="p">,</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ltetra</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>Specify the type of the tetrahedron method.
+1 <span class="math notranslate nohighlight">\(\cdots\)</span> the linear tetrahedron method.
+2 <span class="math notranslate nohighlight">\(\cdots\)</span> the optimized tetrahedron method <a class="reference internal" href="ref.html#ref"><span class="std std-ref">[1]</span></a>.</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">REAL</span><span class="p">(</span><span class="mi">8</span><span class="p">),</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">bvec</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>Reciprocal lattice vectors (arbitrary unit).
+Because they are used to choose the direction of tetrahedra,
+only their ratio is used.</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">INTEGER</span><span class="p">,</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">nb</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>The number of bands.</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">INTEGER</span><span class="p">,</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">nge</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>Specify the <span class="math notranslate nohighlight">\(k\)</span>-grid
+for input orbital energy.</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">REAL</span><span class="p">(</span><span class="mi">8</span><span class="p">),</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">eig1</span><span class="p">(</span><span class="n">nb</span><span class="p">,</span><span class="n">nge</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="n">nge</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span><span class="n">nge</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>The orbital energy measured from the Fermi energy
+( <span class="math notranslate nohighlight">\(\varepsilon_{\rm F} = 0\)</span> ).
+Do the same with <code class="docutils literal notranslate"><span class="pre">eig2</span></code>.</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">REAL</span><span class="p">(</span><span class="mi">8</span><span class="p">),</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">eig2</span><span class="p">(</span><span class="n">nb</span><span class="p">,</span><span class="n">nge</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="n">nge</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span><span class="n">nge</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>Another orbital energy.
+E.g. <span class="math notranslate nohighlight">\(\varepsilon_{k + q}\)</span> on a shifted grid.</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">INTEGER</span><span class="p">,</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ngw</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>Specify the <span class="math notranslate nohighlight">\(k\)</span>-grid for output integration weights.
+You can make <code class="docutils literal notranslate"><span class="pre">ngw</span></code> <span class="math notranslate nohighlight">\(\neq\)</span> <code class="docutils literal notranslate"><span class="pre">nge</span></code> (See <a class="reference internal" href="app.html#app"><span class="std std-ref">Appendix</span></a>).</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">COMPLEX</span><span class="p">(</span><span class="mi">8</span><span class="p">),</span><span class="k">INTENT</span><span class="p">(</span><span class="n">OUT</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">wght</span><span class="p">(</span><span class="n">ne</span><span class="p">,</span><span class="n">nb</span><span class="p">,</span><span class="n">nb</span><span class="p">,</span><span class="n">ngw</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="n">ngw</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span><span class="n">ngw</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>The integration weights.</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">INTEGER</span><span class="p">,</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ne</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>The number of imaginary frequencies where
+polarization functions are calculated.</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">COMPLEX</span><span class="p">(</span><span class="mi">8</span><span class="p">),</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">e0</span><span class="p">(</span><span class="n">ne</span><span class="p">)</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>Complex frequencies where
+polarization functions are calculated.</p>
+</div></blockquote>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="kt">INTEGER</span><span class="p">,</span><span class="k">INTENT</span><span class="p">(</span><span class="n">IN</span><span class="p">),</span><span class="k">OPTIONAL</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">comm</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>Optional argument. Communicators for MPI such as <code class="docutils literal notranslate"><span class="pre">MPI_COMM_WORLD</span></code>.
+Only for MPI / Hybrid parallelization.
+For C compiler without MPI, just pass <code class="docutils literal notranslate"><span class="pre">NULL</span></code> to omit this argment.</p>
+</div></blockquote>
+</div></blockquote>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="index.html">
+              <img class="logo" src="_static/libtetrabz.png" alt="Logo"/>
+            </a></p>
+  <div>
+    <h3><a href="index.html">Table of Contents</a></h3>
+    <ul>
+<li><a class="reference internal" href="#">Subroutines</a><ul>
+<li><a class="reference internal" href="#total-energy-charge-density-occupations">Total energy, charge density, occupations</a></li>
+<li><a class="reference internal" href="#fermi-energy-and-occupations">Fermi energy and occupations</a></li>
+<li><a class="reference internal" href="#partial-density-of-states">Partial density of states</a></li>
+<li><a class="reference internal" href="#integrated-density-of-states">Integrated density of states</a></li>
+<li><a class="reference internal" href="#nesting-function-and-fr-oumlhlich-parameter">Nesting function and Fr&amp;oumlhlich parameter</a></li>
+<li><a class="reference internal" href="#a-part-of-dfpt-calculation">A part of DFPT calculation</a></li>
+<li><a class="reference internal" href="#static-polarization-function">Static polarization function</a></li>
+<li><a class="reference internal" href="#phonon-linewidth">Phonon linewidth</a></li>
+<li><a class="reference internal" href="#polarization-function-complex-frequency">Polarization function (complex frequency)</a></li>
+</ul>
+</li>
+</ul>
+
+  </div>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="link.html"
+                          title="previous chapter">Linking libtetrabz</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="sample.html"
+                          title="next chapter">Piece of sample code</a></p>
+  </div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/routine.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="sample.html" title="Piece of sample code"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="link.html" title="Linking libtetrabz"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">libtetrabz 2.0.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Subroutines</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2017, Mitsuaki Kawamura.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.3.
+    </div>
+  </body>
+</html>

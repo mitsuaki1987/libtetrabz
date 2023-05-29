@@ -1,0 +1,28 @@
+%このファイルは日本語文字を含みます.
+\BOOKMARK [0][-]{chapter.1}{はじめに}{}% 1
+\BOOKMARK [0][-]{chapter.2}{インストール方法}{}% 2
+\BOOKMARK [1][-]{section.2.1}{主なファイルとディレクトリ}{chapter.2}% 3
+\BOOKMARK [1][-]{section.2.2}{要件}{chapter.2}% 4
+\BOOKMARK [1][-]{section.2.3}{インストール手順}{chapter.2}% 5
+\BOOKMARK [1][-]{section.2.4}{configureのオプション}{chapter.2}% 6
+\BOOKMARK [0][-]{chapter.3}{ライブラリのリンク方法}{}% 7
+\BOOKMARK [0][-]{chapter.4}{各サブルーチンの説明}{}% 8
+\BOOKMARK [1][-]{section.4.1}{全エネルギー, 電荷密度等\(占有率の計算\)}{chapter.4}% 9
+\BOOKMARK [1][-]{section.4.2}{Fermi エネルギー\(占有率も同時に計算する\)}{chapter.4}% 10
+\BOOKMARK [1][-]{section.4.3}{\(部分\)状態密度}{chapter.4}% 11
+\BOOKMARK [1][-]{section.4.4}{積分状態密度}{chapter.4}% 12
+\BOOKMARK [1][-]{section.4.5}{ネスティング関数, Fröhlich パラメーター}{chapter.4}% 13
+\BOOKMARK [1][-]{section.4.6}{DFPT 計算の一部}{chapter.4}% 14
+\BOOKMARK [1][-]{section.4.7}{独立分極関数\(静的\)}{chapter.4}% 15
+\BOOKMARK [1][-]{section.4.8}{フォノン線幅等}{chapter.4}% 16
+\BOOKMARK [1][-]{section.4.9}{分極関数\(複素振動数\)}{chapter.4}% 17
+\BOOKMARK [0][-]{chapter.5}{サンプルコード\(抜粋\)}{}% 18
+\BOOKMARK [0][-]{chapter.6}{プログラムの再配布}{}% 19
+\BOOKMARK [1][-]{section.6.1}{自分のプログラムにlibtetrabzを含める}{chapter.6}% 20
+\BOOKMARK [1][-]{section.6.2}{Autoconfを使わずにlibtetrabzをビルドする}{chapter.6}% 21
+\BOOKMARK [1][-]{section.6.3}{MIT ライセンス}{chapter.6}% 22
+\BOOKMARK [0][-]{chapter.7}{問い合わせ先}{}% 23
+\BOOKMARK [0][-]{chapter.8}{補遺}{}% 24
+\BOOKMARK [1][-]{section.8.1}{逆補間}{chapter.8}% 25
+\BOOKMARK [1][-]{section.8.2}{2重デルタ関数の積分}{chapter.8}% 26
+\BOOKMARK [0][-]{chapter.9}{参考文献}{}% 27

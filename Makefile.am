@@ -1,16 +1,16 @@
 ACLOCAL_AMFLAGS = -I config/m4
 SUBDIRS = src test example
 MAINTAINERCLEANFILES = Makefile.in aclocal.m4 configure
-EXTRA_DIST = doc
+EXTRA_DIST = docs
 
-docs:
-	cd doc/ja/;make latexpdf; make html
-	cd doc/en/;make latexpdf; make html
+doc:
+	cd docs/ja/;make latexpdf; make html
+	cd docs/en/;make latexpdf; make html
 
-pngdocs:
-	cd doc/ja/;sed -i -e "s/mathjax/pngmath/g" conf.py; make latexpdf; make html
-	cd doc/en/;sed -i -e "s/mathjax/pngmath/g" conf.py; make latexpdf; make html
+pngdoc:
+	cd docs/ja/;sed -i -e "s/mathjax/pngmath/g" conf.py; make latexpdf; make html
+	cd docs/en/;sed -i -e "s/mathjax/pngmath/g" conf.py; make latexpdf; make html
 
-docs-clean:
-	cd doc/ja/; make clean; sed -i -e "s/pngmath/mathjax/g" conf.py
-	cd doc/en/; make clean; sed -i -e "s/pngmath/mathjax/g" conf.py
+doc-clean:
+	cd docs/ja/; make clean; sed -i -e "s/pngmath/mathjax/g" conf.py
+	cd docs/en/; make clean; sed -i -e "s/pngmath/mathjax/g" conf.py
