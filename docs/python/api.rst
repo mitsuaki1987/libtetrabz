@@ -128,7 +128,7 @@ Partial density of states
 
 .. code-block:: python
 
-    wght = libtetrabz.occ(bvec, eig, e0)
+    wght = libtetrabz.dos(bvec, eig, e0)
 ..
 
 Parameters
