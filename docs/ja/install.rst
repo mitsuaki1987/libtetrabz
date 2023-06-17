@@ -24,7 +24,7 @@
 
 #. 以下の場所から ``.tar.gz`` ファイルをダウンロードする.
 
-   http://osdn.jp/projects/libtetrabz/releases/
+   https://github.com/mitsuaki1987/libtetrabz/releases/
                
 #. ダウンロードした ``.tar.gz`` ファイルを展開し,
    出来たディレクトリに入る.

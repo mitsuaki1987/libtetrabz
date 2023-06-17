@@ -25,7 +25,7 @@ Installation guide
 
 #. Download ``.tar.gz`` file from following web page.
 
-   http://osdn.jp/projects/libtetrabz/releases/
+   https://github.com/mitsuaki1987/libtetrabz/releases/
                
 #. Uncompress ``.tar.gz`` file and enter the generated directory.
 

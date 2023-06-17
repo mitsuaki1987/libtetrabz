@@ -1,9 +1,9 @@
 # Fdb version 3
-["dvipdf"] 1685344882 "libtetrabz.dvi" "libtetrabz.pdf" "libtetrabz" 1685344883
-  "libtetrabz.dvi" 1685344882 217812 51320452c0f792bfe642325b50702ad1 "latex"
+["dvipdf"] 1686985494 "libtetrabz.dvi" "libtetrabz.pdf" "libtetrabz" 1686985495
+  "libtetrabz.dvi" 1686985494 217828 6d15d210b2446904d0facd0534e133fb "latex"
   (generated)
   "libtetrabz.pdf"
-["latex"] 1685344880 "libtetrabz.tex" "libtetrabz.dvi" "libtetrabz" 1685344883
+["latex"] 1686985492 "libtetrabz.tex" "libtetrabz.dvi" "libtetrabz" 1686985495
   "/etc/texmf/web2c/texmf.cnf" 1638167428 475 c0e671620eb5563b2130f56340a5fde8 ""
   "/usr/share/texlive/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/jknappen/ec/ecrm1000.tfm" 1136768653 3584 adb004a0c8e7c46ee66cad73671f37b4 ""
@@ -122,18 +122,18 @@
   "/usr/share/texmf/tex/latex/tex-gyre/tgtermes.sty" 1480098840 2211 af9b7d12507105a58a3e8e926996b827 ""
   "/usr/share/texmf/tex/latex/tex-gyre/ts1qtm.fd" 1480098840 1160 de7b1cf70edab73c9f1704df2a9fdbbd ""
   "/usr/share/texmf/web2c/texmf.cnf" 1581979058 38841 ce3692aa899bb693b90b87eaa5d4d84e ""
-  "/var/lib/texmf/web2c/euptex/uplatex.fmt" 1652343824 7349709 ee916add49f62b503be38a76946a37e2 ""
+  "/var/lib/texmf/web2c/euptex/uplatex.fmt" 1685935792 7350114 0fee03976752baa990c83f1f69b20661 ""
   "dbldelta.png" 1598671103 33093 836161715152bac7fc65b0d695a81372 ""
   "dos.png" 1598671103 182276 b34db97c3e07aa5f85dc940584c9c8f0 ""
-  "libtetrabz.aux" 1685344882 10276 d1cbcfcbccbb1d322651288fa344d8d4 "latex"
-  "libtetrabz.ind" 1685344879 0 d41d8cd98f00b204e9800998ecf8427e "makeindex libtetrabz.idx"
-  "libtetrabz.out" 1685344882 1969 f6b8a649fc691fac645739b5e2459714 "latex"
+  "libtetrabz.aux" 1686985494 10276 d1cbcfcbccbb1d322651288fa344d8d4 "latex"
+  "libtetrabz.ind" 1686985491 0 d41d8cd98f00b204e9800998ecf8427e "makeindex libtetrabz.idx"
+  "libtetrabz.out" 1686985494 1969 f6b8a649fc691fac645739b5e2459714 "latex"
   "libtetrabz.png" 1607348543 49579 6495ffc4708329d5f791a7e1e591d751 ""
-  "libtetrabz.tex" 1685344877 83645 3476251391e2adefdc189a9d377be648 ""
-  "libtetrabz.toc" 1685344882 2396 d24f11d0b052a92567926eff4a82cb78 "latex"
+  "libtetrabz.tex" 1686985489 83653 4bec95d9191b40535a7dde9183c421e6 ""
+  "libtetrabz.toc" 1686985494 2396 d24f11d0b052a92567926eff4a82cb78 "latex"
   "lindhard.png" 1598671103 135262 09ba1b7dea47947d128db367f7abcd3b ""
   "sphinx.sty" 1674187196 37265 50572eeec4202001a83497a0a8dd9200 ""
-  "sphinxhighlight.sty" 1685344876 7490 72d023191655734567e0798eade2a1f7 ""
+  "sphinxhighlight.sty" 1686985489 7490 72d023191655734567e0798eade2a1f7 ""
   "sphinxlatexadmonitions.sty" 1674187196 11813 d5a61d0da970f5333ff4ad0e352c2bff ""
   "sphinxlatexcontainers.sty" 1674187196 901 d3a3a1b7b2547f47ade2499350b5c420 ""
   "sphinxlatexgraphics.sty" 1674187196 4840 a9578332b6f3b35e198751fb632c9b79 ""
@@ -148,20 +148,20 @@
   "sphinxlatexstyletext.sty" 1674187196 6310 230e9c67ef82453e767773679e1f6816 ""
   "sphinxlatextables.sty" 1674187196 57830 6dde33374ef653202d83f31844e4f3c5 ""
   "sphinxmanual.cls" 1674187196 4241 7b0d7a37df7b5715fb0dbd585c52ecdb ""
-  "sphinxmessages.sty" 1685344877 700 a457a08d4831c4f4359070a666879914 ""
+  "sphinxmessages.sty" 1686985489 700 a457a08d4831c4f4359070a666879914 ""
   "sphinxoptionsgeometry.sty" 1674187196 2061 47bb34b8ed8a78823eb0c886abfb9f4d ""
   "sphinxoptionshyperref.sty" 1674187196 1094 79beb8b8a3f10784f8cce804e0f9d3aa ""
   "sphinxpackageboxes.sty" 1674187196 18408 cacf96116848f46194438f1e659006ed ""
   "sphinxpackagefootnote.sty" 1674187196 15254 d93f70cf000a9adb198015bf1b2f136c ""
   (generated)
-  "libtetrabz.aux"
+  "libtetrabz.idx"
   "libtetrabz.log"
+  "libtetrabz.out"
+  "libtetrabz.aux"
   "libtetrabz.toc"
   "libtetrabz.dvi"
-  "libtetrabz.out"
-  "libtetrabz.idx"
-["makeindex libtetrabz.idx"] 1685344879 "libtetrabz.idx" "libtetrabz.ind" "libtetrabz" 1685344883
-  "libtetrabz.idx" 1685344881 0 d41d8cd98f00b204e9800998ecf8427e "latex"
+["makeindex libtetrabz.idx"] 1686985491 "libtetrabz.idx" "libtetrabz.ind" "libtetrabz" 1686985495
+  "libtetrabz.idx" 1686985493 0 d41d8cd98f00b204e9800998ecf8427e "latex"
   (generated)
-  "libtetrabz.ind"
   "libtetrabz.ilg"
+  "libtetrabz.ind"
