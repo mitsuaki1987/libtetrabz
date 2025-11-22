@@ -33,7 +33,7 @@ def test_occ(nb, bvec, vbz, eig, mat):
     #
     wght = libtetrabz.occ(bvec, eig - 0.5)
     #
-    val = numpy.empty(2, dtype=numpy.float_)
+    val = numpy.empty(2, dtype=numpy.float64)
     for ib in range(nb):
         val[ib] = numpy.sum(wght[:, :, :, ib] * mat[:, :, :])
     print("# libtetrabz_occ")
@@ -52,7 +52,7 @@ def test_fermieng(nb, bvec, vbz, eig, mat):
 
     ef, wght, iterations = libtetrabz.fermieng(bvec, eig, nelec)
     #
-    val = numpy.empty(2, dtype=numpy.float_)
+    val = numpy.empty(2, dtype=numpy.float64)
     for ib in range(nb):
         val[ib] = numpy.sum(wght[:, :, :, ib] * mat[:, :, :])
     #
@@ -70,9 +70,9 @@ def test_dos(nb, bvec, vbz, eig, mat):
     """
     ne = 5
     #
-    e0 = numpy.empty(ne, dtype=numpy.float_)
-    val0 = numpy.empty([nb, ne], dtype=numpy.float_)
-    val = numpy.empty([nb, ne], dtype=numpy.float_)
+    e0 = numpy.empty(ne, dtype=numpy.float64)
+    val0 = numpy.empty([nb, ne], dtype=numpy.float64)
+    val = numpy.empty([nb, ne], dtype=numpy.float64)
     for ie in range(ne):
         e0[ie] = 0.2 * (ie + 1)
         val0[0, ie] = 4.0 * numpy.pi * e0[ie]**3
@@ -101,9 +101,9 @@ def test_intdos(nb, bvec, vbz, eig, mat):
     :return:
     """
     ne = 5
-    e0 = numpy.empty(ne, dtype=numpy.float_)
-    val0 = numpy.empty([nb, ne], dtype=numpy.float_)
-    val = numpy.empty([nb, ne], dtype=numpy.float_)
+    e0 = numpy.empty(ne, dtype=numpy.float64)
+    val0 = numpy.empty([nb, ne], dtype=numpy.float64)
+    val = numpy.empty([nb, ne], dtype=numpy.float64)
     #
     for ie in range(ne):
         e0[ie] = 0.2 * (ie + 1)
@@ -140,7 +140,7 @@ def test_dblstep(nb, bvec, vbz, eig1, eig2, mat):
     #
     wght = libtetrabz.dblstep(bvec, eig1 - 0.5, eig2 - 0.5)
     #
-    val = numpy.empty([nb, nb], dtype=numpy.float_)
+    val = numpy.empty([nb, nb], dtype=numpy.float64)
     for ib in range(nb):
         for jb in range(nb):
             val[ib, jb] = numpy.sum(wght[:, :, :, ib, jb] * mat[:, :, :])
@@ -166,7 +166,7 @@ def test_dbldelta(nb, bvec, vbz, eig1, eig2, mat):
     #
     wght = libtetrabz.dbldelta(bvec, eig1 - 0.5, eig2 - 0.5)
     #
-    val = numpy.empty([nb, nb], dtype=numpy.float_)
+    val = numpy.empty([nb, nb], dtype=numpy.float64)
     for ib in range(nb):
         for jb in range(nb):
             val[ib, jb] = numpy.sum(wght[:, :, :, ib, jb] * mat[:, :, :])
@@ -190,7 +190,7 @@ def test_polstat(nb, bvec, vbz, eig1, eig2, mat):
     """
     wght = libtetrabz.polstat(bvec, eig1 - 0.5, eig2 - 0.5)
     #
-    val = numpy.empty([nb, nb], dtype=numpy.float_)
+    val = numpy.empty([nb, nb], dtype=numpy.float64)
     for ib in range(nb):
         for jb in range(nb):
             val[ib, jb] = numpy.sum(wght[:, :, :, ib, jb] * mat[:, :, :])
@@ -218,9 +218,9 @@ def test_fermigr(nb, bvec, vbz, eig1, eig2, mat):
     """
     ne = 3
     #
-    e0 = numpy.empty(ne, dtype=numpy.float_)
-    val0 = numpy.empty([nb, nb, ne], dtype=numpy.float_)
-    val = numpy.empty([nb, nb, ne], dtype=numpy.float_)
+    e0 = numpy.empty(ne, dtype=numpy.float64)
+    val0 = numpy.empty([nb, nb, ne], dtype=numpy.float64)
+    val = numpy.empty([nb, nb, ne], dtype=numpy.float64)
     e0[0] = 1.0 / 3.0
     e0[1] = 2.0 / 3.0
     e0[2] = 1.0
@@ -258,9 +258,9 @@ def test_polcmplx(nb, bvec, vbz, eig1, eig2, mat):
     :return:
     """
     ne = 3
-    e0 = numpy.empty(ne, dtype=numpy.complex_)
-    val0 = numpy.empty([nb, nb, ne], dtype=numpy.complex_)
-    val = numpy.empty([nb, nb, ne], dtype=numpy.complex_)
+    e0 = numpy.empty(ne, dtype=numpy.complex128)
+    val0 = numpy.empty([nb, nb, ne], dtype=numpy.complex128)
+    val = numpy.empty([nb, nb, ne], dtype=numpy.complex128)
     e0[0] = -2.0 + 1.0j
     e0[1] = 0.0 + 2.0j
     e0[2] = 1.0 - 0.5j
@@ -299,11 +299,11 @@ def test():
     vbz = abs(numpy.linalg.det(bvec))
 
     #
-    eig1 = numpy.empty([ng[0], ng[1], ng[2], nb], dtype=numpy.float_)
-    eig2 = numpy.empty([ng[0], ng[1], ng[2], nb], dtype=numpy.float_)
-    mat = numpy.empty([ng[0], ng[1], ng[2]], dtype=numpy.float_)
+    eig1 = numpy.empty([ng[0], ng[1], ng[2], nb], dtype=numpy.float64)
+    eig2 = numpy.empty([ng[0], ng[1], ng[2], nb], dtype=numpy.float64)
+    mat = numpy.empty([ng[0], ng[1], ng[2]], dtype=numpy.float64)
     #
-    kvec = numpy.empty(3, dtype=numpy.float_)
+    kvec = numpy.empty(3, dtype=numpy.float64)
     for i0 in range(ng[1]):
         for i1 in range(ng[1]):
             for i2 in range(ng[2]):

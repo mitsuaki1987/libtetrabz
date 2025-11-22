@@ -231,7 +231,7 @@ def polcmplx(bvec=numpy.array([1.0, 0.0, 0.0]),
     eig1_c = eig1.reshape(nk * nb).tolist()
     eig2_c = eig2.reshape(nk * nb).tolist()
 
-    e0_1 = numpy.empty([ne, 2], dtype=numpy.float_)
+    e0_1 = numpy.empty([ne, 2], dtype=numpy.float64)
     e0_1[:, 0] = e0[:].real
     e0_1[:, 1] = e0[:].imag
     e0_c = e0_1.reshape(ne * 2).tolist()
