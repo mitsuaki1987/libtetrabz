@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="libtetrabz",
-    version="0.1.1",
+    version="0.1.2",
     author="Mitsuaki Kawamura",
     author_email="kawamitsuaki@gmail.com",
     description="Optimized tetrahedron method to perform brillouin-zone integral",
